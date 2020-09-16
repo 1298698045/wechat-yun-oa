@@ -510,7 +510,7 @@ export default {
                     id:this.journalismId
                 }
             }).then(res=>{
-                console.log(res);
+                console.log(res); 
                 this.readerList = res.listData;
                 // CreatedOn
                 this.readerList.map(item=>{
