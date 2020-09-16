@@ -121,7 +121,7 @@
                         <p>{{item.CreatedByName}}</p>
                     </div>
                     <div class="row">
-                        <p class="name">{{item.CreatedByName}}</p>
+                        <p class="name">{{item.name}}</p>
                         <p class="dept">{{item.BusinessUnitName}}</p>
                         <p class="cont">{{item.Comment}}</p>
                         <p class="info"><span>{{item.CreatedOn}}</span></p>
@@ -134,7 +134,7 @@
                 </div>
                 <div class="content" v-for="(item,index) in readerList" :key="index" v-if="current=='tab2'">
                     <div class="row">
-                        <p>{{item.ReaderIdName}}</p>
+                        <p>{{item.name}}</p>
                     </div>
                     <div class="row">
                         <p class="name">{{item.ReaderIdName}}</p>
@@ -482,6 +482,11 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.commentList = res.listData;
+                this.commentList.map(item=>{
+                    const name = this.strIntercept(item.CreatedByName);
+                    item.name = name;
+                    return item;
+                })
             })
         },
         handleChangeTab(e){
@@ -511,6 +516,8 @@ export default {
                 this.readerList.map(item=>{
                     const time = getDate(item.CreatedOn.replace(/-/g,'/'));
                     item.time = time;
+                    const name = this.strIntercept(item.ReaderIdName);
+                    item.name = name;
                     return item;
                 })
             })
