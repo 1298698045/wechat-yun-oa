@@ -1,7 +1,7 @@
 <template>
     <div class="wrap">
         <h3>可能需要的Wi-Fi</h3>
-        <div class="content">
+        <div class="content_">
             <!-- <radio-group @change="changeRadio">
                 <radio class="radio" :value="123">
                     <div class="cont">
@@ -11,15 +11,15 @@
                     </div>
                 </radio>
             </radio-group> -->
-            <radio-group @change="changeRadio">
-                <radio class="radio" :value="item.SSID+','+item.BSSID" v-for="(item,index) in wifiList" :key="index">
+            <van-radio-group :value="radio" @change="changeRadio">
+                <van-radio custom-class="radio" :style="{'width':wdith+'px'}" :name="item.SSID+','+item.BSSID" v-for="(item,index) in wifiList" :key="index">
                     <div class="cont">
                         <p>{{item.SSID}}</p>
                         <p>{{item.BSSID}}</p>
                         <p>你附近的</p>
                     </div>
-                </radio>
-            </radio-group>
+                </van-radio>
+            </van-radio-group>
         </div>
         <div class="footer">
             <div class="box">
@@ -36,10 +36,14 @@ export default {
             wifiList:[],
             groupList:[],
             SSID:"",
-            BSSID:""
+            BSSID:"",
+            wdith:"",
+            radio:""
         }
     },
     onLoad(){
+        this.wdith = wx.getSystemInfoSync().windowWidth;
+        console.log(this.wdith,'-------')
         wx.setNavigationBarTitle({
             title: '添加办公Wi-Fi'
         })
@@ -48,7 +52,16 @@ export default {
     methods:{
         getWifiList(){
             let that = this;
-            that.wifiList = [];
+            that.wifiList = [
+                // {
+                //     SSID:'24234',
+                //     BSSID:"sfsdfdsf"
+                // },
+                // {
+                //     SSID:'2423434',
+                //     BSSID:"sfs234dfdsf"
+                // }
+            ];
             wx.startWifi({
             success:function(e){
                     wx.getWifiList({
@@ -75,7 +88,9 @@ export default {
             // }
             // this.SSID = SSID;
             // this.BSSID = BSSID;
-            let item = e.mp.detail.value.split(',');
+            console.log(e,'-')
+            this.radio = e.mp.detail;
+            let item = e.mp.detail.split(',');
             this.SSID = item[0];
             this.BSSID = item[1];
             console.log(this.SSID,this.BSSID,'123123');
@@ -97,20 +112,20 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
     .wrap{
         h3{
             padding: 31rpx 33rpx;
             color: #999999;
             font-size: 26rpx;
         }
-        .content{
+        .content_{
             padding-bottom: 80px;
             .radio{
-                width: 100%;
-                background: #fff;
-                padding: 20rpx 33rpx;
-                border-bottom: 2rpx solid #e2e4e3;
+                width: 375px !important;
+                background: #fff !important;
+                padding: 20rpx 33rpx !important;
+                border-bottom: 2rpx solid #e2e4e3 !important;
                 .cont{
                     margin-left: 20rpx;
                     p:nth-child(1){

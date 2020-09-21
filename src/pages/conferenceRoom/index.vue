@@ -500,8 +500,8 @@ export default {
             }).then(res=>{
                 console.log(res);
                 // this.myAppointmentList = res.listData;
-                this.myAppointmentList = res.Reserved.Table;
-                this.finishedList = res.Cancelled.Table;
+                this.myAppointmentList = res.Reserved;
+                this.finishedList = res.Cancelled;
             })
         },
         // 我的审批

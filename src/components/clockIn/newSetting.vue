@@ -453,7 +453,7 @@ export default {
                     flex: 1;
                     margin-left: 20rpx;
                     p{
-                        font-size: 24rpx;
+                        font-size: 26rpx;
                         color: #cccccc;
                     }
                 }
@@ -470,7 +470,7 @@ export default {
                         color: #333333;
                     }
                     .code{
-                        font-size: 24rpx;
+                        font-size: 26rpx;
                         color: #999999;
                     }
                     .blue{

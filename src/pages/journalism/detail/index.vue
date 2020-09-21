@@ -150,9 +150,9 @@
             <div class="top" @click="getCloseOver">
 
             </div>
-            <div class="bottom">
+            <div class="bottom" :style="{'bottom':keyboardHeight+'px'}">
                 <div class="box">
-                    <textarea class="textarea" v-model="comment" @blur="getBlur" :show-confirm-bar="false" cursor-spacing='140' placeholder="我来说两句..." :auto-focus="true" name="" id="" maxlength="500" cols="30" rows="10"></textarea>
+                    <textarea class="textarea" v-model="comment" fixed="true"  confirm-hold="true"  @blur="getBlur" :adjust-position="false" :show-confirm-bar="false" cursor-spacing='140' placeholder="我来说两句..." :auto-focus="true" name="" id="" maxlength="500" cols="30" rows="10"></textarea>
                     <div class="total">
                         <p>
                             {{contentSize}}/{{total}}
@@ -263,7 +263,8 @@ export default {
             total:500,
             sessionkey:"",
             KeyWords:[],
-            // journalismId:"804d311c-850a-47c0-9a23-49037a37c518"
+            // journalismId:"804d311c-850a-47c0-9a23-49037a37c518",
+            keyboardHeight:""
         }
     },
     onUnload(){
@@ -302,6 +303,10 @@ export default {
         this.getRelevantCont();
         this.getCommentsList();
         this.getEnclosure();
+        wx.onKeyboardHeightChange(res => { //监听键盘高度变化
+            console.log(res.height,'res');
+            this.keyboardHeight = res.height;
+        })
     },
     computed:{
         contentSize(){

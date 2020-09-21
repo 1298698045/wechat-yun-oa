@@ -114,8 +114,8 @@
                                 <p class="name">{{item.name}}</p>
                             </div>
                             <div class="text">
-                                <p>{{item.FullName}}</p>
-                                <p class="dept">{{'item.deptName'}}</p>
+                                <p>{{item.fullname}}</p>
+                                <p class="dept">{{item.businessunitidname}}</p>
                             </div>
                         </div>
                     </div>
@@ -180,12 +180,12 @@ export default {
             }).then(res=>{
                 this.list = res;
                 this.list.map(item=>{
-                    if(item.FullName.length>2){
+                    if(item.fullname.length>2){
 
-                        const name = item.FullName.substr(1);
+                        const name = item.fullname.substr(1);
                         item.name = name;
                     }else {
-                        item.name = item.FullName;
+                        item.name = item.fullname;
                     }
                     return item;
                 })

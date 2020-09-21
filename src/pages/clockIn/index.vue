@@ -49,9 +49,10 @@
                 <span>缺卡</span>
                 <p class="apply" @click="getApplyClock(item)">申请打卡<i-icon type="enter" /></p>
               </div>
-              <div class="roundWrap" v-if="item.status==0">
+              <!-- 无法打开unableCode==0 -->
+              <div class="roundWrap" v-if="item.status==0||item.unableCode==0">
                 <!-- <div class="round" :class="item.timestamp==0?'zaotui':item.overTime==0?'zaotui':''" @click="getClockIn(item)"> -->
-                <div class="round" :class="back" @click="getClockIn(item)">
+                <div class="round" :class="back" @click="item.unableCode!=0?getClockIn(item):''">
                   <div>
                     <p class="pm">
                       {{item.CheckTypeName}}
@@ -61,7 +62,7 @@
                   </div>
                 </div>
               </div>
-              <div class="clockInAdress"  v-if="item.status==0">
+              <div class="clockInAdress"  v-if="item.status==0||item.unableCode==0">
                 <p v-if="rangeStatus">
                   <span>
                     <i-icon type="right" />
@@ -267,7 +268,8 @@ export default {
         commentLocation:"",
         commentRemark:"",
         comentShow:"",
-        attendAdmin:''
+        attendAdmin:'',
+        isGroup:true
     };
   },
   computed:{
@@ -421,14 +423,22 @@ export default {
             var clockInStatus = '';
             // status 0:上班打卡1:下班打卡2:迟到打卡3:早退打卡4:外勤上班打卡5:外勤下班打卡6:迟到外勤打卡7:早退外勤打卡
             if(item.AbnormalCode=='-1'&&item.timestamp=='0'&&item.CheckType=='1'&&this.rangeStatus==false){
-              // 早退外勤打卡
-              CheckTypeName = '外勤打卡';
-              this.$set(item,'CheckTypeName',CheckTypeName);
-              this.$set(item,'clockInCode',2);
-              this.$set(item,'checkTypeCode',3)
-              this.back = 'waiqin';
-              clockInStatus = 7;
-              this.$set(item,'clockInStatus',clockInStatus);
+              if(this.isGroup){
+                // 早退外勤打卡
+                CheckTypeName = '外勤打卡';
+                this.$set(item,'CheckTypeName',CheckTypeName);
+                this.$set(item,'clockInCode',2);
+                this.$set(item,'checkTypeCode',3)
+                this.back = 'waiqin';
+                clockInStatus = 7;
+                this.$set(item,'clockInStatus',clockInStatus);
+              }else {
+                CheckTypeName = '无法打卡';
+                this.$set(item,'CheckTypeName',CheckTypeName);
+                this.back = 'unable';
+                item.unableCode = 0;
+                return false;
+              }
             }else if(item.AbnormalCode=='-1'&&item.timestamp=='0'&&item.CheckType=='1'&&this.rangeStatus==true){
               // CheckTypeName = '早退打卡';
               CheckTypeName = '下班打卡'
@@ -448,23 +458,39 @@ export default {
               clockInStatus = 0;
               this.$set(item,'clockInStatus',clockInStatus);
             }else if(item.AbnormalCode=='-1'&&item.CheckType=='0'&&item.overTime==1&&this.rangeStatus==false){
-              // 外勤上班打卡
-              CheckTypeName = '外勤打卡';
-              this.$set(item,'CheckTypeName',CheckTypeName);
-              this.$set(item,'clockInCode',0);
-              this.$set(item,'checkTypeCode',2)
-              this.back = 'waiqin'
-              clockInStatus = 4;
-              this.$set(item,'clockInStatus',clockInStatus);
+              if(this.isGroup){
+                // 外勤上班打卡
+                CheckTypeName = '外勤打卡';
+                this.$set(item,'CheckTypeName',CheckTypeName);
+                this.$set(item,'clockInCode',0);
+                this.$set(item,'checkTypeCode',2)
+                this.back = 'waiqin'
+                clockInStatus = 4;
+                this.$set(item,'clockInStatus',clockInStatus);
+              }else {
+                CheckTypeName = '无法打卡';
+                this.$set(item,'CheckTypeName',CheckTypeName);
+                this.back = 'unable';
+                item.unableCode = 0;
+                return false;
+              }
             }else if(item.AbnormalCode=='-1'&&item.CheckType=='0'&&item.overTime==0&&this.rangeStatus==false){
-              // 迟到外勤打卡
-              CheckTypeName = '迟到外勤打卡';
-              this.$set(item,'CheckTypeName',CheckTypeName);
-              this.$set(item,'clockInCode',1);
-              this.$set(item,'checkTypeCode',2)
-              this.back = 'zaotui';
-              clockInStatus = 6;
-              this.$set(item,'clockInStatus',clockInStatus);              
+              if(this.isGroup){
+                // 迟到外勤打卡
+                CheckTypeName = '迟到打卡';
+                this.$set(item,'CheckTypeName',CheckTypeName);
+                this.$set(item,'clockInCode',1);
+                this.$set(item,'checkTypeCode',2)
+                this.back = 'zaotui';
+                clockInStatus = 6;
+                this.$set(item,'clockInStatus',clockInStatus);              
+              }else {
+                CheckTypeName = '无法打卡';
+                this.$set(item,'CheckTypeName',CheckTypeName);
+                this.back = 'unable';
+                item.unableCode = 0;
+                return false;
+              }
             } else if(item.AbnormalCode=='-1'&&item.CheckType=='0'&&item.overTime==0&&this.rangeStatus==true){
               CheckTypeName = '迟到打卡';
               this.$set(item,'CheckTypeName',CheckTypeName);
@@ -482,20 +508,32 @@ export default {
               clockInStatus = 1;
               this.$set(item,'clockInStatus',clockInStatus);              
             }else if(item.AbnormalCode=='-1'&&item.CheckType=='1'&&this.rangeStatus==false){
-              // 外勤下班打卡
-              CheckTypeName = '外勤打卡';
-              this.$set(item,'CheckTypeName',CheckTypeName);
-              this.$set(item,'clockInCode',0);
-              this.$set(item,'checkTypeCode',3)
-              this.back = 'waiqin';
-              clockInStatus = 5;
-              this.$set(item,'clockInStatus',clockInStatus);
+              if(isGroup){
+                // 外勤下班打卡
+                CheckTypeName = '外勤打卡';
+                this.$set(item,'CheckTypeName',CheckTypeName);
+                this.$set(item,'clockInCode',0);
+                this.$set(item,'checkTypeCode',3)
+                this.back = 'waiqin';
+                clockInStatus = 5;
+                this.$set(item,'clockInStatus',clockInStatus);
+              }else {
+                CheckTypeName = '无法打卡';
+                this.$set(item,'CheckTypeName',CheckTypeName);
+                this.back = 'unable';
+                item.unableCode = 0;
+                return false;
+              }
             }else if(item.AbnormalCode=='-1'&&item.CheckType=='2'){
-              CheckTypeName = '外勤上班'
-              this.$set(item,'CheckTypeName',CheckTypeName);
+              if(this.isGroup){
+                CheckTypeName = '外勤上班'
+                this.$set(item,'CheckTypeName',CheckTypeName);
+              }
             }else if(item.AbnormalCode=='-1'&&item.CheckType=='3'){
-              CheckTypeName = '外勤下班'
-              this.$set(item,'CheckTypeName',CheckTypeName);
+              if(this.isGroup){
+                CheckTypeName = '外勤下班'
+                this.$set(item,'CheckTypeName',CheckTypeName);
+              }
             }
             if(item.CheckType==0&&item.CheckTime==""&&item.AbnormalCode=='-1'){
               this.$set(item,'status',0);
@@ -981,16 +1019,16 @@ page{
         margin-left: 20rpx;
         .name {
           color: #333333;
-          font-size: 33rpx;
+          font-size: 34rpx;
         }
         .group {
-          color: #526992;
-          font-size: 28rpx;
+          color:#7d8081;
+          font-size: 27rpx;
         }
       }
       .time {
         color: #526992;
-        font-size: 28rpx;
+        font-size: 24rpx;
       }
     }
   }
@@ -1142,6 +1180,11 @@ page{
             box-shadow: 0rpx 10rpx 30rpx rgba(21, 190, 131, 0.4);
             background-image: linear-gradient(to bottom, #72e4b1, #59bc8a);
 
+          }
+          .round.unable{
+            box-shadow: 0rpx 12rpx 47rpx 0rpx rgba(134, 161, 205, 0.3);
+            background-color: #687aa4;
+            background-image: linear-gradient(to bottom , #849eca,#5d6c95);
           }
         }
         .clockInAdress{

@@ -4,13 +4,15 @@
             <i-tab key="tab1" :title="'已打卡('+info.Check+')'"></i-tab>
             <i-tab key="tab2" :title="'应到但未打卡('+info.NotCheck+')'"></i-tab>
         </i-tabs>
-        <div class="header">
-            <p :class="{active:num==index}" v-for="(item,index) in current=='tab1'?list:listT" :key="index" @click="getSwitch(item,index)">{{item.name}}({{item.total}})</p>
-        </div>
+            <scroll-view scroll-x="true" class="scroll">
+                <div class="header">
+                    <p :class="{active:num==index}" v-for="(item,index) in current=='tab1'?list:listT" :key="index" @click="getSwitch(item,index)">{{item.name}}({{item.total}})</p>
+                </div>
+            </scroll-view>
         <div class="center">
             <div class="content" v-for="(item,index) in listData" :key="index">
                 <div class="imgs">
-                    <p>{{item.Name}}</p>
+                    <p>{{item.copyName}}</p>
                 </div>
                 <div class="cont">
                     <div class="l">
@@ -84,9 +86,13 @@ export default {
         this.sessionkey = sessionkey;
         this.date = options.date;
         this.scope = options.scope;
-        this.num = this.list.findIndex(item=>item.code==options.scope);
-        this.num = this.listT.findIndex(item=>item.code==options.scope);
         this.current = options.tab;
+        if(this.current=='tab1'){
+            this.num = this.list.findIndex(item=>item.code==options.scope);
+        }else {
+            this.num = this.listT.findIndex(item=>item.code==options.scope);
+        }
+        console.log(this.num,'----')
         this.getQuery();
         this.queryAll();
     },
@@ -126,6 +132,11 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.listData = res.listData[0];
+                this.listData.map(item=>{
+                    const copyName = item.Name.length>2?item.Name.substr(1):item.Name;
+                    item.copyName = copyName;
+                    return item;
+                })
             })
         },
         changeTabs(e){
@@ -153,21 +164,24 @@ export default {
 <style lang="scss">
     @import '../../../../static/css/public.scss';
     .wrap{
-        .header{
-            display: flex;
+        .scroll{
             background: #fff;
-            padding: 10rpx 20rpx;
-            p{
-                font-size: 24rpx;
-                color: #666666;
-                padding: 15rpx;
-                border-radius: 5rpx;
-                background: #f4f4f4;
-                margin: 10rpx;
-            }
-            p.active{
-                color: #3399ff;
-                background: #dae9fc;
+            white-space: nowrap;
+            .header{
+                display: flex;
+                padding: 10rpx 20rpx;
+                p{
+                    font-size: 24rpx;
+                    color: #666666;
+                    padding: 15rpx;
+                    border-radius: 5rpx;
+                    background: #f4f4f4;
+                    margin: 10rpx;
+                }
+                p.active{
+                    color: #3399ff;
+                    background: #dae9fc;
+                }
             }
         }
         .center{

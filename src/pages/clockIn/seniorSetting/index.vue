@@ -445,11 +445,11 @@ export default {
                     border-bottom: 2rpx solid #eaebeb;
                     align-items: center;
                     .label{
-                        font-size: 32rpx;
+                        font-size: 34rpx;
                         color: #666666;
                     }
                     .cont{
-                        font-size: 31rpx;
+                        font-size: 26rpx;
                         color: #999999;
                     }
                 }
@@ -470,6 +470,7 @@ export default {
             z-index: 999;
             .box{
                 padding: 20rpx 33rpx;
+                font-size: 34rpx;
             }
         }
     }
