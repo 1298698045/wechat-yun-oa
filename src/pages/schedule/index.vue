@@ -68,7 +68,8 @@
     </div>
     <day-table v-if="current=='tab2'" :dayList="dayList" :chooseDate="date" scrollHeight="height:calc(100vh)" @bookMeeting='bookMeeting($event)'>  </day-table>
     <div class="contDate" v-if="current=='tab3'">
-      <Calendar
+      <MonthTable @change="changeHandle" />
+      <!-- <Calendar
       :months="months"
       :value="calDate"
       @next="next"
@@ -80,7 +81,7 @@
       @select="selectDate"
       @selectMonth="getDateInfo"
       ref="calendar"
-    />
+    /> -->
       <div class="cont">
         <div class="row" v-for="(item,index) in currentList" :key="index">
           <div class="lBox">
@@ -112,18 +113,19 @@ import dayTable from '../../components/luoxiao-dayTable/dayTable';
 import Calendar from 'mpvue-calendar'
 import SwiperCalendar from '../../components/schedule/swiperTime';
 import vueTabBar from '../../components/vueTabBar';
-
+import MonthTable from '../../components/MonthTable';
 export default {
   components:{
       lxCalendar,
       dayTable,
       Calendar,
       SwiperCalendar,
-      vueTabBar
+      vueTabBar,
+      MonthTable
   },
   data(){
     return {
-      current:"tab1",
+      current:"tab3",
       steps: [
         {
           text: 'X-线学、放射安全性和骨密度测量的质量保证',
@@ -179,6 +181,7 @@ export default {
     }
   },
   onLoad(){
+    wx.hideTabBar();
     let myDate = new Date();
     let y = myDate.getFullYear();
     let m = myDate.getMonth()+1;
@@ -191,12 +194,15 @@ export default {
     this.getQuery();
   },
   mounted(){
-    console.log(this.$refs.childSwiper.nowDate,'1');
+    // console.log(this.$refs.childSwiper.nowDate,'1');
   },
   onShow(){
     this.getQuery();
   },
   methods:{
+    changeHandle(e){
+      console.log(e);
+    },
     getBackTime(){
       console.log('1231231232132');
       this.$refs.childSwiper.getReturn();
@@ -240,7 +246,7 @@ export default {
       return newDate;
     },
     getQuery(){
-      console.log(this.date,this.endDate,'-----')
+      // console.log(this.date,this.endDate,'-----')
       this.$httpWX.get({
         url:this.$api.message.queryList,
         data:{

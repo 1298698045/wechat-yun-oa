@@ -41,7 +41,7 @@
                         <div class="contWrap" v-for="(item,index) in list" :key="index" :id="'main-'+index">
                             <div class="title">{{item.Name}}</div>
                             <div class="cont">
-                                <div class="row" v-for="(v,idx) in item.Items" :key="idx" @click="getLaunch(v)">
+                                <div class="row" v-for="(v,idx) in item.Items" :key="idx" @click="getLaunch(item,v)">
                                     <p>
                                         {{v.Name}}
                                     </p>
@@ -199,8 +199,9 @@ export default {
             const url = '/pages/approval/launch/main';
             wx.navigateTo({url:url});
         },
-        getLaunch(item){
-            const url = '/pages/approval/add/main?name='+item.Name+'&ProcessId='+item.ProcessId;
+        getLaunch(item,v){
+            // const url = '/pages/approval/add/main?name='+item.Name+'&ProcessId='+item.ProcessId;
+            const url = '/pages/approval/preAdd/main?Name='+v.Name+'&ProcessId='+v.ProcessId+'&departName='+item.Name+'&departId='+item.Id;
             wx.navigateTo({url:url});
         },
         getProcess(){

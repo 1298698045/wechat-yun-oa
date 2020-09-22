@@ -9,7 +9,7 @@ function request(url, method, data, header = {}) {
             url: host + url, // 仅为示例，并非真实的接口地址
             method: method,
             data: data,
-            headers: {
+            header: {
                 'content-type': 'application/x-www-form-urlencoded' // 默认值
             },
             success: function(res) {

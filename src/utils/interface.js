@@ -141,7 +141,8 @@ const api = {
         stepList: "process.step.transition.getlist", // 流程表单 – 根据流程步骤获取流程节点
         accept: "process.approve.accept",
         stepSubmit: "process.step.submit", // 提交流程 
-        refuse: "process.approve.reject" // 审批拒绝
+        refuse: "process.approve.reject", // 审批拒绝
+        create: "process.instance.create" // 创建流程实例 – 不带表单数据
     },
     // 投票
     vote: {

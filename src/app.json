@@ -179,7 +179,8 @@
                 "circulation/main",
                 "launch/main",
                 "add/main",
-                "process/main"
+                "process/main",
+                "preAdd/main"
             ]
         },
         {

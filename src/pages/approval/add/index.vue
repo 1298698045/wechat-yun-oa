@@ -349,6 +349,7 @@ export default {
             params:{
                 processId:"",
                 parentRecord:{
+                    id:"",
                     fields:{}
                 },
             },
@@ -390,6 +391,7 @@ export default {
         this.ProcessId = options.ProcessId;
         console.log(list,'123');
         this.params.processId = options.ProcessId;
+        this.params.parentRecord.id = options.ProcessInstanceId;
         // this.list = list.listData;
         // this.getLayoutQuery();
         this.getQueryFrom();
@@ -628,18 +630,18 @@ export default {
                 data.actions.push({
                     params:this.params
                 });
-                // this.$httpWX.get({
-                //     url:this.$api.message.queryList,
-                //     data:{
-                //         method:this.$api.approval.saverecord,
-                //         SessionKey:this.sessionkey,
-                //         message:data
-                //     }
-                // }).then(res=>{
-                //     console.log(res);
-                //     // this.getStepQuery();
-                // })
-                console.log(this.testLists,'testList');
+                this.$httpWX.post({
+                    url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
+                    data:{
+                        // method:this.$api.approval.saverecord,
+                        SessionKey:this.sessionkey,
+                        message:JSON.stringify(data)
+                    }
+                }).then(res=>{
+                    console.log(res);
+                    // this.getStepQuery();
+                })
+                // console.log(this.testLists,'testList');
                 
             }catch(e){
                 console.log(e);
@@ -720,12 +722,12 @@ export default {
                 params:this.params
             });
             console.log(data,'data');
-            this.$httpWX.get({
-                url:this.$api.message.queryList,
+            this.$httpWX.post({
+                url:this.$api.message.queryList+'?method='+this.$api.approval.accept,
                 data:{
-                    method:this.$api.approval.accept,
+                    // method:this.$api.approval.accept,
                     SessionKey:this.sessionkey,
-                    message:{}
+                    message:JSON.stringify(data)
                 }
             }).then(res=>{
                 console.log(res);
