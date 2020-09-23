@@ -24,7 +24,7 @@
                             <div class="td" v-for="(v,index) in item" :key="index">
                                 <p class="day">{{v.day}}</p>
                                 <p class="cont_a" v-if="v.day">
-                                    <span class="radius gre"></span>
+                                    <span class="radius gre" v-if="v.subject"></span>
                                     <span class="text">{{v.subject}}</span>
                                 </p>
                             </div>
