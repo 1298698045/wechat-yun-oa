@@ -125,7 +125,7 @@ export default {
   },
   data(){
     return {
-      current:"tab3",
+      current:"tab1",
       steps: [
         {
           text: 'X-线学、放射安全性和骨密度测量的质量保证',
@@ -151,7 +151,8 @@ export default {
       selectNavIndex:1,
       needButton:false,
       handButton:'',
-      btnText:''
+      btnText:'',
+      list:[]
     }
   },
   computed:{
@@ -335,6 +336,7 @@ export default {
         //   console.log(date);
         //   return date;
         // })
+        this.list = res.listData;
         let list = res.listData.map(item=>({
           date:item.scheduledStart.split(' ')[0],
           subject:item.subject

@@ -85,34 +85,43 @@ export default {
             this.index = e.mp.detail.value;
         },
         getNext(){
-            let dataParams = {
-                params:{
-                    recordRep:{
-                        fields:{
-                            ProcessId:this.ProcessId,
-                            Name:this.Name,
-                            Deadline:this.Deadline,
-                            BusinessUnitId:this.BusinessUnitId,
-                            Priority:this.index,
-                            Description:this.Description
+            if(this.Name==''){
+                wx.showToast({
+                    title:'请输入标题',
+                    icon:'success',
+                    duration:2000
+                })
+                return false;
+            }else {
+                let dataParams = {
+                    params:{
+                        recordRep:{
+                            fields:{
+                                ProcessId:this.ProcessId,
+                                Name:this.Name,
+                                Deadline:this.Deadline,
+                                BusinessUnitId:this.BusinessUnitId,
+                                Priority:this.index,
+                                Description:this.Description
+                            }
                         }
                     }
                 }
+                this.$httpWX.post({
+                    url:this.$api.message.queryList+'?method='+this.$api.approval.create,
+                    method:this.$api.approval.create,
+                    data:{
+                        SessionKey:this.sessionkey,
+                        message:JSON.stringify(dataParams)
+                    }
+                }).then(res=>{
+                    if(res.actions[0].state=='SUCCESS'){
+                        this.ProcessInstanceId = res.actions[0].returnValue.ProcessInstanceId;
+                        const url = '/pages/approval/add/main?name='+this.Name+'&ProcessId='+this.ProcessId+'&departName='+this.departName+'&departId='+this.BusinessUnitId+'&ProcessInstanceId='+this.ProcessInstanceId;
+                        wx.navigateTo({url:url});
+                    }
+                })
             }
-            this.$httpWX.post({
-                url:this.$api.message.queryList+'?method='+this.$api.approval.create,
-                method:this.$api.approval.create,
-                data:{
-                    SessionKey:this.sessionkey,
-                    message:JSON.stringify(dataParams)
-                }
-            }).then(res=>{
-                if(res.actions[0].state=='SUCCESS'){
-                    this.ProcessInstanceId = res.actions[0].returnValue.ProcessInstanceId;
-                    const url = '/pages/approval/add/main?name='+this.Name+'&ProcessId='+this.ProcessId+'&departName='+this.departName+'&departId='+this.BusinessUnitId+'&ProcessInstanceId='+this.ProcessInstanceId;
-                    wx.navigateTo({url:url});
-                }
-            })
         }
     }
 }

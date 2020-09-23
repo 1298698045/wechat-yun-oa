@@ -25,7 +25,7 @@
                                 <p class="day">{{v.day}}</p>
                                 <p class="cont_a" v-if="v.day">
                                     <span class="radius gre"></span>
-                                    <span class="text">绍兴第</span>
+                                    <span class="text">{{v.subject}}</span>
                                 </p>
                             </div>
                         </div>
@@ -59,25 +59,16 @@ export default {
         let endDay = new Date(this.getCurrentMonthLast()).getDate();
         this.currDay = currDay;
         this.endDay = endDay;
-        this.now();
-        // for(var i=0; i<currDay+1; i++){
-        //     this.list.push({});
-        // }
-        // for(var j=0;j<endDay;j++){
-        //     this.list.push({
-        //         day:j+1
-        //     });
-        // }
-        // this.list.length = 42;
-        // let num = 42 - endDay - (currDay+1);
-        // if(num>14){
-        //     this.list.splice(this.list.length-14,this.list.length);
-        // }else if(num>7){
-        //     this.list.splice(this.list.length-7,this.list.length);
-        // }
-        // this.currentList.push({
-        //     list:this.list
-        // });
+        // this.now();
+    },
+    mounted(){
+        this.$nextTick(()=>{
+            setTimeout(() => {
+                console.log(this.$parent.list,'0-0-00-0-0-')
+                this.list = this.$parent.list;
+                this.now();
+            }, 1000);
+        })
     },
     methods:{
         getCurrent(e){
@@ -94,6 +85,10 @@ export default {
                 let currDay = new Date(start).getDay();
                 console.log(currDay,dayNum,'8888')
                 let next = this.setDate(currDay,dayNum,d);
+                console.log(this.currentList[current][0].date,'wljhkfhkdk')
+                // this.currentList[current].forEach(item=>{
+                //     this.$set(item,'d','123123')
+                // })
                 this.currentList.push(next);
                 this.date = date;
             }else if(current==0){
@@ -164,8 +159,69 @@ export default {
             let now = this.setDate(this.currDay,this.endDay,this.date);
             let next = this.setDate(currDay2,dayNum,d2);
             this.currentList = [pre,now,next];
+            for(let i=0;i<this.list.length;i++){
+                console.log(this.list[i].scheduledStart,this.list[i].scheduledEnd);
+                let diffDays = this.getComputation(this.list[i].scheduledStart,this.list[i].scheduledEnd)
+                let isStart = this.getIsCurrMonth(this.list[i].scheduledStart);
+                let isEnd = this.getIsCurrMonth(this.list[i].scheduledEnd);
+                console.log(isStart,isEnd);
+                if(!isStart&&isEnd){
+                   let index = this.currentList[this.current].findIndex(one=>one.currDate?this.isToday(one.currDate,this.list[i].scheduledEnd):'');
+                    //    debugger
+                    for(var q=this.currDay;q<index;q++){
+                        console.log(this.currentList[this.current][q],'this.currentList[this.current][q]')
+                        this.currentList[this.current][q].subject = this.list[i].subject;
+                    }
+                }
+                console.log(this.currentList,'currentlist')
+                // this.currentList[this.current].forEach(item=>{
+                //     console.log(item,'-------------------------0000')
+                //     let day = item.currDate;
+                // })
+            }
+        },
+        isToday(str,date){
+            console.log(str,date);
+            date = date.split(' ')[0];
+            var d = new Date(str.replace(/-/g,"/"));
+            var todaysDate = new Date(date.replace(/-/g,"/"));
+            if(d.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0)){
+                return true;
+            } else {
+                return false;
+            }
+        },
+        // 判断是否是当前月
+        getIsCurrMonth(ADate){
+            let now=new Date(this.date.replace(/-/g,'/'));
+            // let today=now.toISOString().substring(0,7);
+            let today = now.getMonth()+1;
+            console.log('判断本月:');
+            console.log('本月日期:'+today);
+            ADate = new Date(ADate.replace(/-/g,'/')).getMonth()+1;
+            if(today==ADate){
+                console.log('ADate本月');
+                return true;
+            }else{
+                console.log('ADate非本月');
+                return false;
+            }
+        },
+        getComputation(d1,d2){
+            var dateBegin = new Date(d1.replace(/-/g,'/'));//将-转化为/，使用new Date
+            var dateEnd = new Date(d2.replace(/-/g,'/'));//将-转化为/，使用new Date
+            var beginDiff = dateEnd.getTime() - dateBegin.getTime();//时间差的毫秒数
+            var beginDayDiff = Math.floor(beginDiff / (24 * 3600 * 1000));//计算出相差天数
+            console.log(beginDiff,beginDayDiff,'-')
+            return beginDayDiff;
         },
         setDate(currDay,endDay,date){
+            // for(let i=0;i<this.list.length;i++){
+            //     console.log(this.list[i].scheduledStart,endDay,date,'-');
+            // }
+            let myDate = new Date(date.replace(/-/g,'/'));
+            let y = myDate.getFullYear();
+            let m = myDate.getMonth()+1;
             let temp = [];
             for(var i=0; i<currDay; i++){
                 temp.push({
@@ -175,7 +231,9 @@ export default {
             for(var j=0;j<endDay;j++){
                 temp.push({
                     day:j+1,
-                    date:date
+                    date:date,
+                    currDate:`${y}-${m}-${j+1}`,
+                    month:m
                 });
             }
             temp.length = 42;

@@ -265,11 +265,11 @@
                 <div class="cont">
                     <div v-for="(item,index) in testLists" :key="index">
                         <h3>
-                            <van-checkbox :name="item.Selected" :value="item.TransitionId" @change="onChange">{{item.ToActivityName}}</van-checkbox>
+                            <van-checkbox :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item)}">{{item.ToActivityName}}</van-checkbox>
                         </h3>
                         <div class="box">
                             <div class="row" v-for="(v,i) in item.ParticipantMember" :key="i">
-                                <van-checkbox :name="v.UserId" :value="v.Selected" @change="(e)=>{changeItem(e,v)}">{{v.FullName}}/{{v.BusinessUnitIdName}}</van-checkbox>
+                                <van-checkbox :name="v.UserId" :value="v.Selected" @change="(e)=>{changeItem(e,item,v)}">{{v.FullName}}/{{v.BusinessUnitIdName}}</van-checkbox>
                             </div>
                             <!-- <div class="row">
                                 <van-checkbox :value="checked" @change="onChange">张丽萍(zlp001)/人事科/行政部</van-checkbox>
@@ -302,7 +302,7 @@
                         <textarea name="" placeholder="请输入内容" id="" cols="30" rows="10"></textarea>
                     </div>
                 </div>
-                <div class="fot">
+                <div class="fot" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
                     <div class="box">
                         <p @click="onCloseAgree">取消</p>  
                         <p>上一环节</p>
@@ -703,9 +703,19 @@ export default {
                 console.log(res);
             })
         },
-        changeItem(e,v){
+        changeAll(e,item){
+            console.log(e,item);
+            item.Selected = e.mp.detail;
+            item.ParticipantMember.forEach(v=>{
+                v.Selected = item.Selected;
+            })
+        },
+        changeItem(e,item,v){
             console.log(e);
             v.Selected = e.mp.detail;
+            console.log(item,'-------------')
+            console.log(item.ParticipantMember.every(one=>one.Selected==true))
+            item.Selected = item.ParticipantMember.every(one=>one.Selected==true);
         },
         getAddPeople(item){
             const url = '/pages/publics/mailList/main';
