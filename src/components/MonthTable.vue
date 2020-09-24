@@ -38,6 +38,7 @@
 <script>
 export default {
     name:'MonthTable',
+    props:['listData'],
     data(){
         return {
             list:[],
@@ -46,6 +47,12 @@ export default {
             currentList:[],
             currDay:"",
             endDay:""
+        }
+    },
+    watch:{
+        listData(val){
+            console.log(val,'watch')
+            this.list = val;
         }
     },
     onLoad(){
@@ -75,6 +82,7 @@ export default {
             // console.log(e,'--------------');
             let current = e.mp.detail.current;
             if(current == this.currentList.length-1){
+                this.current = current;
                 let date = this.currentList[current][0].date;
                 let d = this.getNextMonth(date);
                 console.log(d,'dddddddddd')
@@ -87,10 +95,14 @@ export default {
                 let next = this.setDate(currDay,dayNum,d);
                 console.log(this.currentList[current][0].date,'wljhkfhkdk')
                 // this.currentList[current].forEach(item=>{
-                //     this.$set(item,'d','123123')
+                    //     this.$set(item,'d','123123')
                 // })
                 this.currentList.push(next);
                 this.date = date;
+                setTimeout(() => {
+                    this.getAddList(currDay,dayNum)
+                }, 500);
+                
             }else if(current==0){
                 this.current = current;
                 console.log(this.current,'this.current')
@@ -108,6 +120,9 @@ export default {
                 this.current = 1;
                 // console.log(pre,this.currentList,'000')
                 this.date = date;
+                setTimeout(() => {
+                    this.getAddList(currDay2,dayNum2)
+                }, 500);
             }else {
                 this.date = this.currentList[current][0].date;
             }
@@ -159,16 +174,45 @@ export default {
             let now = this.setDate(this.currDay,this.endDay,this.date);
             let next = this.setDate(currDay2,dayNum,d2);
             this.currentList = [pre,now,next];
+            this.getAddList(this.currDay,this.endDay);
+            
+        },
+        getAddList(currDay,len){
+            console.log(this.list,this.current,'listlist')
             for(let i=0;i<this.list.length;i++){
                 console.log(this.list[i].scheduledStart,this.list[i].scheduledEnd);
                 let diffDays = this.getComputation(this.list[i].scheduledStart,this.list[i].scheduledEnd)
                 let isStart = this.getIsCurrMonth(this.list[i].scheduledStart);
                 let isEnd = this.getIsCurrMonth(this.list[i].scheduledEnd);
-                console.log(isStart,isEnd);
+                console.log(isStart,isEnd,'sljkdl');
                 if(!isStart&&isEnd){
-                   let index = this.currentList[this.current].findIndex(one=>one.currDate?this.isToday(one.currDate,this.list[i].scheduledEnd):'');
+                   let starIdx = this.currentList[this.current].findIndex(one=>one.currDate?this.isToday(one.currDate,this.list[i].scheduledStart):'');
+                    let endIdx = this.currentList[this.current].findIndex(one=>one.currDate?this.isToday(one.currDate,this.list[i].scheduledEnd):'');
                     //    debugger
-                    for(var q=this.currDay;q<index;q++){
+                    if(starIdx==endIdx){
+                        this.currentList[this.current][starIdx].subject = this.list[i].subject;
+                    }
+                    for(var q=currDay;q<endIdx;q++){
+                        console.log(this.currentList[this.current][q],'this.currentList[this.current][q]')
+                        this.currentList[this.current][q].subject = this.list[i].subject;
+                    }
+                }else if(isStart&&isEnd){
+                    console.log(this.currentList[this.current],'----------this.currentList[this.current]');
+                    let starIdx = this.currentList[this.current].findIndex(one=>one.currDate?this.isToday(one.currDate,this.list[i].scheduledStart):'');
+                    let endIdx = this.currentList[this.current].findIndex(one=>one.currDate?this.isToday(one.currDate,this.list[i].scheduledEnd):'');
+                    //    debugger
+                    if(starIdx==endIdx){
+                        this.currentList[this.current][starIdx].subject = this.list[i].subject;
+                    }
+                    // for(var q=starIdx;q<endIdx+1;q++){
+                    //     console.log(this.currentList[this.current][q],'-------this.currentList[this.current][q]')
+                    //     this.currentList[this.current][q].subject = this.list[i].subject;
+                    // }
+                }
+                else if(isStart&&!isEnd){
+                    let index = this.currentList[this.current].findIndex(one=>one.currDate?this.isToday(one.currDate,this.list[i].scheduledStart):'');
+                    console.log(index,currDay,'index')
+                    for(var q=index;q<len;q++){
                         console.log(this.currentList[this.current][q],'this.currentList[this.current][q]')
                         this.currentList[this.current][q].subject = this.list[i].subject;
                     }
@@ -443,6 +487,9 @@ page{
                     padding: 5rpx 10rpx;
                     display: flex;
                     align-items: center;
+                    white-space: normal;
+                    word-break: break-all;
+                    overflow: hidden;
                     .radius{
                         width: 8rpx;
                         height: 8rpx;

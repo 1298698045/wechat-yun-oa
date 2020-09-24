@@ -68,7 +68,7 @@
     </div>
     <day-table v-if="current=='tab2'" :dayList="dayList" :chooseDate="date" scrollHeight="height:calc(100vh)" @bookMeeting='bookMeeting($event)'>  </day-table>
     <div class="contDate" v-if="current=='tab3'">
-      <MonthTable @change="changeHandle" />
+      <MonthTable :listData="list" @change="changeHandle" />
       <!-- <Calendar
       :months="months"
       :value="calDate"
@@ -203,6 +203,10 @@ export default {
   methods:{
     changeHandle(e){
       console.log(e);
+      let date = e.date;
+      let y = new Date(date.replace(/-/g,'/')).getFullYear();
+      let m = new Date(date.replace(/-/g,'/')).getMonth()+1;
+      this.getDateInfo(m,y);
     },
     getBackTime(){
       console.log('1231231232132');
