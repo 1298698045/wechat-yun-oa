@@ -190,6 +190,20 @@
                 "detail/main",
                 "preview/main"
             ]
+        },
+        {
+            "root": "pages/workNotice",
+            "pages": [
+                "main"
+            ]
+        },
+        {
+            "root": "pages/community",
+            "pages": [
+                "main",
+                "sendDynamic/main",
+                "detail/main"
+            ]
         }
     ],
     "permission": {

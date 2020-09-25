@@ -160,6 +160,10 @@ const api = {
         query: "survey.search",
         getSurvey: "survey.get",
         submit: "survey.response.submit"
+    },
+    // 工作通知
+    notice: {
+        query: "notification.user.search"
     }
 }
 export default api;

@@ -1,0 +1,6 @@
+{
+    "navigationBarTitleText": "社区",
+    "usingComponents": {
+        "i-icon": "/static/view/icon/index"
+    }
+}
