@@ -164,6 +164,14 @@ const api = {
     // 工作通知
     notice: {
         query: "notification.user.search"
+    },
+    // 社区
+    community: {
+        send: "chatter.status.update",
+        query: "chatter.status.search",
+        like: "object.comment.like",
+        queryComment: "chatter.commentme.getlist",
+        comment: "object.comment.add"
     }
 }
 export default api;

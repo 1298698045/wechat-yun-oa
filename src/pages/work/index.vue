@@ -266,6 +266,9 @@ export default {
             }else if(item.id==30300){
                 const url = '/pages/questionnaire/main';
                 wx.navigateTo({url:url});
+            }else if(item.id==6000){
+                const url = '/pages/community/main';
+                wx.navigateTo({url:url})
             }
         },
         getOpenPhoto(){

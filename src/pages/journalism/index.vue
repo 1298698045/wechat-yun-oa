@@ -707,7 +707,7 @@ page{
                 // justify-content: space-between;
                 flex-direction: row;
                 .box{
-                    width: 80px;
+                    width: 156rpx;
                     height: 83rpx;
                     border-radius: 7rpx;
                     background: #fff;

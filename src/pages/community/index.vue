@@ -1,29 +1,51 @@
 <template>
     <div class="wrap">
         <div class="center">
-            <div class="content" @click="getDetail">
+            <div class="content" v-for="(item,index) in list" :key="index" @click="getDetail(item)">
                 <div class="row">
                     <div class="avatar">
-                        <p>崔曼</p>
+                        <p>{{item.OwningUserName}}</p>
                     </div>
                     <div class="rBox">
                         <div class="top">
-                            <p class="name">崔曼</p>
+                            <p class="name">{{item.OwningUserName}}</p>
                             <p><i-icon type="more" color="#999999" size="20" /></p>
                         </div>
                         <div class="info">
-                            信息中心    04-04  10:30
+                            信息中心    {{item.CreatedOn}}
                         </div>
                     </div>
                 </div>
-                <p class="text">1.医院召开全体人员培训；
-                    2.学习规章制度；
-                    3.财务流程；
+                <p class="text">
+                    {{item.Description}}
                 </p>
                 <div class="more_btn">
                     <div class="btn">转发</div>
                     <div class="btn">评论</div>
-                    <div class="btn">赞</div>
+                    <div class="btn" @click.stop="getLike(item)">
+                        赞
+                        <span>{{item.NumOfLike}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
+            <div class="box_wrap">
+                <div class="box" @click="getWriteJournal">
+                    <p></p>
+                    <p>写日志</p>
+                </div>
+                <div class="box">
+                    <p></p>
+                    <p>看日志</p>
+                </div>
+                <div class="box">
+                    <p></p>
+                    <p>统计</p>
+                </div>
+                <div class="box">
+                    <p></p>
+                    <p>设置</p>
                 </div>
             </div>
         </div>
@@ -33,15 +55,62 @@
 export default {
     data(){
         return {
-
+            pageNumber:1,
+            pageSize:25,
+            list:[]
+        }
+    },
+    computed:{
+        isModelmes(){
+            return wx.getStorageSync('isModelmes');
+        },
+        sessionkey(){
+            return wx.getStorageSync('sessionkey');
         }
     },
     onLoad(){
-
+        this.getQuery();
     },
     methods:{
-        getDetail(){
-            const url = '/pages/community/detail/main';
+        getQuery(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.community.query,
+                    SessionKey:this.sessionkey,
+                    pageNumber:this.pageNumber,
+                    pageSize:this.pageSize
+                }
+            }).then(res=>{
+                this.list = res.listData;
+            })
+        },
+        getLike(item){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.community.like,
+                    SessionKey:this.sessionkey,
+                    id:item.ChatterId,
+                    ObjTypeCode:6000,
+                    action:'like'
+                }
+            }).then(res=>{
+                if(res.status==1){
+                    wx.showToast({
+                        title:res.msg,
+                        icon:"none",
+                        duration:2000
+                    })
+                }
+            })
+        },
+        getDetail(item){
+            const url = '/pages/community/detail/main?id='+item.ChatterId;
+            wx.navigateTo({url:url});
+        },
+        getWriteJournal(){
+            const url = '/pages/community/sendDynamic/main';
             wx.navigateTo({url:url});
         }
     }
@@ -99,6 +168,22 @@ export default {
                 padding: 24rpx 0;
                 display: flex;
                 justify-content: space-around;
+            }
+        }
+        .footer{
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            background: #fff;
+            .box_wrap{
+                display: flex;
+                padding: 24rpx 0;
+                .box{
+                    flex: 1;
+                    text-align: center;
+                    font-size: 22rpx;
+                    color: #a1a5a6;
+                }
             }
         }
     }

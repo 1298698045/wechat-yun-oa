@@ -30,15 +30,33 @@
                     </div>
                 </div>
                 <div class="comment">
-                    <div class="box">
-                        <div class="avatar">崔曼</div>
+                    <div class="box" v-for="(item,index) in list" :key="index">
+                        <div class="avatar">{{item.CreatedByName}}</div>
                         <div class="left_cont">
-                            <p class="name">崔曼</p>
-                            <p class="text">内容很不错</p>
-                            <p class="info">信息中心    04-04  10:30</p>
+                            <div class="name">
+                                <p>{{item.CreatedByName}}</p>
+                                <p class="num" @click="getLikeItem(item)">{{item.LikeQty}}</p>
+                            </div>
+                            <p class="text">{{item.Comment}}</p>
+                            <p class="info">信息中心    {{item.CreatedOn}}</p>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
+            <div class="box">
+                <p>转发</p>
+                <p @click="getComment">评论</p>
+                <p>赞</p>
+            </div>
+        </div>
+        <div class="keyboard" v-if="isFocus" :style="{'bottom':keyboardHeight+'px'}" catchtouchmove="true">
+            <div class="inp_box">
+                <p>
+                    <input type="text" v-model="comment" :hold-keyboard="keyboard" :auto-focus="true" :adjust-position="false" @blur="getBlur">
+                </p>
+                <p @click.stop="getSubmit">发送</p>
             </div>
         </div>
     </div>
@@ -48,12 +66,91 @@ export default {
     data(){
         return {
             idx:0,
-            tabs:['转发 321','评论 56']
+            tabs:['转发 321','评论 56'],
+            keyboardHeight:"",
+            isFocus:false,
+            id:"",
+            PageSize:20,
+            pageNumber:1,
+            keyboard:true,
+            list:[]
         }
     },
+    computed:{
+        isModelmes(){
+            return wx.getStorageSync('isModelmes');
+        },
+        sessionkey(){
+            return wx.getStorageSync('sessionkey');
+        }
+    },
+    onLoad(options){
+        this.id = options.id;
+        wx.onKeyboardHeightChange(res => { //监听键盘高度变化
+            console.log(res.height,'res');
+            this.keyboardHeight = res.height;
+        })
+        this.queryComment();
+    },
     methods:{
+        queryComment(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.community.queryComment,
+                    SessionKey:this.sessionkey,
+                    scope:"Comment",
+                    PageSize:this.PageSize,
+                    pageNumber:this.pageNumber
+                }
+            }).then(res=>{
+                console.log(res);
+                this.list = res.listData;
+            })
+        },
         getTab(item,index){
             this.idx = index;
+        },
+        getComment(){
+            this.isFocus = true;
+        },
+        getBlur(e){
+            this.isFocus = false;
+        },
+        getFocus(){
+            this.isFocus = true;
+        },
+        getSubmit(){
+            this.keyboard = true;
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.community.comment,
+                    SessionKey:this.sessionkey,
+                    objectid:this.id,
+                    comments:this.comment,
+                    objTypeCode:6000
+                }
+            }).then(res=>{
+                console.log(res);
+                this.queryComment();
+                this.isFocus = false;
+            })
+        },
+        getLikeItem(item){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.community.like,
+                    SessionKey:this.sessionkey,
+                    objectid:6000,
+                    id:item.ChatterId,
+                    action:'like'
+                }
+            }).then(res=>{
+                console.log(res);
+                this.queryComment();
+            })
         }
     }
 }
@@ -106,6 +203,7 @@ export default {
         .comment_wrap{
             margin-top: 17rpx;
             background: #fff;
+            padding-bottom: 150rpx;
             .row_box{
                 display: flex;
                 justify-content: space-between;
@@ -148,17 +246,64 @@ export default {
                         .name{
                             font-size: 28rpx;
                             color: #3399ff;
+                            display: flex;
+                            justify-content: space-between;
+                            .num{
+                                color: #999999;
+                                font-size:25rpx;
+                            }
                         }
                         .text{
                             font-size: 32rpx;
                             color: #333333;
-                            padding: 18rpx 0;
+                            padding: 10rpx 0;
                         }
                         .info{
                             font-size: 22rpx;
                             color: #644d4d;
                         }
                     }
+                }
+            }
+        }
+        .footer{
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            background: #fff;
+            .box{
+                display: flex;
+                padding: 24rpx 0;
+                p{
+                    flex: 1;
+                    text-align: center;
+                    font-size: 28rpx;
+                }
+            }
+        }
+        .keyboard{
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            background: #fff;
+            .inp_box{
+                display: flex;
+                padding: 19rpx 25rpx;
+                align-items: center;
+                p:nth-child(1){
+                    flex: 1;
+                    input{
+                        width: 100%;
+                        height: 67rpx;
+                        background: #f3f5f4;
+                        font-size: 28rpx;
+                    }
+                }
+                p:nth-child(2){
+                    width: 100rpx;
+                    font-size: 28rpx;
+                    color: #3399ff;
+                    text-align: center;
                 }
             }
         }
