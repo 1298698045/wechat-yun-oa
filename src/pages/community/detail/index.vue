@@ -20,25 +20,27 @@
                     3.财务流程；
                 </p>
             </div>
-            <div class="comment_wrap">
-                <div class="row_box">
-                    <div class="tabs">
-                        <p :class="{'active':idx==index}" v-for="(item,index) in tabs" :key="index" @click="getTab(item,index)">{{item}}</p>
+            <div class="container">
+                <div class="comment_wrap">
+                    <div class="row_box">
+                        <div class="tabs">
+                            <p :class="{'active':idx==index}" v-for="(item,index) in tabs" :key="index" @click="getTab(item,index)">{{item}}</p>
+                        </div>
+                        <div class="zan">
+                            <p>赞 401</p>
+                        </div>
                     </div>
-                    <div class="zan">
-                        <p>赞 401</p>
-                    </div>
-                </div>
-                <div class="comment">
-                    <div class="box" v-for="(item,index) in list" :key="index">
-                        <div class="avatar">{{item.CreatedByName}}</div>
-                        <div class="left_cont">
-                            <div class="name">
-                                <p>{{item.CreatedByName}}</p>
-                                <p class="num" @click="getLikeItem(item)">{{item.LikeQty}}</p>
+                    <div class="comment">
+                        <div class="box" v-for="(item,index) in list" :key="index">
+                            <div class="avatar">{{item.CreatedByName}}</div>
+                            <div class="left_cont">
+                                <div class="name">
+                                    <p>{{item.CreatedByName}}</p>
+                                    <p class="num" @click="getLikeItem(item)">{{item.LikeQty}}</p>
+                                </div>
+                                <p class="text">{{item.Comment}}</p>
+                                <p class="info">信息中心    {{item.CreatedOn}}</p>
                             </div>
-                            <p class="text">{{item.Comment}}</p>
-                            <p class="info">信息中心    {{item.CreatedOn}}</p>
                         </div>
                     </div>
                 </div>
@@ -200,67 +202,69 @@ export default {
                 color: #333333;
             }
         }
-        .comment_wrap{
-            margin-top: 17rpx;
-            background: #fff;
+        .container{
             padding-bottom: 150rpx;
-            .row_box{
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1rpx solid #e2e3e5;
-                padding: 0 38rpx;
-                font-size: 29rpx;
-                color: #333333;
-                font-weight: bold;
-                .tabs{
+            .comment_wrap{
+                margin-top: 17rpx;
+                background: #fff;
+                .row_box{
                     display: flex;
-                    p{
-                        width: 146rpx;
-                        text-align: center;
-                        padding: 30rpx 0;
-                    }
-                    p.active{
-                        border-bottom: 4rpx solid #3399ff;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-bottom: 1rpx solid #e2e3e5;
+                    padding: 0 38rpx;
+                    font-size: 29rpx;
+                    color: #333333;
+                    font-weight: bold;
+                    .tabs{
+                        display: flex;
+                        p{
+                            width: 146rpx;
+                            text-align: center;
+                            padding: 30rpx 0;
+                        }
+                        p.active{
+                            border-bottom: 4rpx solid #3399ff;
+                        }
                     }
                 }
-            }
-            .comment{
-                padding: 0 38rpx;
-                .box{
-                    display: flex;
-                    padding: 26rpx 0;
-                    .avatar{
-                        width: 75rpx;
-                        height: 75rpx;
-                        line-height: 75rpx;
-                        text-align: center;
-                        border-radius: 50%;
-                        background: #3399ff;
-                        font-size: 21rpx;
-                        color: #ffffff;
-                    }
-                    .left_cont{
-                        flex: 1;
-                        margin-left: 20rpx;
-                        .name{
-                            font-size: 28rpx;
-                            color: #3399ff;
-                            display: flex;
-                            justify-content: space-between;
-                            .num{
-                                color: #999999;
-                                font-size:25rpx;
+                .comment{
+                    padding: 0 38rpx;
+                    .box{
+                        display: flex;
+                        padding: 26rpx 0;
+                        .avatar{
+                            width: 75rpx;
+                            height: 75rpx;
+                            line-height: 75rpx;
+                            text-align: center;
+                            border-radius: 50%;
+                            background: #3399ff;
+                            font-size: 21rpx;
+                            color: #ffffff;
+                        }
+                        .left_cont{
+                            flex: 1;
+                            margin-left: 20rpx;
+                            .name{
+                                font-size: 28rpx;
+                                color: #3399ff;
+                                display: flex;
+                                justify-content: space-between;
+                                .num{
+                                    color: #999999;
+                                    font-size:25rpx;
+                                }
                             }
-                        }
-                        .text{
-                            font-size: 32rpx;
-                            color: #333333;
-                            padding: 10rpx 0;
-                        }
-                        .info{
-                            font-size: 22rpx;
-                            color: #644d4d;
+                            .text{
+                                font-size: 32rpx;
+                                color: #333333;
+                                padding: 10rpx 0;
+                            }
+                            .info{
+                                font-size: 22rpx;
+                                color: #644d4d;
+                            }
                         }
                     }
                 }

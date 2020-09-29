@@ -171,7 +171,8 @@ const api = {
         query: "chatter.status.search",
         like: "object.comment.like",
         queryComment: "chatter.commentme.getlist",
-        comment: "object.comment.add"
+        comment: "object.comment.add",
+        del: "chatter.status.destroy"
     }
 }
 export default api;

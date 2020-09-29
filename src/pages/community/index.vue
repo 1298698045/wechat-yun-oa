@@ -9,7 +9,7 @@
                     <div class="rBox">
                         <div class="top">
                             <p class="name">{{item.OwningUserName}}</p>
-                            <p><i-icon type="more" color="#999999" size="20" /></p>
+                            <p @click.stop="getMore(item)"><i-icon type="more" color="#999999" size="20" /></p>
                         </div>
                         <div class="info">
                             信息中心    {{item.CreatedOn}}
@@ -49,6 +49,18 @@
                 </div>
             </div>
         </div>
+        <van-action-sheet
+            :show="show"
+            :round="false"
+            cancel-text="取消"
+            @close="onClose"
+            @cancel="onClose"
+        >
+            <div class="sheetWrap">
+                <p>收藏</p>
+                <p @click="getDelete">删除</p>
+            </div>
+        </van-action-sheet>
     </div>
 </template>
 <script>
@@ -57,7 +69,9 @@ export default {
         return {
             pageNumber:1,
             pageSize:25,
-            list:[]
+            list:[],
+            show:false,
+            id:""
         }
     },
     computed:{
@@ -105,6 +119,34 @@ export default {
                 }
             })
         },
+        getMore(item){
+            this.id = item.ChatterId;
+            this.show = true;
+        },
+        onClose(){
+            this.show = false;
+        },
+        getDelete(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.community.del,
+                    SessionKey:this.sessionkey,
+                    Id:this.id
+                }
+            }).then(res=>{
+                console.log(res);
+                if(res.status==1){
+                    wx.showToast({
+                        title:res.msg,
+                        icon:"success",
+                        duration:2000
+                    })
+                }
+                this.show = false;
+                this.getQuery();
+            })
+        },
         getDetail(item){
             const url = '/pages/community/detail/main?id='+item.ChatterId;
             wx.navigateTo({url:url});
@@ -113,6 +155,16 @@ export default {
             const url = '/pages/community/sendDynamic/main';
             wx.navigateTo({url:url});
         }
+    },
+        // 下拉刷新
+    onPullDownRefresh() {
+        this.getQuery();
+        wx.stopPullDownRefresh();
+    },
+    /**
+     * 页面上拉触底事件的处理函数
+     */
+    onReachBottom() {
     }
 }
 </script>
@@ -184,6 +236,16 @@ export default {
                     font-size: 22rpx;
                     color: #a1a5a6;
                 }
+            }
+        }
+        .sheetWrap{
+            background: #fff;
+            p{
+                text-align: center;
+                font-size: 28rpx;
+                padding: 30rpx 0;
+                border-bottom: 1rpx solid #e2e3e5;
+                color: #3399ff;
             }
         }
     }
