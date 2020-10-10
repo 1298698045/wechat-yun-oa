@@ -13,9 +13,9 @@
             <p>查看TA的历史记录</p>
             <p><i-icon type="enter" size="20" color="#cccccc" /></p>
         </div> -->
-        <FormList v-if="current=='tab1'" :ProcessId="'2442350c-257f-446d-9a44-28a31bfb6ccb'" :ProcessInstanceId="'08034d4f-914e-48c1-9f55-d97bc01e21c8'" />
+        <FormList v-if="current=='tab1'" :ProcessId="processId" :ProcessInstanceId="processInstanceId" :RuleLogId="RuleLogId" />
         <!-- 表单 -->
-        <div class="center margin padding"  v-if="current=='tab1'">
+        <!-- <div class="center margin padding"  v-if="current=='tab1'">
            <div class="steps">
                <div class="step">
                    <p class="radius">崔曼</p>
@@ -52,7 +52,7 @@
                    <p> 已等待7分钟</p>
                </div>
            </div>
-        </div>
+        </div> -->
         <!-- 文件 -->
         <File v-if="current=='tab2'" :instanceId="instanceId" :processInstanceId="processInstanceId"></File>
         <!-- 流程 -->
@@ -87,7 +87,7 @@
                 </div>
             </div>
         </div>
-        <div class="footer" v-if="current!='tab5'" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
+        <div class="footer" v-if="current!='tab5'&&sign!='off'" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div class="bottoms" v-if="true">
                 <div class="icon">
                     <div>
@@ -109,7 +109,7 @@
                         <p>更多</p>
                     </div>
                 </div>
-                <div class="btn">
+                <div class="btn" v-if="sign!='btnOff'">
                     <p @click="getRefuse">拒绝</p>
                     <p @click="getAgree">同意</p>
                 </div>
@@ -151,9 +151,9 @@
             <div class="popup">
                 <h3>拒绝意见</h3>
                 <div class="text">
-                    <textarea class="textarea" placeholder="请输入留言" name="" id="" cols="30" rows="10"></textarea>
+                    <textarea v-model="description" class="textarea" placeholder="请输入留言" name="" id="" cols="30" rows="10"></textarea>
                 </div>
-                <p>退回上一步</p>
+                <p @click="getReject">退回上一步</p>
                 <p class="back">退回发起人</p>
                 <p>退回节点</p>
             </div>
@@ -176,44 +176,22 @@
                     </div>
                 </div>  
                 <div class="cont">
-                    <h3>
-                        <van-checkbox :value="checked" @change="onChange">节点(1)：行政部</van-checkbox>
-                    </h3>
-                    <div class="box">
-                        <div class="row">
-                            <van-checkbox :value="checked" @change="onChange">张丽萍(zlp001)/人事科/行政部</van-checkbox>
-                        </div>
-                        <div class="row">
-                            <van-checkbox :value="checked" @change="onChange">张丽萍(zlp001)/人事科/行政部</van-checkbox>
-                            <p><i-icon type="close" size="20" color="#3399ff" /></p>
-                        </div>
-                        <div class="rows">
-                            <p class="add">
-                                <i-icon type="add" size="30" color="#3399ff" />
-                                <span>
-                                    添加办理人员
-                                </span>
-                            </p>
-                        </div>
-                    </div>
-                    <h3>
-                        <van-checkbox :value="checked" @change="onChange">节点(1)：行政部</van-checkbox>
-                    </h3>
-                    <div class="box">
-                        <div class="row">
-                            <van-checkbox :value="checked" @change="onChange">张丽萍(zlp001)/人事科/行政部</van-checkbox>
-                        </div>
-                        <div class="row">
-                            <van-checkbox :value="checked" @change="onChange">张丽萍(zlp001)/人事科/行政部</van-checkbox>
-                            <p><i-icon type="close" size="20" color="#3399ff" /></p>
-                        </div>
-                        <div class="rows">
-                            <p class="add">
-                                <i-icon type="add" size="30" color="#3399ff" />
-                                <span>
-                                    添加办理人员
-                                </span>
-                            </p>
+                    <div v-for="(item,index) in stepList" :key="index">
+                        <h3>
+                            <van-checkbox :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item)}">{{item.ToActivityName}}</van-checkbox>
+                        </h3>
+                        <div class="box">
+                            <div class="row" v-for="(v,i) in item.ParticipantMember" :key="i">
+                                <van-checkbox :name="v.UserId" :value="v.Selected" @change="(e)=>{changeItem(e,item,v)}">{{v.FullName}}/{{v.BusinessUnitIdName}}</van-checkbox>
+                            </div>
+                            <div class="rows">
+                                <p class="add" @click="getAddPeople(item)">
+                                    <i-icon type="add" size="30" color="#3399ff" />
+                                    <span>
+                                        添加办理人员
+                                    </span>
+                                </p>
+                            </div>
                         </div>
                     </div>
                     <div class="popupRow">
@@ -230,14 +208,14 @@
                     </div>  
                     <div class="textarea">
                         <p>留言</p>
-                        <textarea name="" placeholder="请输入内容" id="" cols="30" rows="10"></textarea>
+                        <textarea v-model="description" name="" placeholder="请输入内容" id="" cols="30" rows="10"></textarea>
                     </div>
                 </div>
                 <div class="fot">
                     <div class="box">
                         <p @click="onCloseAgree">取消</p>  
                         <p>上一环节</p>
-                        <p>提交</p>  
+                        <p @click="getSubmit">提交</p>  
                     </div>
                 </div> 
             </div>
@@ -308,32 +286,69 @@ export default {
                 }
             ],
             CommentId:"",
-            commentText:""
+            commentText:"",
+            processId:"",
+            sign:"",
+            RuleLogId:"",
+            stepList:[],
+            ToActivityId:""
         }
     },
     computed:{
         ...mapState({
             instanceId:state=>{
                 return state.user.instanceId
+            },
+            selectListName:state=>{
+                console.log(state.mailList.selectListName);
+                return state.mailList.selectListName;
             }
         }),
         isModelmes(){
             return wx.getStorageSync('isModelmes');
+        },
+        // ToActivityId(){
+        //     return wx.getStorageSync('ToActivityId');
+        // },
+        processList(){
+            let temp = [];
+            console.log(this.stepList,this.ToActivityId,'========')
+            let index = this.stepList.findIndex(v=>v.ToActivityId===this.ToActivityId);
+            console.log(index,'index')
+            if(this.selectListName!=''){
+                this.selectListName.forEach(item=>{
+                    console.log(this.stepList[index],this.ToActivityId,'this.stepList[this.ToActivityId]');
+                    this.stepList[index].ParticipantMember.push({
+                        UserId:item.id,
+                        FullName:item.FullName,
+                        Selected:true,
+                        BusinessUnitIdName:item.DeptName
+                    })
+                })
+            }
+            temp = this.stepList;
+            console.log(temp,'temptemp')
+            return temp;
         }
     },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());
-        // console.log(options);
+        console.log(options);
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.name = options.name;
         this.processInstanceId = options.processInstanceId;
         this.id = options.id;
+        this.processId = options.processId;
+        this.sign = options.sign;
+        this.RuleLogId = options.RuleLogId;
         this.getQuery();
         this.getCommentQuery();
         // this.getQueryFrom();
+        wx.removeStorageSync('forward');
     },
     onShow(){
+        this.ToActivityId = wx.getStorageSync('ToActivityId');
         const pages = getCurrentPages();
         const currPage = pages[pages.length-1];
         // console.log(currPage,'currPage')
@@ -348,8 +363,140 @@ export default {
             currPage.name = this.name;
         }
         console.log(this.id,this.processInstanceId,)
+        if(wx.getStorageSync('forward')){
+            this.getForward();
+        }
     },
     methods:{
+        getForward(){
+            let temp = this.selectListName.map(item=>item.id);
+            let obj = {
+                actions:[
+                    {
+                        params:{
+                            processId:this.processId,
+                            processInstanceId:this.processInstanceId,
+                            ruleLogId:this.RuleLogId,
+                            participators:temp
+                        }
+                    }
+                ]
+            }
+            this.$httpWX.post({
+                url:this.$api.message.queryList+'?method='+this.$api.instance.forward,
+                data:{
+                    SessionKey:this.sessionkey,
+                    message:JSON.stringify(obj)
+                }
+            }).then(res=>{
+                console.log(res);
+                wx.removeStorageSync('forward');
+            })
+        },
+        changeAll(e,item){
+            item.Selected = e.mp.detail;
+            item.ParticipantMember.forEach(v=>{
+                v.Selected = item.Selected;
+            })
+        },
+        changeItem(e,item,v){
+            v.Selected = e.mp.detail;
+            console.log(item.ParticipantMember.every(one=>one.Selected==true))
+            for(let i=0;i<item.ParticipantMember.length;i++){
+                if(item.ParticipantMember[i].Selected){
+                    item.Selected = true;
+                    break;
+                }else {
+                    item.Selected = false;
+                }
+            }
+        },
+        getAddPeople(item){
+            wx.setStorageSync('ToActivityId',item.ToActivityId)
+            const url = '/pages/publics/mailList/main?sign='+'process';
+            wx.navigateTo({url:url});
+        },
+        // 拒绝
+        getReject(){
+            let obj = {
+                actions:[
+                    {
+                        params:{
+                            processId:this.processId,
+                            name:this.title,
+                            processInstanceId:this.processInstanceId,
+                            ruleLogId:this.RuleLogId,
+                            fromActivityId:"",
+                            description:this.description
+                        }
+                    }
+                ]
+            }
+            this.$httpWX.post({
+                url:this.$api.message.queryList+'?method='+this.$api.approval.refuse,
+                data:{
+                    SessionKey:this.sessionkey,
+                    message:JSON.stringify(obj)
+                }
+            }).then(res=>{
+                console.log(res);
+            })
+        },
+        // 同意-提交
+        getSubmit(){
+            
+            let temp = [];
+            this.stepList.forEach((item,index)=>{
+                if(item.Selected){
+                    temp.push({
+                        toActivityId:item.ToActivityId,
+                        transitionId:item.TransitionId,
+                        participators:[]
+                    })
+                    for(let i=0; i<item.ParticipantMember.length;i++){
+                        if(item.ParticipantMember[i].Selected){
+                            temp[temp.length-1].participators.push(item.ParticipantMember[i].UserId);
+                        }
+                    }
+                }
+            })
+            let obj = {
+                actions:[
+                    {
+                        params:{
+                            processId:this.processId,
+                            name:this.title,
+                            processInstanceId:this.processInstanceId,
+                            ruleLogId:this.RuleLogId,
+                            fromActivityId:"",
+                            description:this.description,
+                            transitions:temp
+                        }
+                    }
+                ]
+            }
+            
+        //    let array = this.stepList.map((v,idx)=>{
+        //        console.log(v,idx);
+        //        return {
+        //             toActivityId:v.ToActivityId,
+        //             transitionId:v.TransitionId,
+
+        //             participators: v.ParticipantMember.map(item=>item.UserId)
+        //        }
+        //     })
+        //     console.log(array,'array')
+            console.log(obj,temp,'obj')
+            this.$httpWX.post({
+                url:this.$api.message.queryList+'?method='+this.$api.approval.accept,
+                data:{
+                    SessionKey:this.sessionkey,
+                    message:JSON.stringify(obj)
+                }
+            }).then(res=>{
+                console.log(res);
+            })
+        },
         ...mapMutations(['updateInstanceId']),
         getQueryFrom(){
             this.$httpWX.get({
@@ -357,7 +504,7 @@ export default {
                 data:{
                     method:this.$api.approval.mobileform,
                     SessionKey:this.sessionkey,
-                    ProcessId:"2442350c-257f-446d-9a44-28a31bfb6ccb",
+                    ProcessId:this.processId,
                     ProcessInstanceId:this.processInstanceId
                 }
             }).then(res=>{
@@ -439,12 +586,26 @@ export default {
             // console.log(this.$refs.child.$emit);
             // this.$refs.child.$emit('childMethod','hello');
             this.agreeShow = true;
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.approval.stepList,
+                    SessionKey:this.sessionkey,
+                    RuleLogId:this.RuleLogId,
+                    ProcessInstanceId:this.processInstanceId
+                }
+            }).then(res=>{
+                console.log(res);
+                this.stepList = res.transitions;
+            })
+
         },
         onCloseAgree(){
             this.agreeShow = false;
         },
         // 委托
         getEntrust(){
+            wx.setStorageSync('forward',true)
             const url = '/pages/publics/mailList/main';
             wx.navigateTo({url:url});
         },
@@ -455,7 +616,7 @@ export default {
                     method:this.$api.approval.refuse,
                     SessionKey:this.sessionkey,
                     message:{
-                        ProcessId:"2442350c-257f-446d-9a44-28a31bfb6ccb",
+                        ProcessId:this.processId,
                         ProcessInstanceId:this.processInstanceId,
                         objectTypeCode:"",
                         ruleLogId:"",

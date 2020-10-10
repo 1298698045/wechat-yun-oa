@@ -127,7 +127,8 @@ const api = {
     // 待办事务
     instance: {
         urging: "flow.instance.pushmessage", // 催办
-        cancelsubmit: "flow.process.cancelsubmit"
+        cancelsubmit: "flow.process.cancelsubmit",
+        forward: "process.approve.forward" // 流程审批 – 委托
     },
     // 审批
     approval: {

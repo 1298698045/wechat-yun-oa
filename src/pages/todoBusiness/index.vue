@@ -860,7 +860,7 @@ export default {
         // 事务详情
         getDetail(item){
             this.updateInstanceId(item.instanceId);
-            const url = '/pages/todoBusiness/detail/main?id='+item.id+'&name='+item.name+'&processInstanceId='+item.processInstanceId;
+            const url = '/pages/todoBusiness/detail/main?id='+item.id+'&name='+item.name+'&processInstanceId='+item.processInstanceId+'&processId='+item.processId;
             wx.navigateTo({url:url});
         },
         // 催办

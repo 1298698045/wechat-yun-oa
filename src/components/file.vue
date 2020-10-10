@@ -12,11 +12,11 @@
                 </p>
             </div>
         </div>
-        <div class="center" v-if="!show">
+        <div class="center" v-if="!show" @click.stop>
             <van-checkbox-group :value="resultList" @change="changeCheckbox">
                 <div class="imgList">
                     <div class="box" v-for="(item,index) in list" :key="index">
-                        <div class="imgs" v-if="item.list!=''">
+                        <div class="imgs" v-if="item.list!=''"  @click.stop="getPreview(item)">
                             <img :src="item.link" alt="">
                         </div>
                         <div class="cont" else >
@@ -28,13 +28,13 @@
                 </div>
             </van-checkbox-group>
         </div>
-        <div class="container" v-if="show">
+        <div class="container" v-if="show" @click.stop>
             <van-checkbox-group :value="resultList" @change="changeCheckbox">
                 <div class="box" v-for="(item,index) in list" :key="index">
                     <div class="checkWrap" v-if="isCheck">
                         <van-checkbox custom-class="check" :name="item.id"></van-checkbox>                        
                     </div>
-                    <div class="lBox" v-if="item.fileExtension=='jpg'">
+                    <div class="lBox" v-if="item.fileExtension=='jpg'" @click.stop="getPreview(item)">
                         <p>
                             <img :src="item.link" alt="">
                         </p>
@@ -83,6 +83,7 @@
 </template>
 <script>
 import {mapState,mapMutations,mapActions,mapGetters} from 'vuex';
+import getOpenFiles from '@/utils/openFiles';
 export default {
     name:"File",
     props:['instanceId','processInstanceId'],
@@ -90,41 +91,41 @@ export default {
         return {
             show:false,
             list:[
-                {
-                    img:"",
-                    name:"新技术新项目中期....docx",
-                    num:"104K"
-                },
-                {
-                    img:"",
-                    name:"新技术新项目中期....docx",
-                    num:"104K"
-                },
-                {
-                    img:"https://wx.phxinfo.com.cn/img/wechat/logo.png",
-                    name:"",
-                    num:"104K"
-                },
-                {
-                    img:"https://wx.phxinfo.com.cn/img/wechat/logo.png",
-                    name:"",
-                    num:"104K"
-                },
-                {
-                    img:"https://wx.phxinfo.com.cn/img/wechat/logo.png",
-                    name:"",
-                    num:"104K"
-                },
-                {
-                    img:"",
-                    name:"新技术新项目中期....docx",
-                    num:"104K"
-                },
-                {
-                    img:"",
-                    name:"新技术新项目中期....docx",
-                    num:"104K"
-                }
+                // {
+                //     img:"",
+                //     name:"新技术新项目中期....docx",
+                //     num:"104K"
+                // },
+                // {
+                //     img:"",
+                //     name:"新技术新项目中期....docx",
+                //     num:"104K"
+                // },
+                // {
+                //     img:"https://wx.phxinfo.com.cn/img/wechat/logo.png",
+                //     name:"",
+                //     num:"104K"
+                // },
+                // {
+                //     img:"https://wx.phxinfo.com.cn/img/wechat/logo.png",
+                //     name:"",
+                //     num:"104K"
+                // },
+                // {
+                //     img:"https://wx.phxinfo.com.cn/img/wechat/logo.png",
+                //     name:"",
+                //     num:"104K"
+                // },
+                // {
+                //     img:"",
+                //     name:"新技术新项目中期....docx",
+                //     num:"104K"
+                // },
+                // {
+                //     img:"",
+                //     name:"新技术新项目中期....docx",
+                //     num:"104K"
+                // }
             ],
             resultList:[],
             isCheck:false,
@@ -144,9 +145,24 @@ export default {
             selectFiles:state=>{
                 return state.usb.selectFiles;
             }
-        })
+        }),
+        openImgs(){
+            let temp = [];
+            console.log(this.list,'list')
+            this.list.forEach(item=>{
+                console.log(item.fileExtension,'fileExtension')
+                if(item.fileExtension.indexOf('jpg')!=-1||item.fileExtension.indexOf('png')!=-1){
+                    temp.push(item.link);
+                }
+            })
+            return temp;
+        },
     },
     methods:{
+        getPreview(item){
+            const openImgs = JSON.stringify(this.openImgs);
+            getOpenFiles(item,openImgs);
+        },
         ...mapMutations([
             'delete'
         ]),

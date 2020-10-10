@@ -206,8 +206,12 @@ export default {
             'updateInstanceId'
         ]),
         getDetail(item){
+            let sign = '';
+            if(this.current=='tab2'){
+                sign = 'btnOff'
+            }
             this.updateInstanceId(item.instanceId);
-            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId;
+            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&sign='+sign+'&RuleLogId='+item.id;
             wx.navigateTo({
                 url:url
             })

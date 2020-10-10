@@ -323,7 +323,7 @@ export default {
         ]),
         getDetail(item){
             this.updateInstanceId(item.instanceId);
-            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId;
+            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId+'&processId='+item.processId;
             wx.navigateTo({
                 url:url
             })

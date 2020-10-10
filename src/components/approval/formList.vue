@@ -215,7 +215,7 @@ import {newMultiArray} from '@/utils/multiArray';
 import { mockData,dataList,serachList,testList } from '@/utils/mock';
 export default {
     name:"FormList",
-    props:['ProcessId','ProcessInstanceId'],
+    props:['ProcessId','ProcessInstanceId','RuleLogId'],
     data(){
         return {
             title:"通用请示报告",
@@ -238,7 +238,6 @@ export default {
             sObjectType:"",
             searchIdx:'',
             ProcessInstanceId:"",
-            RuleLogId:"",
             listData:[],
             lksrch:"",
             agreeShow:false,
@@ -295,13 +294,25 @@ export default {
                     method:this.$api.approval.layoutData,
                     SessionKey:this.sessionkey,
                     processId:this.ProcessId,
-                    ProcessInstanceId:"08034d4f-914e-48c1-9f55-d97bc01e21c8",
+                    ProcessInstanceId:this.ProcessInstanceId,
                     RuleLogId:this.RuleLogId
                 }
             }).then(res=>{
                 console.log(res);
                 this.currenData = res.actions[0].returnValue.masterRecord.picklistValuesMap;
                 this.record = res.actions[0].returnValue.masterRecord.record;
+                this.list.forEach(item=>{
+                    if( this.record[item.name] instanceof Object){
+                        item.value = this.record[item.name].Name;
+                    }
+                    else if(item.type=='L'||item.type=='DT'||item.type=='LT'){
+                       item.index = this.currenData[item.id].findIndex(v=>v.value==this.record[item.name])
+                    }
+                    else {
+                        item.value = this.record[item.name];
+                    }
+                    
+                })
             })
         },
         getOpenModal(item,index){

@@ -258,7 +258,7 @@
                         <p class="radius">{{fullName}}</p>
                     </div>
                     <div>
-                        <h3>崔曼提交的流程申请表</h3>
+                        <h3>{{fullName}}提交的流程申请表</h3>
                         <p><span>标题：</span>生物医学研究伦理审查审批表</p>
                     </div>
                 </div>  
@@ -299,7 +299,7 @@
                     </div>  
                     <div class="textarea">
                         <p>留言</p>
-                        <textarea name="" placeholder="请输入内容" id="" cols="30" rows="10"></textarea>
+                        <textarea v-model="description" name="" placeholder="请输入内容" id="" cols="30" rows="10"></textarea>
                     </div>
                 </div>
                 <div class="fot" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
@@ -363,12 +363,33 @@ export default {
         newMultiArrayList(){
             return newMultiArray();
         },
+        ToActivityId(){
+            return wx.getStorageSync('ToActivityId');
+        },
         ...mapState({
             selectListName:state=>{
                 console.log(state.mailList.selectListName);
                 return state.mailList.selectListName;
             }
-        })
+        }),
+        processList(){
+            let temp = [];
+            let index = this.testLists.findIndex(v=>v.ToActivityId===this.ToActivityId);
+            if(this.selectListName!=''){
+                this.selectListName.forEach(item=>{
+                    console.log(this.testLists[index],this.ToActivityId,'this.testLists[this.ToActivityId]');
+                    this.testLists[index].ParticipantMember.push({
+                        UserId:item.id,
+                        FullName:item.FullName,
+                        Selected:true,
+                        BusinessUnitIdName:item.DeptName
+                    })
+                })
+            }
+            temp = this.testLists;
+            console.log(temp,'temptemp')
+            return temp;
+        }
         // filterObj(){
         //     let obj = {};
         //     for(let key in this.record){
@@ -381,7 +402,7 @@ export default {
     },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());
-        this.testLists = testList.listData;
+        // this.testLists = testList.listData;
         console.log(mockData,dataList,testList,'mockData');
         console.log(serachList,'serachList');
         let sessionkey = wx.getStorageSync('sessionkey');
@@ -389,6 +410,8 @@ export default {
         this.fullName = wx.getStorageSync('fullName');
         this.title = options.name;
         this.ProcessId = options.ProcessId;
+        this.RuleLogId = options.RuleLogId;
+        this.ProcessInstanceId = options.ProcessInstanceId;
         console.log(list,'123');
         this.params.processId = options.ProcessId;
         this.params.parentRecord.id = options.ProcessInstanceId;
@@ -639,7 +662,7 @@ export default {
                     }
                 }).then(res=>{
                     console.log(res);
-                    // this.getStepQuery();
+                    this.getStepQuery();
                 })
                 // console.log(this.testLists,'testList');
                 
@@ -696,11 +719,12 @@ export default {
                 data:{
                     method:this.$api.approval.stepList,
                     SessionKey:this.sessionkey,
-                    ProcessId:this.ProcessId,
-                    ProcessInstanceId:"08034d4f-914e-48c1-9f55-d97bc01e21c8"
+                    RuleLogId:this.RuleLogId,
+                    ProcessInstanceId:this.ProcessInstanceId
                 }
             }).then(res=>{
                 console.log(res);
+                this.testLists = res.transitions;
             })
         },
         changeAll(e,item){
@@ -715,21 +739,65 @@ export default {
             v.Selected = e.mp.detail;
             console.log(item,'-------------')
             console.log(item.ParticipantMember.every(one=>one.Selected==true))
-            item.Selected = item.ParticipantMember.every(one=>one.Selected==true);
+            for(let i=0;i<item.ParticipantMember.length;i++){
+                if(item.ParticipantMember[i].Selected){
+                    item.Selected = true;
+                    break;
+                }else {
+                    item.Selected = false;
+                }
+            }
+            // item.Selected = item.ParticipantMember.every(one=>one.Selected==true);
         },
         getAddPeople(item){
-            const url = '/pages/publics/mailList/main';
+            wx.setStorageSync('ToActivityId',item.ToActivityId)
+            const url = '/pages/publics/mailList/main?sign='+'process';
             wx.navigateTo({url:url});
         },
         onCloseAgree(){
             this.agreeShow = false;
         },
         getSubmitStep(){
+            for(let k=0;k<this.testLists.length;k++){
+                if(this.testLists[k].Selected){
+                    break;
+                }else {
+                    console.log('23123123')
+                    wx.showToast({
+                        title:"请添加办理人员",
+                        icon:"none",
+                        duration:2000
+                    })
+                    return false;
+                }
+            }
             const data = {
                 actions:[]
             };
+            let temp = [];
+            for(let i=0;i<this.testLists.length;i++){
+                for(let j=0; j<this.testLists[i].ParticipantMember.length;j++){
+                    if(this.testLists[i].ParticipantMember[j].Selected){
+                        temp.push(this.testLists[i].ParticipantMember[j].UserId);
+                    }
+                }
+            }
+            let transitions = this.testLists.map(item=>({
+                toActivityId: item.ToActivityId,
+                transitionId: item.TransitionId,
+                participators: temp
+            }))
+            console.log(transitions,'transitions')
             data.actions.push({
-                params:this.params
+                params:{
+                    processId: this.processId,
+                    name: this.title,
+                    processInstanceId: this.ProcessInstanceId,
+                    ruleLogId: this.RuleLogId,
+                    fromActivityId: "",
+                    description: this.description,
+                    transitions: transitions
+                }
             });
             console.log(data,'data');
             this.$httpWX.post({

@@ -184,7 +184,8 @@ export default {
                         selectData.push(this.list[i].ValueId);
                         listName.push({
                             id:this.list[i].ValueId,
-                            FullName:this.list[i].FullName
+                            FullName:this.list[i].FullName,
+                            DeptName:this.list[i].DeptName
                         })
                         break;
                     }

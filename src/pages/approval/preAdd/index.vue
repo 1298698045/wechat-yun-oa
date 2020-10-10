@@ -61,7 +61,8 @@ export default {
             index:0,
             Description:"",
             BusinessUnitId:"",
-            ProcessInstanceId:""
+            ProcessInstanceId:"",
+            RuleLogId:""
         }
     },
     computed:{
@@ -117,7 +118,8 @@ export default {
                 }).then(res=>{
                     if(res.actions[0].state=='SUCCESS'){
                         this.ProcessInstanceId = res.actions[0].returnValue.ProcessInstanceId;
-                        const url = '/pages/approval/add/main?name='+this.Name+'&ProcessId='+this.ProcessId+'&departName='+this.departName+'&departId='+this.BusinessUnitId+'&ProcessInstanceId='+this.ProcessInstanceId;
+                        this.RuleLogId = res.actions[0].returnValue.RuleLogId;
+                        const url = '/pages/approval/add/main?name='+this.Name+'&ProcessId='+this.ProcessId+'&departName='+this.departName+'&departId='+this.BusinessUnitId+'&ProcessInstanceId='+this.ProcessInstanceId+'&RuleLogId='+this.RuleLogId;
                         wx.navigateTo({url:url});
                     }
                 })
