@@ -4,9 +4,9 @@
             <p @click="getAdd">添加</p>
             <p @click="getEdit">编辑</p>
         </div>
-        <div class="containers">
+        <div class="containers" @click.stop>
             <van-checkbox-group :value="result" @change="changeGroup">
-                <div class="centers" v-for="(item,index) in list" :key="index">
+                <div class="centers" v-for="(item,index) in list" :key="index" @click="getDetail(item)">
                     <div class="rowWrap">
                         <div class="checkWrap" v-if="editShow">
                             <van-checkbox custom-class="check" :name="item.ValueId"></van-checkbox>
@@ -16,7 +16,7 @@
                             <p class="radio">{{item.StartByName}}</p>
                         </div>
                         <div class="cont">
-                            <p>崔曼提交的流程申请表</p>
+                            <p>{{item.StartByName}}提交的流程申请表</p>
                             <!-- <p>
                                 <span>标题：{{item.Name}}</span>
                             </p>
@@ -156,8 +156,8 @@ export default {
             'updateInstanceId'
         ]),
         getDetail(item){
-            this.updateInstanceId(item.processInstanceId);
-            const url = '/pages/todoBusiness/detail/main?id='+item.ValueId+'&processInstanceId='+item.ProcessInstanceId;
+            this.updateInstanceId(item.ProcessInstanceId);
+            const url = '/pages/todoBusiness/detail/main?RuleLogId='+item.ValueId+'&processInstanceId='+item.ProcessInstanceId+'&name='+item.Name+'&processId='+item.ProcessId+'&createdByName='+item.StartByName;
             wx.navigateTo({url:url});
         }
     }

@@ -76,7 +76,7 @@ export default {
     onLoad(options){
         Object.assign(this.$data,this.$options.data());
         console.log(options)
-        this.Name = options.Name + '    ' + options.departName;
+        this.Name = options.Name + '    ' + options.departName+' '+wx.getStorageSync('fullName');
         this.departName = options.departName;
         this.BusinessUnitId = options.departId;
         this.ProcessId = options.ProcessId;

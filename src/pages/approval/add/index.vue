@@ -134,8 +134,8 @@
                     <van-switch :checked="item.value" @change="(val)=>{changeSwitch(val,item)}" size="24px" />
                 </p>
             </div>
-            <div class="row" v-if="item.type=='UC'">
-                <p class="title">*<span>内容</span></p>
+            <div class="row" v-if="item.type=='UCS'">
+                <p class="title">*<span>{{item.label}}</span></p>
                 <textarea v-model="item.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" placeholder="请输入"></textarea>
             </div>
             <div class="parentWrap" v-if="item.type=='RelatedList'">
@@ -304,8 +304,7 @@
                 </div>
                 <div class="fot" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
                     <div class="box">
-                        <p @click="onCloseAgree">取消</p>  
-                        <p>上一环节</p>
+                        <p @click="onCloseAgree">取消</p>
                         <p @click="getSubmitStep">提交</p>  
                     </div>
                 </div> 
@@ -317,7 +316,7 @@
 import list from '@/utils/test.js';
 import {newMultiArray} from '@/utils/multiArray';
 import { mockData,dataList,serachList,testList } from '@/utils/mock';
-import { mapState } from 'vuex';
+import { mapMutations, mapState } from 'vuex';
 import { currentTime } from '../../../utils/currentTime';
 export default {
     data(){
@@ -353,7 +352,8 @@ export default {
                     fields:{}
                 },
             },
-            testLists:[]
+            testLists:[],
+            fromActivityId:""
         }
     },
     computed:{
@@ -399,6 +399,9 @@ export default {
         //     }
         //     return obj;
         // }
+    },
+    onUnload(){
+        this.getClear([]);
     },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());
@@ -446,6 +449,7 @@ export default {
         // })
     },
     methods:{
+        ...mapMutations(['getClear']),
         getQueryFrom(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,
@@ -725,6 +729,7 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.testLists = res.transitions;
+                this.fromActivityId = res.fromActivityId;
             })
         },
         changeAll(e,item){
@@ -794,7 +799,7 @@ export default {
                     name: this.title,
                     processInstanceId: this.ProcessInstanceId,
                     ruleLogId: this.RuleLogId,
-                    fromActivityId: "",
+                    fromActivityId: this.fromActivityId,
                     description: this.description,
                     transitions: transitions
                 }
@@ -809,6 +814,9 @@ export default {
                 }
             }).then(res=>{
                 console.log(res);
+                wx.navigateBack({
+                    delta:2
+                })
             })
         }
     }
@@ -1068,15 +1076,20 @@ export default {
                 position: fixed;
                 bottom: 0;
                 background: #fff;
+                border-top: 1rpx solid #e2e3e5;
                 .box{
                     display:flex;
                     justify-content: center;
                     p{
-                        width: 33.3%;
+                        width: 50%;
                         text-align: center;
                         color: #3399ff;
                         padding: 20rpx;
                         border-right: 1rpx solid #f2f2f2;
+                    }
+                    p:last-child{
+                        background: #3399ff;
+                        color: #ffffff;
                     }
                 }
 

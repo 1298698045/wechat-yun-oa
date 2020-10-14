@@ -5,6 +5,8 @@ import api from './utils/interface';
 import store from './store';
 import '../static/colorUi/icon.css';
 import '../static/colorUi/main.css';
+import global from './utils/global';
+Vue.prototype.$global = global;
 Vue.config._mpTrace = false;
 Vue.prototype.$store = store;
 Vue.prototype.$api = api;

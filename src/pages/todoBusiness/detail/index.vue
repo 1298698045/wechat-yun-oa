@@ -90,15 +90,15 @@
         <div class="footer" v-if="current!='tab5'&&sign!='off'" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div class="bottoms" v-if="true">
                 <div class="icon">
-                    <div>
+                    <div @click="getCirculation('W')">
                         <p>
-                            <i class="iconfont icon-pinglun1"></i>
+                            <i class="iconfont icon-zhuanjiao"></i>
                         </p>
-                        <p>讨论</p>
+                        <p>委托</p>
                     </div>
-                    <div @click="getCirculation">
+                    <div @click="getCirculation('C')">
                         <p>
-                            <i class="iconfont icon-bianzu"></i>
+                            <i class="iconfont icon-chuanyue2"></i>
                         </p>
                         <p>传阅</p>
                     </div>
@@ -168,17 +168,24 @@
             <div class="agreeWrap">
                 <div class="header">
                     <div>
-                        <p class="radius">崔曼</p>
+                        <p class="radius">{{createdByName}}</p>
                     </div>
                     <div>
-                        <h3>崔曼提交的流程申请表</h3>
+                        <h3>{{createdByName}}提交的流程申请表</h3>
                         <p><span>标题：</span>生物医学研究伦理审查审批表</p>
                     </div>
                 </div>  
                 <div class="cont">
                     <div v-for="(item,index) in stepList" :key="index">
                         <h3>
-                            <van-checkbox :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item)}">{{item.ToActivityName}}</van-checkbox>
+                            <van-checkbox use-icon-slot custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item)}">
+                                
+                                {{item.ToActivityName}}
+                                <div class="slot" slot="icon" v-if="item.Selected">
+                                    <p></p>
+                                </div>
+                                <div class="default" slot="icon" v-else></div>
+                            </van-checkbox>
                         </h3>
                         <div class="box">
                             <div class="row" v-for="(v,i) in item.ParticipantMember" :key="i">
@@ -211,7 +218,7 @@
                         <textarea v-model="description" name="" placeholder="请输入内容" id="" cols="30" rows="10"></textarea>
                     </div>
                 </div>
-                <div class="fot">
+                <div class="fot" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
                     <div class="box">
                         <p @click="onCloseAgree">取消</p>  
                         <p>上一环节</p>
@@ -230,9 +237,10 @@
             @cancel="onCloseSheet"
         >
             <div class="sheetWrap">
-                <p class="row" @click="getEntrust">委托</p>
-                <p class="row" @click="getAddSign">加签</p>
-                <p class="row">结束</p>
+                <!-- <p class="row" @click="getEntrust">委托</p> -->
+                <p class="row" @click="getJump">跳转</p>
+                <p class="row" @click="getCirculation('JQ')">加签</p>
+                <p class="row" @click="getEndProcess">结束</p>
             </div>
         </van-action-sheet>
         <Urging :urgingShow="urgingShow" :processInstanceId="processInstanceId" />
@@ -291,7 +299,8 @@ export default {
             sign:"",
             RuleLogId:"",
             stepList:[],
-            ToActivityId:""
+            ToActivityId:"",
+            createdByName:""
         }
     },
     computed:{
@@ -315,7 +324,7 @@ export default {
             console.log(this.stepList,this.ToActivityId,'========')
             let index = this.stepList.findIndex(v=>v.ToActivityId===this.ToActivityId);
             console.log(index,'index')
-            if(this.selectListName!=''){
+            if(this.selectListName!=''&&!wx.getStorageSync('forward')){
                 this.selectListName.forEach(item=>{
                     console.log(this.stepList[index],this.ToActivityId,'this.stepList[this.ToActivityId]');
                     this.stepList[index].ParticipantMember.push({
@@ -342,6 +351,7 @@ export default {
         this.processId = options.processId;
         this.sign = options.sign;
         this.RuleLogId = options.RuleLogId;
+        this.createdByName = options.createdByName;
         this.getQuery();
         this.getCommentQuery();
         // this.getQueryFrom();
@@ -362,6 +372,7 @@ export default {
             currPage.processInstanceId = this.processInstanceId;
             currPage.name = this.name;
         }
+        this.getQuery();
         console.log(this.id,this.processInstanceId,)
         if(wx.getStorageSync('forward')){
             this.getForward();
@@ -416,6 +427,46 @@ export default {
             const url = '/pages/publics/mailList/main?sign='+'process';
             wx.navigateTo({url:url});
         },
+        finish(){
+            let obj = {
+                actions:[
+                    {
+                        params:{
+                            processId:this.processId,
+                            processInstanceId:this.processInstanceId,
+                            ruleLogId:this.RuleLogId,
+                            participators:""
+                        }
+                    }
+                ]
+            }
+            this.$httpWX.post({
+                url:this.$api.message.queryList+'?method='+this.$api.approval.finish,
+                data:{
+                    SessionKey:this.sessionkey,
+                    message:JSON.stringify(obj)
+                }
+            }).then(res=>{
+                console.log(res);
+                this.sheetShow = false;
+            })
+        },
+        // 结束
+        getEndProcess(){
+            let that = this;
+            wx.showModal({
+                content: '确定要结束当前事务吗？',
+                success (res) {
+                    if (res.confirm) {
+                        console.log('用户点击确定')
+                        that.finish();
+                    } else if (res.cancel) {
+                        console.log('用户点击取消')
+                    }
+                }
+            })
+            
+        },
         // 拒绝
         getReject(){
             let obj = {
@@ -440,6 +491,9 @@ export default {
                 }
             }).then(res=>{
                 console.log(res);
+                wx.navigateBack({
+                    delta:1
+                })
             })
         },
         // 同意-提交
@@ -460,6 +514,11 @@ export default {
                     }
                 }
             })
+            for(let i=0;i<temp.length;i++){
+                if(temp[i].participators==''){
+                    temp.splice(i,1)
+                }
+            }
             let obj = {
                 actions:[
                     {
@@ -468,7 +527,7 @@ export default {
                             name:this.title,
                             processInstanceId:this.processInstanceId,
                             ruleLogId:this.RuleLogId,
-                            fromActivityId:"",
+                            fromActivityId:this.stepList[0].FromActivityId,
                             description:this.description,
                             transitions:temp
                         }
@@ -495,9 +554,12 @@ export default {
                 }
             }).then(res=>{
                 console.log(res);
+                wx.navigateBack({
+                    delta:1
+                })
             })
         },
-        ...mapMutations(['updateInstanceId']),
+        ...mapMutations(['updateInstanceId','getClear']),
         getQueryFrom(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,
@@ -535,9 +597,17 @@ export default {
         onCloseSheet(){
             this.sheetShow = false;
         },
+        // 跳转
+        getJump(){
+            const url = '/pages/todoBusiness/jump/main';
+            wx.navigateTo({
+                url:url
+            })
+        },
         // 传阅
-        getCirculation(){
-            const url = '/pages/todoBusiness/circulate/main?name='+this.name+'&id='+this.processInstanceId;
+        getCirculation(sign){
+            const url = '/pages/todoBusiness/circulate/main?name='+this.name+'&ruleLogId='+this.RuleLogId
+            +'&processId='+this.processId+'&processInstanceId='+this.processInstanceId+'&sign='+sign;
             wx.navigateTo({url:url});
         },
         // 评论列表
@@ -602,6 +672,7 @@ export default {
         },
         onCloseAgree(){
             this.agreeShow = false;
+            this.getClear([]);
         },
         // 委托
         getEntrust(){
@@ -911,7 +982,7 @@ export default {
                     p:nth-child(1){
                         color: #3399ff;
                         background: #fff;
-                        border:1rpx solid #cccccc;
+                        border:1px solid #cccccc;
                         border-right: none;
                     }
                 }
@@ -994,6 +1065,31 @@ export default {
                     font-size: 12px;
                     color: #999999;
                     padding: 20rpx;
+                    .checkbox{
+                        display: flex !important;
+                        align-items: center !important;
+                    }
+                    .slot{
+                        width: 28rpx;
+                        height: 28rpx;
+                        border: 2rpx solid #3399ff;
+                        border-radius: 50%;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        p{
+                            width: 13rpx;
+                            height: 13rpx;
+                            background: #3399ff;
+                            border-radius: 50%;
+                        }
+                    }
+                    .default{
+                        width: 28rpx;
+                        height: 28rpx;
+                        border: 2rpx solid #c8c9cc;
+                        border-radius: 50%;
+                    }
                 }
                 .box{
                     padding: 20rpx;

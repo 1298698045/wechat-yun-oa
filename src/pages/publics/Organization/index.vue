@@ -2,7 +2,7 @@
     <div class="wrap">
         <div class="container" v-if="!maxShow">
             <div class="search">
-                <van-search :value="keyValue" placeholder="请输入搜索关键词" />
+                <van-search :value="keyValue" @click="getFriends" placeholder="请输入搜索关键词" />
             </div>
             <div class="header">
                 <scroll-view :scroll-x="true" class="yy">
@@ -40,9 +40,11 @@
                 </div>
             </div>
             <Contacts :id="id" ref="childRef" v-if="isShow" @childFn="getSubordinate" :cc="cc" :meetingId="meetingId" />
-            <Public :sign="sign" :cc="cc" :admin="admin" :foldersId="foldersId" :RightCode="RightCode" :meetingId="meetingId" />
+            <!-- <Public :sign="sign" :cc="cc" :admin="admin" :foldersId="foldersId" :RightCode="RightCode" :meetingId="meetingId" /> -->
         </div>
-        <ShowList v-if="maxShow" />
+        <!-- <ShowList v-if="maxShow" /> -->
+        <Public :sign="sign" :cc="cc" :admin="admin" :foldersId="foldersId" :RightCode="RightCode" :meetingId="meetingId" />
+        <SearchMailList v-if="maxShow" :cc="cc" />
     </div>
 </template>
 <script>
@@ -50,11 +52,13 @@ import Public from '@/components/mailList/public';
 import Contacts from '@/components/mailList/contacts';
 import {mapState,mapMutations} from 'vuex';
 import ShowList  from '@/components/mailList/showList';
+import SearchMailList from '@/components/searchMailList';
 export default {
     components:{
         Public,
         Contacts,
-        ShowList
+        ShowList,
+        SearchMailList
     },
     data(){
         return {
@@ -101,6 +105,9 @@ export default {
         ...mapMutations([
             'getSingleDelete'
         ]),
+        getFriends(){
+            this.maxShow = true;
+        },
         getBack(){
             this.isShow = false;
             this.sonList = [];

@@ -17,7 +17,7 @@
                 <div class="imgList">
                     <div class="box" v-for="(item,index) in list" :key="index">
                         <div class="imgs" v-if="item.list!=''"  @click.stop="getPreview(item)">
-                            <img :src="item.link" alt="">
+                            <image class="img" :src="item.link" alt="" webp="true"></image>
                         </div>
                         <div class="cont" else >
                             <p class="name">{{item.name}}</p>
@@ -34,9 +34,9 @@
                     <div class="checkWrap" v-if="isCheck">
                         <van-checkbox custom-class="check" :name="item.id"></van-checkbox>                        
                     </div>
-                    <div class="lBox" v-if="item.fileExtension=='jpg'" @click.stop="getPreview(item)">
+                    <div class="lBox" v-if="item.list!=''" @click.stop="getPreview(item)">
                         <p>
-                            <img :src="item.link" alt="">
+                            <image class="img" :src="item.link" alt="" webp="true"></image>
                         </p>
                     </div>
                     <div class="rBox" else >
@@ -316,7 +316,7 @@ export default {
                     p{
                         width: 80rpx;
                         height: 80rpx;
-                        img{
+                        .img{
                             width: 100%;
                             height: 100%;
                             vertical-align: middle;
@@ -364,7 +364,7 @@ export default {
                     .imgs{
                         width: 100%;
                         height: 100%;
-                        img{
+                        .img{
                             width: 100%;
                             height: 100%;
                             vertical-align: middle;

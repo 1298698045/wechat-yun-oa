@@ -2,10 +2,10 @@
     <div class="wrap">
         <div class="header" :class="{'active':isBlock||screenShow}">
             <i-tabs :current="current" @change="handleChange">
-                <i-tab key="tab1" title="我发起"></i-tab>
                 <i-tab key="tab2" title="待审批"></i-tab>
                 <i-tab key="tab3" title="已审批"></i-tab>
                 <i-tab key="tab4" title="传阅"></i-tab>
+                <i-tab key="tab1" title="我发起"></i-tab>
             </i-tabs>
             <div class="nav" v-if="!isBlock">
                 <div class="lBox">
@@ -271,7 +271,7 @@ export default {
         return {
             searchValue:"",
             isBlock:false,
-            current: 'tab1',
+            current: 'tab2',
             showMore:false,
             checked:false,
             cbShow:false,
@@ -380,7 +380,7 @@ export default {
             // stateCode:-1,
             processId:"",
             createdByIds:"",
-            linkUrl:"flow.mytasks.getlist",
+            linkUrl:"flow.waitingtasks.getlist",
             childShow:"",
             isBook:false,
             totalNum:"",
@@ -393,6 +393,9 @@ export default {
         Object.assign(this.$data,this.$options.data());
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
+        this.getQuery();
+    },
+    onShow(){
         this.getQuery();
     },
     computed:{
@@ -860,7 +863,7 @@ export default {
         // 事务详情
         getDetail(item){
             this.updateInstanceId(item.instanceId);
-            const url = '/pages/todoBusiness/detail/main?id='+item.id+'&name='+item.name+'&processInstanceId='+item.processInstanceId+'&processId='+item.processId;
+            const url = '/pages/todoBusiness/detail/main?id='+item.id+'&name='+item.name+'&processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&RuleLogId='+item.id+'&createdByName='+item.createdByName;
             wx.navigateTo({url:url});
         },
         // 催办

@@ -91,7 +91,7 @@ page{
                     color: #fff;
                     border-top-left-radius: 5rpx;
                     border-bottom-left-radius: 5rpx;
-                    border: 1rpx solid #3399ff;
+                    border: 1px solid #3399ff;
                     border-right: none;
                 }
                 .r{
@@ -99,7 +99,7 @@ page{
                     color: #3399ff;
                     border-top-right-radius: 5rpx;
                     border-bottom-right-radius: 5rpx;
-                    border:1rpx solid #3399ff;
+                    border:1px solid #3399ff;
                     box-shadow: border-box;
                     border-left: none;
                 }

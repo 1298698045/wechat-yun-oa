@@ -2,7 +2,7 @@
     <div class="wrap">
         <div class="container" v-if="!maxShow">
             <div class="search">
-                <van-search :value="keyValue" placeholder="请输入搜索关键词" />
+                <van-search :value="keyValue" @click="getFriends" placeholder="请输入搜索关键词" />
             </div>
             <div class="content" v-if="!isShow">
                 <div class="header">
@@ -82,7 +82,7 @@
                 </div>
             </div>
             <Contacts v-if="isShow" :cc="cc" />
-            <Public :total="total" :cc="cc" :admin="admin" :foldersId="foldersId" :RightCode="RightCode" :meetingId="meetingId" />
+            <!-- <Public :total="total" :cc="cc" :admin="admin" :foldersId="foldersId" :RightCode="RightCode" :meetingId="meetingId" /> -->
             <!-- <div class="footer">
                 <div class="boxWrap">
                     <p class="l">
@@ -95,7 +95,9 @@
                 </div>
             </div> -->
         </div>
-        <ShowList v-if="maxShow" />
+        <!-- <ShowList v-if="maxShow" /> -->
+        <Public :total="total" :cc="cc" :admin="admin" :foldersId="foldersId" :RightCode="RightCode" :meetingId="meetingId" />
+        <SearchMailList v-if="maxShow" :cc="cc" />
     </div>
 </template>
 <script>
@@ -103,11 +105,15 @@ import { mapState,mapMutations, mapGetters } from 'vuex';
 import Contacts from '@/components/mailList/contacts';
 import Public from '@/components/mailList/public';
 import ShowList  from '@/components/mailList/showList';
+import SearchCom from '@/components/mailList/searchCom';
+import SearchMailList from '@/components/searchMailList';
 export default {
     components:{
         Contacts,
         Public,
-        ShowList
+        ShowList,
+        SearchCom,
+        SearchMailList
     },
     data(){
         return {
@@ -223,7 +229,7 @@ export default {
             })
         },
         getFriends(){
-            this.isShow = true;
+            this.maxShow = true;
         },
         // 我的群组
         getMyGroup(){

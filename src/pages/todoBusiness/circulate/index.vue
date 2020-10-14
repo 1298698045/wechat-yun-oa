@@ -17,7 +17,9 @@
     </div>-->
     <div class="content">
       <div class="heads" @click="getAddContacts">
-        <p>接收人</p>
+        <p>
+          {{sign=='W'?'代理人':sign=='JQ'?'办理人':'接收人'}}
+          </p>
         <p>
           <span class="people">{{selectListName.length}}人</span>
           <van-icon name="add-o" color="#3399ff" size="20" />
@@ -45,7 +47,7 @@
     </div>
     <div class="footer">
       <div class="box">
-        <van-button custom-class="btn l" plain hairline type="primary">取消</van-button>
+        <!-- <van-button custom-class="btn l" plain hairline type="primary">取消</van-button> -->
         <van-button custom-class="btn r" plain hairline type="info" @click="getSubmit">确定</van-button>
       </div>
     </div>
@@ -62,7 +64,10 @@ export default {
       name: "",
       sessionkey: "",
       id:"",
-      sign:""
+      sign:"",
+      ruleLogId:"",
+      processId:"",
+      processInstanceId:""
     };
   },
   computed: {
@@ -78,18 +83,29 @@ export default {
       }
     })
   },
+  onUnload(){
+    this.getClear([]);
+  },
   onLoad(options) {
     Object.assign(this.$data, this.$options.data());
     let sessionkey = wx.getStorageSync("sessionkey");
     this.sessionkey = sessionkey;
     this.name = options.name;
-    this.id = options.id;
+    this.id = options.processInstanceId;
     this.sign = options.sign;
-    if(options.sign==1){
+    this.ruleLogId = options.ruleLogId;
+    this.processInstanceId = options.processInstanceId;
+    this.processId = options.processId;
+    if(options.sign=='W'){
       wx.setNavigationBarTitle({
         title: '委托'
       })
-    }else {
+    }else if(options.sign=='JQ'){
+      wx.setNavigationBarTitle({
+        title: '加签'
+      })
+    }
+    else {
       wx.setNavigationBarTitle({
         title: '传阅'
       })
@@ -97,26 +113,66 @@ export default {
   },
   methods: {
       ...mapMutations([
-          'getSingleDelete'
+          'getSingleDelete',
+          'getClear'
       ]),
-    getSubmit() {
-      if(this.sign==1){
-        this.$httpWX.get({
-          url:this.$api.message.queryList,
-          data:{
-            method:"flow.instance.transferagent",
-            SessionKey: this.sessionkey,
-            wfRuleLogId:this.id,
-            members:this.selectId.join(','),
-            Message:this.message
+    getForward(){
+      let temp = this.selectListName.map(item=>item.id);
+      let obj = {
+        actions:[
+          {
+            params:{
+              processId:this.processId,
+              processInstanceId:this.processInstanceId,
+              ruleLogId:this.ruleLogId,
+              participators:temp,
+              description:this.message
+            }
           }
+        ]
+      }
+      this.$httpWX.post({
+            url:this.$api.message.queryList+'?method='+this.$api.instance.forward,
+            data:{
+                SessionKey:this.sessionkey,
+                message:JSON.stringify(obj)
+            }
         }).then(res=>{
-            Notify({ type: "primary", message: res.msg });
-            this.message = "";
-            wx.navigateBack({
-              delta: 1
-            })
+            console.log(res);
         })
+    },
+    // 加签
+    getAddparticipator(){
+      let temp = this.selectListName.map(item=>item.id);
+      let obj = {
+        actions:[
+          {
+            params:{
+              processId:this.processId,
+              processInstanceId:this.processInstanceId,
+              ruleLogId:this.ruleLogId,
+              participators:temp,
+              fromActivityId:"",
+              description:this.message
+            }
+          }
+        ]
+      }
+      this.$httpWX.post({
+        url:this.$api.message.queryList+'&method='+this.$api.instance.addparticipator,
+        data:{
+          SessionKey:this.sessionkey,
+          message:JSON.stringify(obj)
+        }
+      }).then(res=>{
+        console.log(res);
+      })
+    },
+    getSubmit() {
+      if(this.sign=='W'){
+        this.getForward();
+      }else if(this.sign=='JQ'){
+        this.getAddparticipator();
       }else{
         this.$httpWX
           .get({
@@ -131,13 +187,14 @@ export default {
             }
           })
           .then(res => {
-            Notify({ type: "primary", message: res.msg });
+            // Notify({ type: "primary", message: res.msg });
             this.message = "";
-            wx.navigateBack({
-              delta: 1
-            })
+            
           });
       }
+      wx.navigateBack({
+        delta: 1
+      })
     },
     getAddContacts() {
       const url = "/pages/publics/mailList/main";
@@ -298,10 +355,10 @@ export default {
     bottom: 0;
     .box {
       display: flex;
-      justify-content: space-around;
+      justify-content: center;
       padding: 20rpx;
       .btn {
-        width: 160px;
+        width: 320px;
       }
       .l {
         background: #f3f3f3;

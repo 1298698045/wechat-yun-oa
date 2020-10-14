@@ -128,7 +128,8 @@ const api = {
     instance: {
         urging: "flow.instance.pushmessage", // 催办
         cancelsubmit: "flow.process.cancelsubmit",
-        forward: "process.approve.forward" // 流程审批 – 委托
+        forward: "process.approve.forward", // 流程审批 – 委托
+        addparticipator: "process.approve.addparticipator" // 加签
     },
     // 审批
     approval: {
@@ -143,7 +144,8 @@ const api = {
         accept: "process.approve.accept",
         stepSubmit: "process.step.submit", // 提交流程 
         refuse: "process.approve.reject", // 审批拒绝
-        create: "process.instance.create" // 创建流程实例 – 不带表单数据
+        create: "process.instance.create", // 创建流程实例 – 不带表单数据
+        finish: "process.approve.finish" // 流程审批 – 结束
     },
     // 投票
     vote: {

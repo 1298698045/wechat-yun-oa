@@ -19,7 +19,8 @@
                 "detail/main",
                 "selectRelation/main",
                 "launch/main",
-                "write/main"
+                "write/main",
+                "jump/main"
             ]
         },
         {
