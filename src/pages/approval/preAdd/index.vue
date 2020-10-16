@@ -57,7 +57,7 @@ export default {
             level:[
                 '普通','中等','紧急'
             ],
-            Deadline:"",
+            Deadline:1,
             index:0,
             Description:"",
             BusinessUnitId:"",

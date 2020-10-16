@@ -1,7 +1,7 @@
 <template>
     <div class="wrap">
         <div class="header">
-            <van-search :value="keyWord" placeholder="请输入搜索关键词" @change="changeSearch" />
+            <van-search :value="keyWord" placeholder="请输入搜索关键词" @click="getRouterUrl" @change="changeSearch" />
             <div class="boxWrap">
                 <div class="box" @click="getMyApproval">
                     <p class="imgs">
@@ -132,6 +132,12 @@ export default {
         this.getQuery();
     },
     methods:{
+        getRouterUrl(){
+            const url = '/pages/approval/search/main';
+            wx.navigateTo({
+                url:url
+            })
+        },
         changeSearch(e){
             this.keyWord = e.mp.detail;
             this.getQuery();

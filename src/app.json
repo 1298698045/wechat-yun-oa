@@ -181,7 +181,8 @@
                 "launch/main",
                 "add/main",
                 "process/main",
-                "preAdd/main"
+                "preAdd/main",
+                "search/main"
             ]
         },
         {

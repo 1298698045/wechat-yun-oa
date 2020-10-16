@@ -221,7 +221,7 @@
                 <div class="fot" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
                     <div class="box">
                         <p @click="onCloseAgree">取消</p>  
-                        <p>上一环节</p>
+                        <!-- <p>上一环节</p> -->
                         <p @click="getSubmit">提交</p>  
                     </div>
                 </div> 
@@ -1173,15 +1173,20 @@ export default {
                 position: fixed;
                 bottom: 0;
                 background: #fff;
+                border-top: 1rpx solid #e2e3e5;
                 .box{
                     display:flex;
                     justify-content: center;
                     p{
-                        width: 33.3%;
+                        width: 50%;
                         text-align: center;
                         color: #3399ff;
                         padding: 20rpx;
                         border-right: 1rpx solid #f2f2f2;
+                    }
+                    p:last-child{
+                        background: #3399ff;
+                        color: #ffffff;
                     }
                 }
 
