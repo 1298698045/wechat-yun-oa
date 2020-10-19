@@ -7,10 +7,10 @@ export default {
   },
   onLaunch(){
     let openid = wx.getStorageSync('openid');
-    // if(openid!=''){
-    //   const url = '/pages/messages/main';
-    //   wx.switchTab({url:url});
-    // }
+    if(openid!=''){
+      const url = '/pages/messages/main';
+      wx.switchTab({url:url});
+    }
   },
   created () {
     // 调用API从本地缓存中获取数据

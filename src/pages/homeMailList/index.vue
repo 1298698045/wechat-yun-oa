@@ -209,7 +209,7 @@ export default {
             wx.navigateTo({url:url});
         },
         getContacts(item){
-            const url = '/pages/mailList/cardInfo/main?id='+item.UserId;
+            const url = '/pages/mailList/cardInfo/main?id='+item.userid;
             wx.navigateTo({
                 url:url
             })

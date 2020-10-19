@@ -138,7 +138,10 @@ export default {
             timeSort:['时间排序','优先级排序'],
             timeSortIdx:0,
             isBook:false,
-            childShow:''
+            childShow:'',
+            pageSize:25,
+            pageNumber:1,
+            isPage:false
         }
     },
     computed:{
@@ -191,10 +194,24 @@ export default {
                     // stateCode:this.isBook?this.$refs.childs.statusNum:'',
                     stateCode:this.isBook?this.$refs.childs.statusCode:'',
                     deptIds:this.isBook?this.$refs.childs.deptIds.join(','):'',
-                    createdByIds:this.isBook?(this.$refs.childs.designee.hasOwnProperty('id')?this.$refs.childs.designee.id:''):""
+                    createdByIds:this.isBook?(this.$refs.childs.designee.hasOwnProperty('id')?this.$refs.childs.designee.id:''):"",
+                    pageSize:this.pageSize,
+                    pageNumber:this.pageNumber
                 }
             }).then(res=>{
-                this.list = res.listData;
+                if(res.listData==""){
+                    this.isPage = false;
+                }else {
+                    this.isPage = true;
+                }
+                let result = [];
+                if(this.pageNumber==1){
+                    result = res.listData;
+                }else {
+                    result = this.listData.concat(res.listData);
+                }
+                this.list = result;
+                // this.list = res.listData;
                 this.list.forEach(item=>{
                     let className = item.stateCode==1?'approvalIng':item.stateCode==3?'tag':item.stateCode==5?'error':item.stateCode==4?'revoke'
                     :item.stateCode==0?'draft':item.stateCode==2?'挂起':'';
@@ -229,10 +246,24 @@ export default {
                     // stateCode:this.isBook?this.$refs.childs.statusNum:'',
                     stateCode:this.isBook?this.$refs.childs.statusCode:'',
                     deptIds:this.isBook?this.$refs.childs.deptIds.join(','):'',
-                    createdByIds:this.isBook?(this.$refs.childs.designee.hasOwnProperty('id')?this.$refs.childs.designee.id:''):""
+                    createdByIds:this.isBook?(this.$refs.childs.designee.hasOwnProperty('id')?this.$refs.childs.designee.id:''):"",
+                    pageSize:this.pageSize,
+                    pageNumber:this.pageNumber
                 }
             }).then(res=>{
-                this.list = res.listData;
+                // this.list = res.listData;
+                if(res.listData==""){
+                    this.isPage = false;
+                }else {
+                    this.isPage = true;
+                }
+                let result = [];
+                if(this.pageNumber==1){
+                    result = res.listData;
+                }else {
+                    result = this.listData.concat(res.listData);
+                }
+                this.list = result;
             })
         },
         handleChange(e){
@@ -266,6 +297,22 @@ export default {
         getCirculation(){
             const url = '/pages/todoBusiness/circulate/main';
             wx.navigateTo({url:url});
+        }
+    },
+        // 下拉刷新
+    onPullDownRefresh() {
+        // this.current_scroll = '推荐';
+        this.pageNumber = 1;
+        this.getQuery();
+        wx.stopPullDownRefresh();
+    },
+    /**
+     * 页面上拉触底事件的处理函数
+     */
+    onReachBottom() {
+        if(this.isPage){
+            this.pageNumber++;
+            this.getQuery();
         }
     }
 }

@@ -130,7 +130,8 @@ export default {
             resultList:[],
             isCheck:false,
             sheetShow:false,
-            sessionkey:""
+            sessionkey:"",
+            isSwitch:false
         }
     },
     onLoad(){
@@ -138,7 +139,9 @@ export default {
         this.getFileQuery();
     },
     onShow(){
-        this.list = this.list.concat(this.selectFiles);
+        if(!this.isSwitch){
+            this.list = this.list.concat(this.selectFiles);
+        }
     },
     computed:{
         ...mapState({
@@ -160,6 +163,7 @@ export default {
     },
     methods:{
         getPreview(item){
+            this.isSwitch = true;
             const openImgs = JSON.stringify(this.openImgs);
             getOpenFiles(item,openImgs);
         },

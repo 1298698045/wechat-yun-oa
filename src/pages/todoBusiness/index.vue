@@ -386,7 +386,10 @@ export default {
             totalNum:"",
             isStatus:false,
             tagList:['短信','应用内'],
-            resultTag:[]
+            resultTag:[],
+            pageSize:25,
+            pageNumber:1,
+            isPage:false
         }
     },
     onLoad(){
@@ -591,6 +594,8 @@ export default {
                         createdByIds:this.isBook?(this.$refs.childs.designee.hasOwnProperty('id')?this.$refs.childs.designee.id:''):"",
                         startTime:this.isBook?this.$refs.childs.startTime:'',
                         endTime:this.isBook?this.$refs.childs.endTime:'',
+                        pageSize:this.pageSize,
+                        pageNumber:this.pageNumber
                         // stateCode:this.statusNum,
                         // processId:this.processId,
                         // deptIds:this.deptIds!=''?this.deptIds.join(','):'',
@@ -599,8 +604,19 @@ export default {
                         // endTime:this.endTime
                     }
                 }).then(res=>{
-                    console.log(res);
-                    this.list = res.listData;
+                    if(res.listData==""){
+                        this.isPage = false;
+                    }else {
+                        this.isPage = true;
+                    }
+                     let result = [];
+                    if(this.pageNumber==1){
+                        result = res.listData;
+                    }else {
+                        result = this.listData.concat(res.listData);
+                    }
+                    this.list = result;
+                    // this.list = res.listData;
                     let total = 0;
                     this.list.forEach(item=>{
                         let nameLength = item.createdByName.lenght;
@@ -634,16 +650,29 @@ export default {
                         deptIds:this.isBook?this.$refs.childs.deptIds.join(','):'',
                         createdByIds:this.isBook?(this.$refs.childs.designee.hasOwnProperty('id')?this.$refs.childs.designee.id:''):"",
                         startTime:this.isBook?this.$refs.childs.startTime:'',
-                        endTime:this.isBook?this.$refs.childs.endTime:''
+                        endTime:this.isBook?this.$refs.childs.endTime:'',
+                        pageSize:this.pageSize,
+                        pageNumber:this.pageNumber
                         // deptIds:this.deptIds!=''?this.deptIds.join(','):'',
                         // createdByIds:this.designee.hasOwnProperty('id')?this.designee.id:'',
                         // startTime:this.startTime,
                         // endTime:this.endTime
                     }
                 }).then(res=>{
-                    console.log(res);
-                    this.list = res.listData;
-                    console.log(this.list,'123123');
+                    if(res.listData==""){
+                        this.isPage = false;
+                    }else {
+                        this.isPage = true;
+                    }
+                     let result = [];
+                    if(this.pageNumber==1){
+                        result = res.listData;
+                    }else {
+                        result = this.listData.concat(res.listData);
+                    }
+                    this.list = result;
+                    // this.list = res.listData;
+                    console.log(this.list,'123123----');
                     this.list.forEach(item=>{
                         let nameLength = item.createdByName.lenght;
                         // debugger
@@ -669,6 +698,7 @@ export default {
             this.clearGroup([]);
             this.clearDesignee({});
             this.screenShow = false;
+            this.pageNumber = 1;
             if(this.current == 'tab1'){
                 this.actions = [
                     {
@@ -874,6 +904,22 @@ export default {
         },
         changeTag(e){
             this.resultTag = e.mp.detail;
+        }
+    },
+        // 下拉刷新
+    onPullDownRefresh() {
+        // this.current_scroll = '推荐';
+        this.pageNumber = 1;
+        this.getQuery();
+        wx.stopPullDownRefresh();
+    },
+    /**
+     * 页面上拉触底事件的处理函数
+     */
+    onReachBottom() {
+        if(this.isPage){
+            this.pageNumber++;
+            this.getQuery();
         }
     }
 }

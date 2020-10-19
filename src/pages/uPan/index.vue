@@ -38,7 +38,7 @@
                 </van-checkbox-group>
             </div>  
         </div> 
-        <div class="footer">
+        <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div class="boxBtn">
                 <p class="num">
                     已选择:{{length}}
@@ -81,6 +81,9 @@ export default {
         }),
         length(){
             return this.selectFiles.length;
+        },
+        isModelmes(){
+            return wx.getStorageSync('isModelmes');
         }
     },
     methods:{
@@ -182,6 +185,7 @@ export default {
         overflow: hidden;
         .center{
             background: #fff;
+            padding-bottom: 80px;
             .row{
                 display: flex;
                 align-items: center;

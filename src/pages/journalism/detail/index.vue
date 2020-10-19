@@ -351,6 +351,13 @@ export default {
             }).then(res=>{
                 let data = res.data[0];
                 // data.CreatedOn = getDate(data.CreatedOn.replace(/-/g,'/'));
+                let mDate = new Date(data.CreatedOn);
+                let y = mDate.getFullYear();
+                let m = mDate.getMonth()+1;
+                let d = mDate.getDate();
+                let hour = mDate.getHours();
+                let min = mDate.getMinutes();
+                data.CreatedOn = `${y}年${m}月${d}日 ${hour}:${min}`
                 this.info = data;
                 this.info.CommentCount = this.info.CommentCount==0?'':this.info.CommentCount;
                 this.info.ReadCount = this.info.ReadCount==0?'':this.info.ReadCount;
