@@ -49,17 +49,19 @@
                 </p>
             </div>
         </div>
-        <div class="content" v-for="(item,index) in list" :key="index">
-            <h3 class="padding" @click="item.items.length>4?getOpen(index):''">
-                <p>{{item.name}}</p>
-                <p v-if="item.items.length>4">{{item.showContent?'收起':'展开'}}</p>
-            </h3>
-            <div class="row">
-                <div class="box" v-for="(v,i) in item.showContent?item.items:item.array" :key="i" @click="getRouter(v,1)">
-                    <p :class="v.icon==''?'active':''">
-                        <img :src="imgUrl+v.icon" alt="" v-if="item.icon!=''">
-                    </p>
-                    <p>{{v.label}}</p>
+        <div>
+            <div class="content" v-for="(item,index) in list" :key="index">
+                <h3 class="padding" @click="item.items.length>4?getOpen(index):''">
+                    <p>{{item.name}}</p>
+                    <p v-if="item.items.length>4">{{item.showContent?'收起':'展开'}}</p>
+                </h3>
+                <div class="row">
+                    <div class="box" v-for="(v,i) in item.showContent?item.items:item.array" :key="i" @click="getRouter(v,1)">
+                        <p :class="v.icon==''?'active':''">
+                            <img :src="imgUrl+v.icon" alt="" v-if="item.icon!=''">
+                        </p>
+                        <p>{{v.label}}</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -401,6 +403,9 @@ export default {
                     border-radius: 15rpx;
                 }
             }
+        }
+        .content:last-child{
+            border: none;
         }
         .content{
             border-bottom: 1rpx solid #e2e2e2;

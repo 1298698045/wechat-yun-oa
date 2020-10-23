@@ -219,6 +219,9 @@
         "navigationBarTitleText": "WeChat",
         "navigationBarTextStyle": "black"
     },
+    "networkTimeout": {
+        "request": 30000
+    },
     "tabBar": {
         "color": "#999",
         "backgroundColor": "#fafafa",

@@ -6,7 +6,7 @@
                     <p class="save" @click="getSendOut('0','save')">保存</p>
                     <p class="send" :class="{'active':nameList!=''}"  @click="getSendOut('1')">发送</p>
                 </div>
-                <div class="boxWrap" v-if="nameCC==''" @click="getaddShow">
+                <div class="boxWrap" @click="getaddShow">
                     <div class="flex">
                         <div class="cont">
                             <span>收件人：</span>
@@ -50,7 +50,7 @@
                     <p>抄送/密送，发件人：</p>
                     <p class="col">zhanglp@fenghuang.com</p>
                 </div> -->
-                <div class="boxWrap">
+                <div class="boxWrap"  v-if="name==''&&nameCC==''">
                     <div class="flex">
                         <span class="label">主题：</span>
                         <input class="inp" type="text" v-model="subject" >
@@ -339,6 +339,8 @@ export default {
             this.getSingleDeleteCC(id);
         },
         getSelect(item){
+            this.temp = [];
+            this.tempCC = [];
             if(this.name!=''){
                 this.temp.push({
                     FullName:item.FullName,

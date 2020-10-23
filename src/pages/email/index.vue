@@ -16,7 +16,7 @@
                 <div class="col">
                     <p>收件箱</p>
                 </div>
-                <div class="col">
+                <div class="col" v-if="unReadQty>0">
                     <p>{{unReadQty}}</p>
                 </div>
             </div>
@@ -44,7 +44,7 @@
                 </div>
                 <div class="r">
                     <p  @click="getInbox(item.name,item.Id)">{{item.name}}
-                        <span>{{item.num}}</span>
+                        <span v-if="item.num>0">{{item.num}}</span>
                     </p>
                 </div>
             </div>
@@ -163,7 +163,8 @@ export default {
                 this.unReadQty = res.listData.unReadQty;
                 // this.list[1].num = res.listData.draftQty;
                 this.list[0].num = res.listData.groupQty;
-                this.list[3].num = res.listData.deleteQty;
+                // this.list[3].num = res.listData.deleteQty;
+                // this.list[1].num = res.listData.draftQty;
                 response = res;
             })
             return  response;
@@ -209,11 +210,21 @@ export default {
                 wx.navigateTo({url:url});
             }
         }
-    }
+    },
+    onPullDownRefresh(){
+        this.getEmailAmount().then((res)=>{
+            console.log(this.startQty,'startQty',res);
+        });
+        this.getQuery();
+        wx.stopPullDownRefresh();
+    },
 }
 </script>
 <style lang="scss">
     @import '../../../static/css/public.scss';
+    page{
+        background: #fff !important;
+    }
     .wrap{
         width: 100%;
         // height: 100vh;

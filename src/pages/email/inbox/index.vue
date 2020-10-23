@@ -57,7 +57,7 @@
         </div>
         <div class="footer" v-if="show"  :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div class="box" v-if="ltags=='draft'">
-                <p @click="resultTotal>0?deleteEmail:''" class="del" :class="result!=''?'active':''">删除</p>
+                <p @click="resultTotal>0?deleteEmail():''" class="del" :class="result!=''?'active':''">删除</p>
             </div>
             <div class="box" v-else-if="ltags=='deleted'">
                 <p class="clear" :class="result!=''?'active':''" v-if="result==''" @click="getClearEmail">清空</p>
@@ -84,7 +84,7 @@
                 </p>
                 <!-- <p @click="getSign"  v-if="result!=''">标记邮件</p> -->
                 <p @click="resultTotal>0?getMove:''" v-if="ltags!='star'" class="color" :class="result!=''?'active':''">移动</p>
-                <p @click="resultTotal>0?deleteEmail:''" class="del" :class="result!=''?'active':''">删除</p>
+                <p @click="resultTotal>0?deleteEmail():''" class="del" :class="result!=''?'active':''">删除</p>
                 <!-- <p @click="getRejection">拒收</p> -->
             </div>
         </div>
@@ -577,6 +577,9 @@ export default {
 <style lang="scss">
     @import '../../../../static/css/public.scss';
     @import '../../../../static/css/emaiIcon.css';
+    page{
+        background: #fff;
+    }
     .wrap{
         margin-bottom: 100px;
         .nav{

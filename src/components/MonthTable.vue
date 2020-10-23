@@ -168,7 +168,7 @@ export default {
             let end = this.getMonthEndDate(preTemp[0],preTemp[1]);
             let nStart = this.getMonthStartDate(nextTemp[0],nextTemp[1]);
             let currDay = new Date(start).getDay();
-            let endDay = new Date(end).getDate();
+            let endDay = new Date(preTemp[0],preTemp[1],0).getDate(); // 获取上月共有多少天
             let currDay2 = new Date(nStart).getDay();
             let pre = this.setDate(currDay,endDay,d);
             let now = this.setDate(this.currDay,this.endDay,this.date);

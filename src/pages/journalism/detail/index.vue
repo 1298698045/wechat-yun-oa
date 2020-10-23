@@ -62,7 +62,7 @@
                 <p>不喜欢{{info.dislikeqty}}</p> -->
                 <p @click="getFabulous(zanShow)" :class="{'active':zanShow}">
                     <i class="iconfont" :class="zanShow?'icon-zan1':'icon-zan2'"></i>
-                    <span v-if="!zanShow">点赞</span>
+                    <span v-if="!zanShow&&info.LikeCount==0">点赞</span>
                     <span v-else>
                         {{info.LikeCount}}
                     </span>
@@ -766,6 +766,7 @@ export default {
             .parse{
                 // padding: 0 30rpx;
                 padding: 0 30rpx 50rpx 30rpx;
+                overflow: hidden;
             }
             .border{
                 display: flex;
@@ -833,8 +834,8 @@ export default {
                     flex: 1;
                     display: inline-block;
                     width: 100%;
-                    height: 2rpx;
-                    background: #e2e3e5;
+                    height: 1px;
+                    background: #eceeed;
                 }
             }
             .boxWrap{
@@ -928,9 +929,9 @@ export default {
             }
         }
         .tabWrap{
-            margin: 30rpx 0;
-            margin-bottom: 60px;
-            padding-bottom: 50px;
+            margin-top: 16rpx;
+            margin-bottom: 120rpx;
+            padding-bottom: 35rpx;
             .content{
                 background: #fff;
                 padding: 30rpx;

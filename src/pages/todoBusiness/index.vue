@@ -613,7 +613,7 @@ export default {
                     if(this.pageNumber==1){
                         result = res.listData;
                     }else {
-                        result = this.listData.concat(res.listData);
+                        result = this.list.concat(res.listData);
                     }
                     this.list = result;
                     // this.list = res.listData;
@@ -668,7 +668,7 @@ export default {
                     if(this.pageNumber==1){
                         result = res.listData;
                     }else {
-                        result = this.listData.concat(res.listData);
+                        result = this.list.concat(res.listData);
                     }
                     this.list = result;
                     // this.list = res.listData;

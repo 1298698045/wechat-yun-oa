@@ -258,7 +258,9 @@ export default {
             
         },
         ...mapMutations([
-            'getSign'
+            'getSign',
+            'getClear',
+            'clearFile'
         ]),
         getAddContacts(){
             this.getSign('writeMail');

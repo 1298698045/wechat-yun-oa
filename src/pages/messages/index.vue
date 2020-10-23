@@ -185,6 +185,9 @@ export default {
             .content.active{
                 background: #f3f3f3;
             }
+            .content:last-child{
+                border-bottom: none;
+            }
             .content{
                 padding: 20rpx;
                 background: #fff;

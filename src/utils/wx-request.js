@@ -17,8 +17,20 @@ function request(url, method, data, header = {}) {
                 resolve(res.data)
             },
             fail: function(res) {
-                wx.hideLoading()
-                    // reject(false)
+                wx.showModal({
+                    content: '服务器出现异常，请稍后尝试',
+                    showCancel: false,
+                    confirmText: '我知道了',
+                    success(res) {
+                        if (res.confirm) {
+                            console.log('用户点击确定')
+                        } else if (res.cancel) {
+                            console.log('用户点击取消')
+                        }
+                    }
+                })
+                wx.hideLoading();
+                // reject(false)
             },
             complete: function() {
                 wx.hideLoading()

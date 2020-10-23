@@ -262,7 +262,8 @@ export default {
             sessionkey:"",
             paramsList:[],
             openImgs:[], // 所有图片
-            listLength:""
+            listLength:"",
+            isSwitch:false
         }
     },
     computed:{
@@ -277,18 +278,20 @@ export default {
         }
     },
     onShow(){
-        this.files = [];
-        this.folders = [];
-        const pages = getCurrentPages();
-        const currPage = pages[pages.length-1]
-        console.log(pages,currPage.options.id,'--');
-        // debugger
-        if(currPage.options.id!==undefined){
-            this.ParentId = currPage.options.id;
-        }else {
-            currPage.ParentId = this.ParentId;
+        if(!this.isSwitch){
+            this.files = [];
+            this.folders = [];
+            const pages = getCurrentPages();
+            const currPage = pages[pages.length-1]
+            console.log(pages,currPage.options.id,'--');
+            // debugger
+            if(currPage.options.id!==undefined){
+                this.ParentId = currPage.options.id;
+            }else {
+                currPage.ParentId = this.ParentId;
+            }
+            this.getQuery();
         }
-        this.getQuery();
 
     },
     onLoad(options){
@@ -732,6 +735,7 @@ export default {
             this.editSheet = false;
         },
         getPreviewImage(item){
+            this.isSwitch = true;
             const openImgs = JSON.stringify(this.openImgs);
             openFiles(item,openImgs);
             // let that = this;
@@ -749,6 +753,9 @@ export default {
 </script>
 <style lang="scss">
     @import '../../../../static/css/public.scss';
+    page{
+        background: #fff;
+    }
     .nav {
         background: #fff;
         padding: 31rpx 33rpx;

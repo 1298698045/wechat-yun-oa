@@ -24,7 +24,7 @@
                     <p class="lable">地点<span>*</span></p>
                     <p class="inp">
                         <input placeholder-class="placeholder" class="addressinp" type="text" v-model="address" placeholder="请输入地点">
-                        <i class="iconfont icon-dizhi1" @click.stop="getOpenAddress"></i>
+                        <i class="iconfont icon-dizhi1" @click.stop="getOpenAddress" style="color:#A3A4A6;"></i>
                         <!-- <i-icon type="enter" size="20" color="#999999" /> -->
                     </p>
                 </div>
