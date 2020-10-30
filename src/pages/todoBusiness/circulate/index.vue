@@ -67,7 +67,9 @@ export default {
       sign:"",
       ruleLogId:"",
       processId:"",
-      processInstanceId:""
+      processInstanceId:"",
+      ToActivityId:"",
+      fromActivityId:""
     };
   },
   computed: {
@@ -96,6 +98,8 @@ export default {
     this.ruleLogId = options.ruleLogId;
     this.processInstanceId = options.processInstanceId;
     this.processId = options.processId;
+    this.ToActivityId = options.ToActivityId;
+    this.fromActivityId = options.fromActivityId;
     if(options.sign=='W'){
       wx.setNavigationBarTitle({
         title: '委托'
@@ -124,7 +128,7 @@ export default {
             params:{
               processId:this.processId,
               processInstanceId:this.processInstanceId,
-              ruleLogId:this.ruleLogId,
+              FromActivityId:this.ToActivityId,
               participators:temp,
               description:this.message
             }
@@ -132,7 +136,7 @@ export default {
         ]
       }
       this.$httpWX.post({
-            url:this.$api.message.queryList+'?method='+this.$api.instance.forward,
+            url:this.$api.message.queryList+'?method='+this.$api.instance.entrust,
             data:{
                 SessionKey:this.sessionkey,
                 message:JSON.stringify(obj)
@@ -152,8 +156,9 @@ export default {
               processInstanceId:this.processInstanceId,
               ruleLogId:this.ruleLogId,
               participators:temp,
-              fromActivityId:"",
-              description:this.message
+              fromActivityId:this.fromActivityId,
+              description:this.message,
+              toActivityId:this.ToActivityId
             }
           }
         ]

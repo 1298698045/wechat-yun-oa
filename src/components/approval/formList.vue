@@ -120,7 +120,7 @@
                 </van-cell-group>
             </van-checkbox-group> -->
             <van-cell-group custom-class="cell" v-if="item.type=='U'">
-                <van-cell value-class="cellValue" :title="item.label" is-link :value="item.value" @click="getOpenModal(item,index)" />
+                <van-cell value-class="cellValue" title-style="font-size:34rpx;" :title="item.label" is-link :value="item.value" @click="getOpenModal(item,index)" />
             </van-cell-group>
             <div class="switch" v-if="item.type=='H'">
                 <p>
@@ -434,6 +434,9 @@ export default {
 }
 </script>
 <style lang="scss">
+.van-cell__title{
+    font-size: 34rpx!important;
+}
     .wrap_w{
         width: 100%;
         height: 100%;
@@ -455,6 +458,7 @@ export default {
         .cell{
             margin-top: 24rpx;
             .cellValue{
+                font-size: 34rpx;
                 color: #333333;
             }
             .inp{

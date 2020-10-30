@@ -206,6 +206,15 @@
                 "sendDynamic/main",
                 "detail/main"
             ]
+        },
+        {
+            "root": "pages/hr",
+            "pages": [
+                "Business/main",
+                "overTimeApply/main",
+                "personnelFiles/main",
+                "holidayAccount/main"
+            ]
         }
     ],
     "permission": {

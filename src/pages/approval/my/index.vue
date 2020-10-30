@@ -68,7 +68,7 @@
                     </div>
                     <div class="rBox">
                         <div class="title">
-                            <p>{{item.name}}</p>
+                            <p>{{item.createdByName}}提交的{{item.processIdName}}</p>
                             <p @click.stop="getMore">
                                 <i-icon type="more" size="20" color="#999999" />
                             </p>

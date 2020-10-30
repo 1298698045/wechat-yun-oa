@@ -136,7 +136,7 @@
             </div>
             <div class="row" v-if="item.type=='UCS'">
                 <p class="title">*<span>{{item.label}}</span></p>
-                <textarea v-model="item.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" placeholder="请输入"></textarea>
+                <textarea :value="item.value" @input="function(val){changeText(val,item,index)}" name="" id="" cols="30" rows="10" placeholder-class="placeholder" placeholder="请输入"></textarea>
             </div>
             <div class="parentWrap" v-if="item.type=='RelatedList'">
                 <h3>{{item.label}}</h3>
@@ -208,7 +208,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <!-- <div class="row">
             <p class="text">附件</p>
             <div class="content">
                 <div class="box" v-for="(item,index) in imgList" :key="index">
@@ -218,7 +218,7 @@
                     <i-icon type="add" size="40" color="#bec5c5" />
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div class="btn">
                 <van-button type="primary" color="#3399ff" block @click="getSubmit">提交</van-button>
@@ -450,6 +450,11 @@ export default {
     },
     methods:{
         ...mapMutations(['getClear']),
+        changeText(e,v,i){
+            console.log(e,v);
+            this.list[i].value = e.mp.detail.value;
+            // v.value = e.mp.detail.value;
+        },
         getQueryFrom(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,

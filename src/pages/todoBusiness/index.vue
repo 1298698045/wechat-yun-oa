@@ -65,7 +65,7 @@
                             <p class="rad">{{item.activeName}}</p>
                         </div>
                         <div class="cont" @click="getDetail(item)">
-                            <h3>{{item.createdByName}}提交的流程申请表</h3>
+                            <h3>{{item.createdByName}}提交的{{item.processIdName}}</h3>
                             <div class="level">
                                 <p>
                                     <i class="iconfont icon-jinji2 icon" :class="item.priority==0?'icon':item.priority==1?'zhongji':'jinji'"></i>
@@ -893,7 +893,8 @@ export default {
         // 事务详情
         getDetail(item){
             this.updateInstanceId(item.instanceId);
-            const url = '/pages/todoBusiness/detail/main?id='+item.id+'&name='+item.name+'&processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&RuleLogId='+item.id+'&createdByName='+item.createdByName;
+            const url = '/pages/todoBusiness/detail/main?id='+item.id+'&name='+item.name+'&processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&RuleLogId='+item.id
+            +'&createdByName='+item.createdByName+'&toActivityId='+item.toActivityId+'&fromActivityId='+item.fromActivityId;
             wx.navigateTo({url:url});
         },
         // 催办

@@ -271,6 +271,21 @@ export default {
             }else if(item.id==6000){
                 const url = '/pages/community/main';
                 wx.navigateTo({url:url})
+            }else if(item.id==30022){
+                const url = '/pages/clockIn/leaveApply/main';
+                wx.navigateTo({url:url});
+            }else if(item.id==30036){
+                const url = '/pages/hr/Business/main';
+                wx.navigateTo({url:url});
+            }else if(item.id==30037){
+                const url = '/pages/hr/overTimeApply/main';
+                wx.navigateTo({url:url});
+            }else if(item.id==30020){
+                const url = '/pages/hr/personnelFiles/main';
+                wx.navigateTo({url:url});
+            }else if(item.id==30091){
+                const url = '/pages/hr/holidayAccount/main';
+                wx.navigateTo({url:url});
             }
         },
         getOpenPhoto(){

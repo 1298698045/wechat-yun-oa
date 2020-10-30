@@ -154,8 +154,8 @@
                     <textarea v-model="description" class="textarea" placeholder="请输入留言" name="" id="" cols="30" rows="10"></textarea>
                 </div>
                 <p @click="getReject">退回上一步</p>
-                <p class="back">退回发起人</p>
-                <p>退回节点</p>
+                <p class="back" @click="getTostarter">退回发起人</p>
+                <p @click="getTostep">退回节点</p>
             </div>
         </van-popup>
         <!-- 同意弹框 -->
@@ -300,7 +300,8 @@ export default {
             RuleLogId:"",
             stepList:[],
             ToActivityId:"",
-            createdByName:""
+            createdByName:"",
+            fromActivityId:""
         }
     },
     computed:{
@@ -352,6 +353,9 @@ export default {
         this.sign = options.sign;
         this.RuleLogId = options.RuleLogId;
         this.createdByName = options.createdByName;
+        this.ToActivityId = options.toActivityId;
+        this.fromActivityId = options.fromActivityId;
+        this.getJurisdiction();
         this.getQuery();
         this.getCommentQuery();
         // this.getQueryFrom();
@@ -379,6 +383,19 @@ export default {
         }
     },
     methods:{
+        getJurisdiction(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    SessionKey:this.sessionkey,
+                    method:this.$api.instance.steppri,
+                    processId:this.processId,
+                    stepId:ToActivityId
+                }
+            }).then(res=>{
+                
+            })
+        },
         getForward(){
             let temp = this.selectListName.map(item=>item.id);
             let obj = {
@@ -435,7 +452,8 @@ export default {
                             processId:this.processId,
                             processInstanceId:this.processInstanceId,
                             ruleLogId:this.RuleLogId,
-                            participators:""
+                            participators:"",
+                            fromActivityId:this.ToActivityId
                         }
                     }
                 ]
@@ -449,6 +467,9 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.sheetShow = false;
+                wx.navigateBack({
+                    delta:1
+                })
             })
         },
         // 结束
@@ -467,6 +488,35 @@ export default {
             })
             
         },
+        // 退回到发起人
+        getTostarter(){
+            let obj = {
+                actions:[
+                    {
+                        params:{
+                            processId:this.processId,
+                            name:this.title,
+                            processInstanceId:this.processInstanceId,
+                            ruleLogId:this.RuleLogId,
+                            fromActivityId:this.ToActivityId,
+                            description:this.description
+                        }
+                    }
+                ]
+            }
+            this.$httpWX.post({
+                url:this.$api.message.queryList+'?method='+this.$api.approval.tostarter,
+                data:{
+                    SessionKey:this.sessionkey,
+                    message:JSON.stringify(obj)
+                }
+            }).then(res=>{
+                console.log(res);
+                wx.navigateBack({
+                    delta:1
+                })
+            })
+        },
         // 拒绝
         getReject(){
             let obj = {
@@ -477,7 +527,7 @@ export default {
                             name:this.title,
                             processInstanceId:this.processInstanceId,
                             ruleLogId:this.RuleLogId,
-                            fromActivityId:"",
+                            fromActivityId:this.ToActivityId,
                             description:this.description
                         }
                     }
@@ -494,6 +544,15 @@ export default {
                 wx.navigateBack({
                     delta:1
                 })
+            })
+        },
+        // 退回到指定节点
+        getTostep(){
+            this.sheetShow = false;
+            const url = '/pages/todoBusiness/jump/main?processId='+this.processId+'&processInstanceId='+this.processInstanceId
+            +'&ToActivityId='+this.ToActivityId+'&RuleLogId='+this.RuleLogId+'&sign='+'1';
+            wx.navigateTo({
+                url:url
             })
         },
         // 同意-提交
@@ -599,15 +658,18 @@ export default {
         },
         // 跳转
         getJump(){
-            const url = '/pages/todoBusiness/jump/main';
+            this.sheetShow = false;
+            const url = '/pages/todoBusiness/jump/main?processId='+this.processId+'&processInstanceId='+this.processInstanceId
+            +'&ToActivityId='+this.ToActivityId+'&RuleLogId='+this.RuleLogId;
             wx.navigateTo({
                 url:url
             })
         },
         // 传阅
         getCirculation(sign){
+            this.sheetShow = false;
             const url = '/pages/todoBusiness/circulate/main?name='+this.name+'&ruleLogId='+this.RuleLogId
-            +'&processId='+this.processId+'&processInstanceId='+this.processInstanceId+'&sign='+sign;
+            +'&processId='+this.processId+'&processInstanceId='+this.processInstanceId+'&sign='+sign+'&ToActivityId='+this.ToActivityId+'&fromActivityId='+this.fromActivityId;
             wx.navigateTo({url:url});
         },
         // 评论列表
@@ -1174,6 +1236,7 @@ export default {
                 bottom: 0;
                 background: #fff;
                 border-top: 1rpx solid #e2e3e5;
+                z-index: 99999;
                 .box{
                     display:flex;
                     justify-content: center;

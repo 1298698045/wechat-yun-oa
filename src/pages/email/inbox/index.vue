@@ -427,7 +427,7 @@ export default {
                     method:this.$api.email.mailboxDel,
                     SessionKey:this.sessionkey,
                     id:this.emailId,
-                    mailbox:"Inbox"
+                    mailbox:this.ltags
                 }
             }).then(res=>{
                 console.log(res);

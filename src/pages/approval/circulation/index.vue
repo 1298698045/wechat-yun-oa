@@ -41,7 +41,7 @@
                         </div>
                         <div class="rBox"  @click.stop="getDetail(item)">
                             <div class="title">
-                                <p>{{item.createdByName}}提交的会议纪要申请</p>
+                                <p>{{item.createdByName}}提交的{{item.processIdName}}</p>
                                 <!-- <p class="time">05.22</p> -->
                             </div>
                             <div class="level">

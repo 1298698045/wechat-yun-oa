@@ -621,7 +621,7 @@ export default {
                 success (res) {
                     // tempFilePath可以作为img标签的src属性显示图片
                     const tempFilePaths = res.tempFilePaths;
-                    let url = `${that.$api.upload.url}?method=${that.$api.usb.upload}&SessionKey=${that.sessionkey}`;
+                    let url = `${that.$api.upload.url}?method=${that.$api.usb.upload}&SessionKey=${that.sessionkey}&folderid=${that.ParentId}`;
                     wx.uploadFile({
                         url:url,
                         // url: "https://wx.phxinfo.com.cn/rest?method="+'file.upload.create'+'&SessionKey='+that.sessionkey, //仅为示例，非真实的接口地址

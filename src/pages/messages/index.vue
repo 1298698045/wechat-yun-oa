@@ -4,7 +4,7 @@
         <!-- <i-notice-bar icon="systemprompt" color="#3399ff" i-class="systemprompt" closable>
             启用新消息通知，不错过重要新消息!
         </i-notice-bar> -->
-        <div class="center">
+        <div class="center" :class="{'active':list.length>8}">
             <div class="content" :class="{active:num==index}" v-for="(item,index) in list" :key="index" @touchstart="touchstart(item,index)" @touchend="touchend" @click="handleSelelct(item,index)">
                 <i-row>
                     <i-col span="4" i-class="left">
@@ -176,12 +176,14 @@ export default {
         .systemprompt{
             background: #fff!important;
         }
+        .center.active{
+            padding-bottom: 80px;
+        }
         .center{
             width: 100%;
             height: 100%;
             overflow: hidden;
             background: #fff;
-            padding-bottom: 80px;
             .content.active{
                 background: #f3f3f3;
             }

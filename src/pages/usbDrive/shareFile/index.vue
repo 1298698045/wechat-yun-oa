@@ -41,7 +41,8 @@
                     <div class="cont">
                         <div @click="getFlodersDetail(item)">
                             <p class="title">{{item.name}}</p>
-                            <p class="text">暂无文件  卫辉  归属  绍兴第二医院</p>
+                            <!-- <p class="text">暂无文件  卫辉  归属  绍兴第二医院</p> -->
+                            <p class="text">{{item.createdByName==item.modifiedByName?item.createdByName+' 创建':item.modifiedByName+' 更新'}}</p>
                         </div>
                         <p class="icon">
                             <i class="iconfont icon-gengduo" @click="getEditFile(item)"></i>

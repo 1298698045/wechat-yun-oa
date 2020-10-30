@@ -1,21 +1,34 @@
 <template>
   <div class="wrap">
-    <picker @change="pickerLeave" :value="leaveIdx" range-key="name" :range="leaveList">
-      <div class="rowWrap">
+    <div class="content">
+      <div class="row">
         <p class="label">
-          请假类型
+          申请人
           <span>*</span>
         </p>
         <p class="name">
-          <span
-            :class="leaveList[leaveIdx]?'active':''"
-          >{{leaveList[leaveIdx]?leaveList[leaveIdx].name:'请选择'}}</span>
-          <i-icon type="enter" color="#cccccc" />
+          <input
+            type="text"
+            placeholder-style="text-align:right;color: #ababab;"
+            selection-end="-1"
+            :placeholder="'请输入申请人姓名'"
+          />
         </p>
       </div>
-    </picker>
-    <h3>假期余额</h3>
-    <div class="content">
+      <div class="row">
+        <p class="label">
+          所在部门
+          <span>*</span>
+        </p>
+        <p class="name">
+          <input
+            type="text"
+            placeholder-style="text-align:right;color: #ababab;"
+            selection-end="-1"
+            :placeholder="'请输入申请部门'"
+          />
+        </p>
+      </div>
       <picker
         @change="pickerStartTime"
         mode="multiSelector"
@@ -24,7 +37,38 @@
       >
         <div class="row">
           <p class="label">
-            开始时间
+            申请时间
+            <span>*</span>
+          </p>
+          <p class="name">
+            <span>{{startTime}}</span>
+            <i-icon type="enter" color="#cccccc" />
+          </p>
+        </div>
+      </picker>
+      <picker @change="pickerLeave" :value="leaveIdx" range-key="name" :range="leaveList">
+        <div class="rowWrap">
+          <p class="label">
+            加班类型
+            <span>*</span>
+          </p>
+          <p class="name">
+            <span
+              :class="leaveList[leaveIdx]?'active':''"
+            >{{leaveList[leaveIdx]?leaveList[leaveIdx].name:'请选择'}}</span>
+            <i-icon type="enter" color="#cccccc" />
+          </p>
+        </div>
+      </picker>
+      <picker
+        @change="pickerStartTime"
+        mode="multiSelector"
+        :value="multiIndex"
+        :range="newMultiArray"
+      >
+        <div class="row">
+          <p class="label">
+            加班开始时间
             <span>*</span>
           </p>
           <p class="name">
@@ -41,7 +85,7 @@
       >
         <div class="row">
           <p class="label">
-            结束时间
+            加班结束时间
             <span>*</span>
           </p>
           <p class="name">
@@ -52,7 +96,7 @@
       </picker>
       <div class="row">
         <p class="label">
-          时长(天)
+          加班时长
           <span>*</span>
         </p>
         <p class="name">
@@ -60,27 +104,44 @@
             type="text"
             placeholder-style="text-align:right;color: #ababab;"
             selection-end="-1"
-            placeholder="请输入时长"
+            placeholder="请输加班时长"
+            v-model="duration"
           />
         </p>
       </div>
-      <div class="rowBottom">
+      <div class="row">
+        <p class="label">
+          加班地点
+          <span>*</span>
+        </p>
+        <p class="name">
+          <input
+            type="text"
+            placeholder-style="text-align:right;color: #ababab;"
+            selection-end="-1"
+            placeholder="请输入目的地"
+            v-model="address"
+          />
+          <i-icon type="coordinates" color="#999999" size="20" @click="getChooseLocation" />
+        </p>
+      </div>
+      <!-- <div class="rowBottom">
         <p>
           根据排班自动计算时长
           <span>查看明细</span>
         </p>
-      </div>
+      </div> -->
     </div>
     <div class="leaveComment">
       <p>
-        请假事由
+        加班事由
         <span>*</span>
       </p>
       <div class="box">
         <textarea name id cols="30" rows="10"></textarea>
       </div>
     </div>
-    <div class="imgContent">
+    <div class="imgContent" v-if="false">
       <div class="head" @click="handleSelPhoto">
         <p>图片</p>
         <p>
@@ -96,83 +157,11 @@
         </p>
       </div>
     </div>
-    <!-- 审批人 -->
-    <div class="approved">
-      
-    </div>
     <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
         <div class="btn">
             <van-button type="info" block @click="getSubmit">提交</van-button>
         </div>
     </div>
-    <van-popup
-            :show="agreeShow"
-            position="bottom"
-            custom-style="width:100%;height: auto;"
-            @close="onCloseAgree"
-            overlay-style="background: #333;opacity: .5;">
-            <div class="agreeWrap">
-                <div class="header">
-                    <div>
-                        <p class="radius">{{createdByName}}</p>
-                    </div>
-                    <div>
-                        <div class="h3">{{createdByName}}提交的流程申请表</div>
-                        <p><span>标题：</span>生物医学研究伦理审查审批表</p>
-                    </div>
-                </div>  
-                <div class="cont">
-                    <div v-for="(item,index) in stepList" :key="index">
-                        <h3>
-                            <van-checkbox use-icon-slot custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item)}">
-                                
-                                {{item.ToActivityName}}
-                                <div class="slot" slot="icon" v-if="item.Selected">
-                                    <p></p>
-                                </div>
-                                <div class="default" slot="icon" v-else></div>
-                            </van-checkbox>
-                        </h3>
-                        <div class="box">
-                            <div class="row" v-for="(v,i) in item.ParticipantMember" :key="i">
-                                <van-checkbox :name="v.UserId" :value="v.Selected" @change="(e)=>{changeItem(e,item,v)}">{{v.FullName}}/{{v.BusinessUnitIdName}}</van-checkbox>
-                            </div>
-                            <div class="rows">
-                                <p class="add" @click="getAddPeople(item)">
-                                    <i-icon type="add" size="30" color="#3399ff" />
-                                    <span>
-                                        添加办理人员
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="popupRow">
-                        <div class="row">
-                            <p>通知</p>
-                            <p>
-                                <span>应用内</span>
-                                <span>&nbsp;短信</span>
-                            </p>
-                        </div>
-                        <div class="text">
-                            流程事务:[ 05 绍兴第二医院医共体分院招标关于采购事项的审批单 信息中心 崔曼 ]，请您查阅！
-                        </div>
-                    </div>  
-                    <div class="textarea">
-                        <p>留言</p>
-                        <textarea v-model="description" name="" placeholder="请输入内容" id="" cols="30" rows="10"></textarea>
-                    </div>
-                </div>
-                <div class="fot" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
-                    <div class="box">
-                        <p @click="onCloseAgree">取消</p>  
-                        <!-- <p>上一环节</p> -->
-                        <p @click="getSubmit">提交</p>  
-                    </div>
-                </div> 
-            </div>
-        </van-popup>
   </div>
 </template>
 <script>
@@ -236,9 +225,7 @@ export default {
       startTime: "",
       endTime: "",
       imgList: [],
-      agreeShow:false,
-      stepList:[],
-      createdByName:"测试"
+      address:""
     };
   },
   computed: {
@@ -433,55 +420,30 @@ export default {
     getCloseImg(index){
       this.imgList.splice(index,1);
     },
-    getSubmit(){
-      this.agreeShow = true;
-      this.$httpWX.get({
-            url:this.$api.message.queryList,
-            data:{
-                method: 'process.step.transition.getlist',
-                SessionKey: '207a11c0-12e3-4f7e-8033-f61b6883ffd8',
-                RuleLogId: 'e445039d-f744-4da5-b4ad-b813d8a26f71',
-                ProcessInstanceId: '3401927a-1f19-4f28-b7aa-b6e884a12f3e',
-            }
-        }).then(res=>{
+    getChooseLocation(){
+      let that = this;
+      wx.chooseLocation({
+          success:res=>{
             console.log(res);
-            this.stepList = res.transitions;
-        })
-    },
-    changeAll(e,item){
-        item.Selected = e.mp.detail;
-        item.ParticipantMember.forEach(v=>{
-            v.Selected = item.Selected;
-        })
-    },
-    onCloseAgree(){
-        this.agreeShow = false;
-    },
-    changeItem(e,item,v){
-        v.Selected = e.mp.detail;
-        console.log(item.ParticipantMember.every(one=>one.Selected==true))
-        for(let i=0;i<item.ParticipantMember.length;i++){
-            if(item.ParticipantMember[i].Selected){
-                item.Selected = true;
-                break;
-            }else {
-                item.Selected = false;
-            }
-        }
-    },
+            that.address = res.address;
+          },fail(error){
+
+          }
+      })
+    }
   }
 };
 </script>
 <style lang="scss" scopod>
-@import "../../../../static/css/public.scss";
-@import "../../../../static/css/icon.css";
+@import '../../../../static/css/icon.css';
 .wrap {
   .rowWrap {
     display: flex;
     justify-content: space-between;
     padding: 34rpx 33rpx;
     background: #fff;
-    margin-top: 35rpx;
+    // margin-top: 35rpx;
+    border-bottom: 1rpx solid #e2e3e5;
     .label {
       color: #666666;
       font-size: 32rpx;
@@ -520,9 +482,11 @@ export default {
         }
       }
       .name {
+        display: flex;
+        align-items: center;
         span {
           font-size: 31rpx;
-          color: #ababab;
+          color: #333333;
         }
         span.active {
           color: #333333;
@@ -620,178 +584,14 @@ export default {
       }
     }
   }
-  .agreeWrap {
-    position: relative;
-    background: #f2f2f2;
-    .header {
-      display: flex;
-      padding: 30rpx;
-      border-bottom: 1rpx solid #e2e4e3;
-      width: 100%;
-      background: #fff;
-      // position: fixed;
-      div:nth-child(2) {
-        margin-left: 20rpx;
-        .h3 {
-          font-size: 28rpx;
-          font-weight: bold;
-        }
-        p {
-          font-size: 12px;
-          color: #333333;
-          margin-top: 10rpx;
-          span {
-            color: #666666;
-          }
-        }
-      }
-    }
-    .cont {
-      width: 100%;
-      // position: absolute;
-      // top: 70px;
-      height: 400px;
-      overflow: scroll;
-      padding-bottom: 50px;
-      h3 {
-        background: #f2f2f2;
-        font-size: 12px;
-        color: #999999;
-        padding: 20rpx;
-        .checkbox {
-          display: flex !important;
-          align-items: center !important;
-        }
-        .slot {
-          width: 28rpx;
-          height: 28rpx;
-          border: 2rpx solid #3399ff;
-          border-radius: 50%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          p {
-            width: 13rpx;
-            height: 13rpx;
-            background: #3399ff;
-            border-radius: 50%;
-          }
-        }
-        .default {
-          width: 28rpx;
-          height: 28rpx;
-          border: 2rpx solid #c8c9cc;
-          border-radius: 50%;
-        }
-      }
-      .box {
-        padding: 20rpx;
+  .footer{
+        width: 100%;
+        position: fixed;
+        bottom: 20rpx;
         background: #fff;
-        .row {
-          padding: 20rpx 0;
-          font-size: 28rpx;
-          border-bottom: 1rpx solid #e2e4e3;
-          color: #333333;
-          display: flex;
-          justify-content: space-between;
+        .btn{
+            padding: 20rpx;
         }
-        .rows {
-          padding: 10rpx 0 0 0;
-          font-size: 28rpx;
-          color: #333333;
-          display: flex;
-          justify-content: center;
-          .add {
-            // text-align: center;
-            color: #3399ff;
-            span {
-              margin-top: 10rpx;
-              display: inline-block;
-            }
-          }
-        }
-      }
-      .popupRow {
-        .row {
-          padding: 20rpx;
-          color: #999999;
-          font-size: 12px;
-          background: #f2f2f2;
-          display: flex;
-          justify-content: space-between;
-          p:nth-child(2) {
-            span:nth-child(1) {
-              display: inline-block;
-              background: #3399ff;
-              border-top-left-radius: 10rpx;
-              border-bottom-left-radius: 10rpx;
-              padding: 10rpx 20rpx;
-              color: #fff;
-            }
-            span:nth-child(2) {
-              display: inline-block;
-              background: #fff;
-              border-top-right-radius: 10rpx;
-              border-bottom-right-radius: 10rpx;
-              padding: 10rpx 20rpx;
-              color: #3399ff;
-              border: 1rpx solid #3399ff;
-              box-sizing: border-box;
-              border-left: none;
-            }
-          }
-        }
-        .text {
-          padding: 20rpx;
-          background: #fff;
-          font-size: 12px;
-          color: #333333;
-        }
-      }
-      .textarea {
-        padding: 20rpx;
-        background: #fff;
-        margin-top: 20rpx;
-        p {
-          font-size: 28rpx;
-          font-weight: bold;
-        }
-        textarea {
-          height: 80px;
-        }
-      }
     }
-    .fot {
-      width: 100%;
-      position: fixed;
-      bottom: 0;
-      background: #fff;
-      border-top: 1rpx solid #e2e3e5;
-      .box {
-        display: flex;
-        justify-content: center;
-        p {
-          width: 50%;
-          text-align: center;
-          color: #3399ff;
-          padding: 20rpx;
-          border-right: 1rpx solid #f2f2f2;
-        }
-        p:last-child {
-          background: #3399ff;
-          color: #ffffff;
-        }
-      }
-    }
-  }
-  .footer {
-    width: 100%;
-    position: fixed;
-    bottom: 20rpx;
-    background: #fff;
-    .btn {
-      padding: 20rpx;
-    }
-  }
 }
 </style>

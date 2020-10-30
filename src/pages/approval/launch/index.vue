@@ -117,7 +117,7 @@
                     </div>
                     <div class="rBox">
                         <div class="title">
-                            <p>{{item.createdByName}}提交的会议纪要申请</p>
+                            <p>{{item.createdByName}}提交的{{item.processIdName}}</p>
                             <!-- 更多操作隐藏 -->
                             <!-- <p class="time" @click.stop="getMore(item)">
                                 <i-icon type="more" size="20" color="#999999" />

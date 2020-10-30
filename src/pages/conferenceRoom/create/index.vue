@@ -226,7 +226,19 @@ export default {
                     that.imgList = tempFilePaths;
                     // that.imgList = that.imgList.concat(tempFilePaths);
                     console.log(that.imgList);
-                    
+                    let url = `${that.$api.upload.url}?method=${'file.attachfiles.addusbfile'}&SessionKey=${that.sessionkey}&pid=${that.ProcessId}&objTypeCode=${'20034'}`
+                    wx.uploadFile({
+                        url: url,
+                        filePath: tempFilePaths[0],
+                        name: 'file',
+                        formData: {
+                            'user': 'test'
+                        },
+                        success (res){
+                            console.log(res);
+                            const data = res.data
+                        }
+                    })
                 }
             })
         },
@@ -319,6 +331,7 @@ export default {
                 wx.uploadFile({
                     url: urls,
                     filePath: that.imgList[0],
+                    header: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     name: 'file',
                     formData: {
                         id:that.id,

@@ -129,7 +129,11 @@ const api = {
         urging: "flow.instance.pushmessage", // 催办
         cancelsubmit: "flow.process.cancelsubmit",
         forward: "process.approve.forward", // 流程审批 – 委托
-        addparticipator: "process.approve.addparticipator" // 加签
+        addparticipator: "process.approve.addparticipator", // 加签
+        steptree: "process.steptree.get",
+        jump: "process.approve.jump", // 跳转
+        entrust: "process.approve.entrust", // 委托
+        steppri: "process.steppri.get" // 权限
     },
     // 审批
     approval: {
@@ -143,7 +147,10 @@ const api = {
         stepList: "process.step.transition.getlist", // 流程表单 – 根据流程步骤获取流程节点
         accept: "process.approve.accept",
         stepSubmit: "process.step.submit", // 提交流程 
-        refuse: "process.approve.reject", // 审批拒绝
+        // refuse: "process.approve.reject", // 审批拒绝
+        refuse: "process.approve.reject.tolast", // 退回到上一步
+        tostarter: "process.approve.reject.tostarter", // 退回到发起人
+        tostep: "process.approve.reject.toactivity", // 退回到指定节点
         create: "process.instance.create", // 创建流程实例 – 不带表单数据
         finish: "process.approve.finish" // 流程审批 – 结束
     },
