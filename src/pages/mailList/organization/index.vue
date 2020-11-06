@@ -3,7 +3,7 @@
         <div class="nav">
             <div class="search">
                 <p>
-                    <van-search :value="value" placeholder="搜索" />
+                    <van-search :value="value" :disabled="true" placeholder="搜索" @click="getRouterSeach" />
                 </p>
                 <!-- 第一版不做 -->
                 <!-- <p @click="getAdmin" v-if="!isShow">管理</p>
@@ -18,7 +18,7 @@
                     <i-icon type="enter" size="20" color="#999999" />
                 </span>
                 <span @click="getBack" class="back" :class="{'active':sonShow}">
-                    绍兴第二医院
+                    {{organizationName||'暂无'}}
                 </span>
                 <span class="back" :class="{'active':index+1!=son.length}" v-if="sonShow" v-for="(item,index) in son" :key="index" @click="index+1!=son.length?getCurrentDepartment(item,index):''">
                     <i-icon type="enter" size="20" color="#999999" />
@@ -111,11 +111,13 @@ export default {
             contactsList:[],
             sessionkey:"",
             unitData:[],
-            addrData:[]
+            addrData:[],
+            organizationName:""
         }
     },
     onLoad(){
         Object.assign(this.$data,this.$options.data());
+        this.organizationName = wx.getStorageSync('organizationName');
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         wx.getSystemInfo({
@@ -131,6 +133,13 @@ export default {
         this.getQuery();
     },
     methods:{
+        // 搜索
+        getRouterSeach(){
+            const url = '/pages/mailList/PublicSearch/main';
+            wx.navigateTo({
+                url:url
+            })
+        },
         getQuery(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,

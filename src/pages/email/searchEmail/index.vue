@@ -19,19 +19,25 @@
                     </p>
                 </div>
                 <div class="center">
-                    <p class="name">
-                        <span v-if="!item.isRead"></span>
-                        {{item.fromName}}
-                    </p>
+                    <div class="headRow">
+                        <p class="name">
+                            <span v-if="!item.isRead"></span>
+                            {{item.fromName}}
+                        </p>
+                        <p class="time">
+                            <i-icon type="collection_fill" color="#ecd464" v-if="item.starEmail=='1'" />
+                            {{item.time}}
+                        </p>
+                    </div>
                     <p class="theme">{{item.subject?item.subject:'无主题'}}</p>
                     <p class="cont">此邮件没有文字内容</p>
                 </div>
                 <div class="right">
-                    <p class="time">
+                    <!-- <p class="time">
                         <i-icon type="collection_fill" color="#ecd464" v-if="item.starEmail=='1'" />
                         {{item.time}}
-                    </p>
-                    <span>2</span>
+                    </p> -->
+                    <!-- <span>2</span> -->
                 </div>
             </div>
         </div>
@@ -74,8 +80,12 @@ export default {
                 this.list = res.listData;
                 this.list.map(item=>{
                     const time = getDate(item.createdOn.replace(/-/g,'/'));
-                    const name = item.fromName.substr(1);
-                    item.name = name;
+                    if(item.fromName.length>2){
+                        const name = item.fromName.substr(1);
+                        item.name = name;
+                    }else {
+                        item.name = item.fromName;
+                    }
                     item.time = time;
                     return item;
                 })
@@ -136,16 +146,25 @@ export default {
                 .center{
                     flex: 1;
                     margin-left: 20rpx;
-                    .name{
-                        font-size: 32rpx;
-                        color: #333333;
-                        font-weight: bold;
-                        span{
-                            width: 14rpx;
-                            height: 14rpx;
-                            border-radius: 50%;
-                            background: #ff6666;
-                            display: inline-block;
+                    .headRow{
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        .name{
+                            font-size: 32rpx;
+                            color: #333333;
+                            font-weight: bold;
+                            span{
+                                width: 14rpx;
+                                height: 14rpx;
+                                border-radius: 50%;
+                                background: #ff6666;
+                                display: inline-block;
+                            }
+                        }
+                        .time{
+                            font-size: 24rpx;
+                            color: #999999;
                         }
                     }
                     .theme{

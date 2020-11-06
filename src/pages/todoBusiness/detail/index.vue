@@ -390,7 +390,7 @@ export default {
                     SessionKey:this.sessionkey,
                     method:this.$api.instance.steppri,
                     processId:this.processId,
-                    stepId:ToActivityId
+                    stepId:this.ToActivityId
                 }
             }).then(res=>{
                 

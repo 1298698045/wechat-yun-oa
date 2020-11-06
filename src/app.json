@@ -140,7 +140,8 @@
                 "selectSuperior/main",
                 "cardInfo/main",
                 "myGroup/main",
-                "contacts/main"
+                "contacts/main",
+                "PublicSearch/main"
             ]
         },
         {

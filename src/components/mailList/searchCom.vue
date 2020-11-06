@@ -18,7 +18,7 @@
                 <div class="modalCont">
                     <div class="row" v-for="(item,index) in list" :key="index" @click="getCardInfo(item)">
                         <div class="l">
-                            <p>{{item.FullName}}</p>
+                            <p>{{item.name}}</p>
                         </div>
                         <div class="c">
                             <p class="name" ref="names">{{item.FullName}}</p>
@@ -36,6 +36,7 @@
 <script>
 export default {
     name:"SearchCom",
+    props:['back'],
     data(){
         return {
             show:true,
@@ -58,7 +59,13 @@ export default {
             }
         },
         onCancel(){
-            this.$parent.isShow = false;
+            if(this.back){
+                wx.navigateBack({
+                    delta:1
+                })
+            }else {
+                this.$parent.isShow = false;
+            }
         },
         getQuery(){
             this.$httpWX.get({
@@ -73,10 +80,17 @@ export default {
                 if(this.searchValue!=''){
                     const Reg = new RegExp(this.searchValue, 'i');
                     this.list.map(item=>{
+                        if(item.FullName.length>2){
+                            const name = item.FullName.substr(1);
+                            item.name = name;
+                        }else {
+                            item.name = item.FullName;
+                        }
                         const v = item.FullName.replace(Reg, `<span style="color: #3399ff;">${this.searchValue}</span>`);
                         this.$nextTick(()=>{
                             
                         })
+                        return item;
                     })
                 }
             })

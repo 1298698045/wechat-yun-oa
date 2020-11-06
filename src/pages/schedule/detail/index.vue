@@ -247,6 +247,9 @@ export default {
             return wx.getStorageSync('isModelmes');
         }
     },
+    onUnload(){
+        this.clearFile([])
+    },
     onLoad(options){
         this.id = options.id;
         let sessionKey = wx.getStorageSync('sessionkey');
@@ -262,7 +265,8 @@ export default {
     },
     methods:{
         ...mapMutations([
-            'delete'
+            'delete',
+            'clearFile'
         ]),
         getFileList(){
             this.$httpWX.get({

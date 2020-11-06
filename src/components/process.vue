@@ -2,8 +2,8 @@
     <div class="wrap">
         <div class="navHeader">
             <p>
-                <span class="l" @click="getTab">执行记录</span>
-                <span class="r">流程图</span>
+                <span class="l" :class="{'active':isShow}" @click="getTab(0)">执行记录</span>
+                <span class="r" :class="{'active':!isShow}"  @click="getTab(1)">流程图</span>
             </p>
         </div>
         <div class="content" v-for="(item,index) in list" :key="index">
@@ -39,7 +39,8 @@ export default {
     data(){
         return {
             sessionkey:"",
-            list:[]
+            list:[],
+            isShow:true
         }
     },
     onLoad(){
@@ -61,8 +62,12 @@ export default {
                 this.list = res.rows;
             })
         },
-        getTab(){
-            
+        getTab(i){
+            if(i==0){
+                this.isShow = true;
+            }else {
+                this.isShow = false;
+            }
         }
     }
 }
@@ -87,8 +92,8 @@ page{
                     text-align: center;
                 }
                 .l{
-                    background: #3399ff;
-                    color: #fff;
+                    background: #fff;
+                    color: #3399ff;
                     border-top-left-radius: 5rpx;
                     border-bottom-left-radius: 5rpx;
                     border: 1px solid #3399ff;
@@ -102,6 +107,14 @@ page{
                     border:1px solid #3399ff;
                     box-shadow: border-box;
                     border-left: none;
+                }
+                .l.active{
+                    background: #3399ff;
+                    color: #fff;
+                }
+                .r.active{
+                    background: #3399ff;
+                    color: #fff;
                 }
             }
         }

@@ -172,6 +172,9 @@ export default {
                     }
                 }).then(res=>{
                     console.log(res);
+                    wx.navigateBack({
+                        delta:1
+                    })
                 })
             }catch(e){
                 console.log(e);

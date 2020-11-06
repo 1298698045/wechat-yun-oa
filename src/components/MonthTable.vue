@@ -101,7 +101,7 @@ export default {
                 this.date = date;
                 setTimeout(() => {
                     this.getAddList(currDay,dayNum)
-                }, 500);
+                }, 100);
                 
             }else if(current==0){
                 this.current = current;
@@ -122,7 +122,7 @@ export default {
                 this.date = date;
                 setTimeout(() => {
                     this.getAddList(currDay2,dayNum2)
-                }, 500);
+                }, 100);
             }else {
                 this.date = this.currentList[current][0].date;
             }

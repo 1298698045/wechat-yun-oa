@@ -713,16 +713,16 @@ export default {
                 this.checked = Boolean(detail.isAllDayEvent);
                 this.startTime = detail.scheduledStart;
                 this.endTime = detail.scheduledEnd;
-                let date = new Date(detail.scheduledStart);
+                let date = new Date(detail.scheduledStart.replace(/-/g,'/'));
                 this.month = date.getMonth()+1+'月';
                 this.day = date.getDate()+'日';
                 this.hours = `${date.getHours()}:${date.getMinutes()}`;
-                this.startDay = this.getWeekDay(detail.scheduledStart);
-                let endDate = new Date(detail.scheduledEnd);
+                this.startDay = this.getWeekDay(detail.scheduledStart.replace(/-/g,'/'));
+                let endDate = new Date(detail.scheduledEnd.replace(/-/g,'/'));
                 this.endMonth = endDate.getMonth()+1+'月';
                 this.endDay = endDate.getDate()+'日';
                 this.endHours = `${endDate.getHours()}:${endDate.getMinutes()}`;
-                this.endWeek = this.getWeekDay(detail.scheduledEnd);
+                this.endWeek = this.getWeekDay(detail.scheduledEnd.replace(/-/g,'/'));
                 console.log(this.checked,'1111')
                 setTimeout(()=>{
                     console.log(this.isAllDayEvent,'8888888')

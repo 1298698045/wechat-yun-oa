@@ -216,10 +216,15 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.list = res.data;
-                this.list.forEach(item=>{
+                this.list.map(item=>{
                     this.$set(item,'checked',false);
-                    const name = item.FullName.substr(1);
-                    this.$set(item,'name',name);
+                    if(item.FullName.length>2){
+                        const name = item.FullName.substr(1);
+                        item.name = name;
+                    }else {
+                        item.name = item.FullName;
+                    }
+                    return item;
                 })
                 // this.list.map(item=>{
                 //     const name = item.FullName.substr(1);

@@ -21,7 +21,7 @@
                     <van-index-anchor :index="item.title"></van-index-anchor>
                     <div class="row" v-for="(v,i) in item.item" :key="i" @click="getDetail(v)">
                         <div class="col_l">
-                            <p>{{v.FullName}}</p>
+                            <p>{{v.name}}</p>
                         </div>
                         <div class="col_r">
                             <p>{{v.FullName}}</p>
@@ -70,6 +70,14 @@ export default {
                 let indexList = [];
                 this.list.forEach(item=>{
                     indexList.push(item.title);
+                    item.item.map(v=>{
+                        if(v.FullName.length>2){
+                            v.name = v.FullName.substr(1);
+                        }else {
+                            v.name = v.FullName;
+                        }
+                        return v;
+                    })
                 })
                 this.indexList = indexList;
 
