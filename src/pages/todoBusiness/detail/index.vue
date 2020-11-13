@@ -88,7 +88,7 @@
             </div>
         </div>
         <div class="footer" v-if="current!='tab5'&&sign!='off'" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
-            <div class="bottoms" v-if="true">
+            <div class="bottoms" v-if="isStatus">
                 <div class="icon">
                     <div @click="getCirculation('W')">
                         <p>
@@ -114,31 +114,33 @@
                     <p @click="getAgree">同意</p>
                 </div>
             </div>
-            <div class="bottom_wrap" v-if="false">
-                <div class="icon_box" @click="getUrging">
+             <!-- {{item.stateCode==1?'审批中':item.stateCode==3?'已通过':item.stateCode==5?'已拒绝'
+             :item.stateCode==4?'已撤销':item.stateCode==0?'草稿':item.stateCode==2?'挂起':''}} -->
+            <div class="bottom_wrap" v-if="!isStatus&&statusCurrent=='tab1'">
+                <div class="icon_box" @click="getUrging" v-if="stateCode==1">
                     <p>
                         <i class="iconfont icon-cuiban2"></i>
                     </p>
                     <p class="text">催办</p>
                 </div>
-                <div class="icon_box" @click="getRevoke">
+                <div class="icon_box" @click="getRevoke" v-if="stateCode==1">
                     <p>
                         <i class="iconfont icon-chehui"></i>
                     </p>
                     <p class="text">撤销</p>
                 </div>
-                <div class="icon_box">
+                <div class="icon_box" @click="getCirculation('C')" v-if="stateCode!=0">
                     <p>
-                        <i class="iconfont icon-pinglun1"></i>
+                        <i class="iconfont icon-chuanyue2"></i>
                     </p>
-                    <p class="text">评论</p>
+                    <p class="text">传阅</p>
                 </div>
-                <div class="icon_box">
+                <!-- <div class="icon_box">
                     <p>
                         <i class="iconfont icon-gengduo1"></i>
                     </p>
                     <p class="text">更多</p>
-                </div>
+                </div> -->
             </div>
         </div>
         <!-- 拒绝弹框 -->
@@ -154,8 +156,8 @@
                     <textarea v-model="description" class="textarea" placeholder="请输入留言" name="" id="" cols="30" rows="10"></textarea>
                 </div>
                 <p @click="getReject">退回上一步</p>
-                <p class="back" @click="getTostarter">退回发起人</p>
-                <p @click="getTostep">退回节点</p>
+                <p class="back" @click="getTostarter" v-if="jurisdiction?jurisdiction.HasFlowBackStart:''">退回发起人</p>
+                <p @click="getTostep" v-if="jurisdiction?jurisdiction.HasFlowBack:''">退回指定节点</p>
             </div>
         </van-popup>
         <!-- 同意弹框 -->
@@ -238,9 +240,9 @@
         >
             <div class="sheetWrap">
                 <!-- <p class="row" @click="getEntrust">委托</p> -->
-                <p class="row" @click="getJump">跳转</p>
-                <p class="row" @click="getCirculation('JQ')">加签</p>
-                <p class="row" @click="getEndProcess">结束</p>
+                <p class="row" @click="getJump" v-if="jurisdiction?jurisdiction.HasFlowJump:''">跳转</p>
+                <p class="row" @click="getCirculation('JQ')" v-if="jurisdiction?jurisdiction.InsertApprove:''">加签</p>
+                <p class="row" @click="getEndProcess" v-if="jurisdiction?jurisdiction.HasFlowFinish:''">结束</p>
             </div>
         </van-action-sheet>
         <Urging :urgingShow="urgingShow" :processInstanceId="processInstanceId" />
@@ -301,7 +303,11 @@ export default {
             stepList:[],
             ToActivityId:"",
             createdByName:"",
-            fromActivityId:""
+            fromActivityId:"",
+            isStatus:true, 
+            stateCode:'',
+            statusCurrent:"",
+            jurisdiction:"" // 权限
         }
     },
     computed:{
@@ -345,6 +351,12 @@ export default {
         Object.assign(this.$data,this.$options.data());
         console.log(options);
         let sessionkey = wx.getStorageSync('sessionkey');
+        // 2:待审批 3：已审批 4:传阅 1：我发起
+        if(options.current){
+            this.statusCurrent = options.current;
+            this.isStatus = options.current=='tab2'||options.current=='tab3'?true:false;
+            this.stateCode = options.stateCode;
+        }
         this.sessionkey = sessionkey;
         this.name = options.name;
         this.processInstanceId = options.processInstanceId;
@@ -355,7 +367,9 @@ export default {
         this.createdByName = options.createdByName;
         this.ToActivityId = options.toActivityId;
         this.fromActivityId = options.fromActivityId;
-        this.getJurisdiction();
+        if(options.toActivityId!=undefined){
+            this.getJurisdiction();
+        }
         this.getQuery();
         this.getCommentQuery();
         // this.getQueryFrom();
@@ -383,6 +397,7 @@ export default {
         }
     },
     methods:{
+        // 按钮权限接口
         getJurisdiction(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,
@@ -393,7 +408,7 @@ export default {
                     stepId:this.ToActivityId
                 }
             }).then(res=>{
-                
+                this.jurisdiction = res.Right;
             })
         },
         getForward(){
@@ -790,6 +805,9 @@ export default {
                 }
             }).then(res=>{
                 console.log(res);
+                wx.navigateBack({
+                    delta:1
+                })
             })
         },
         // 评论删除
@@ -1080,13 +1098,13 @@ export default {
                 color: #3399ff;
                 text-align: center;
                 border:1rpx solid #cccccc;
-
+                margin-bottom: 10px;
             }
             .back{
                 color: #fff;
                 background: #3399ff;
                 border: none;
-                margin: 10px auto;
+                // margin: 10px auto;
             }
         }
         .agreeWrap{

@@ -10,16 +10,17 @@
                     :placeholder="item.helpText"
                     input-align="right"
                     @change="function(val){changeInput(val,item)}"
+                    :disabled="disabled"
                 />
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='L'||item.type=='DT'||item.type=='LT'">
-                <picker @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.id]">
+                <picker :disabled="disabled" @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.id]">
                     <van-field
                         :value="currenData[item.id][item.index]?currenData[item.id][item.index].label:''"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
                         :required="item.require||false"
-                        disabled
+                        :disabled="disabled"
                         :label="item.label"
                         :placeholder="item.helpText"
                         input-align="right"
@@ -28,14 +29,14 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='D'">
-                <picker mode="date" :value="item.value" @change="function(val){bindDateChange(val,item)}">
+                <picker :disabled="disabled" mode="date" :value="item.value" @change="function(val){bindDateChange(val,item)}">
                     <van-field
                         :value="item.value"
                         title-width="110px"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
                         :required="item.require||false"
-                        disabled
+                        :disabled="disabled"
                         :label="item.label"
                         input-align="right"
                         :placeholder="item.helpText"
@@ -43,14 +44,14 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='F'">
-                <picker class="picker" mode="multiSelector" :value="item.multiIndex" @change="((val)=>{bindMultiPickerChange(val,item)})"
+                <picker :disabled="disabled" class="picker" mode="multiSelector" :value="item.multiIndex" @change="((val)=>{bindMultiPickerChange(val,item)})"
                     :range="newMultiArrayList">
                     <van-field
                         :value="item.value"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
                         :required="item.require||false"
-                        disabled
+                        :disabled="disabled"
                         :label="item.label"
                         input-align="right"
                         :placeholder="item.helpText"
@@ -58,13 +59,13 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='Year'">
-                <picker mode="date" :value="item.value" fields="year"  @change="((e)=>{bindYear(e,item)})">
+                <picker :disabled="disabled" mode="date" :value="item.value" fields="year"  @change="((e)=>{bindYear(e,item)})">
                     <van-field
                         :value="item.value"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
                         :required="item.require||false"
-                        disabled
+                        :disabled="disabled"
                         :label="item.label"
                         input-align="right"
                         :placeholder="item.helpText"
@@ -72,13 +73,13 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='Month'">
-                <picker mode="date" :value="item.value" fields="month"  @change="((e)=>{bindYMonth(e,item)})">
+                <picker :disabled="disabled" mode="date" :value="item.value" fields="month"  @change="((e)=>{bindYMonth(e,item)})">
                     <van-field
                         :value="item.value"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
                         required
-                        disabled
+                        :disabled="disabled"
                         :label="item.label"
                         input-align="right"
                         :placeholder="item.helpText"
@@ -120,19 +121,19 @@
                 </van-cell-group>
             </van-checkbox-group> -->
             <van-cell-group custom-class="cell" v-if="item.type=='U'">
-                <van-cell value-class="cellValue" title-style="font-size:34rpx;" :title="item.label" is-link :value="item.value" @click="getOpenModal(item,index)" />
+                <van-cell value-class="cellValue" title-style="font-size:34rpx;" :title="item.label" is-link :value="item.value" @click="!disabled?getOpenModal(item,index):''" />
             </van-cell-group>
             <div class="switch" v-if="item.type=='H'">
                 <p>
                     {{item.label}}
                 </p>
                 <p>
-                    <van-switch :checked="item.value" @change="(val)=>{changeSwitch(val,item)}" size="24px" />
+                    <van-switch :disabled="disabled" :checked="item.value" @change="(val)=>{changeSwitch(val,item)}" size="24px" />
                 </p>
             </div>
             <div class="row" v-if="item.type=='UC'">
                 <p class="title">*<span>内容</span></p>
-                <textarea v-model="item.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" placeholder="请输入"></textarea>
+                <textarea :disabled="disabled" v-model="item.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" placeholder="请输入"></textarea>
             </div>
             <div class="parentWrap" v-if="item.type=='RelatedList'">
                 <h3>{{item.label}}</h3>
@@ -146,6 +147,7 @@
                             :placeholder="v.helpText"
                             input-align="right"
                             @change="function(val){changeInput(val,v)}"
+                            :disabled="disabled"
                         />
                     </van-cell-group>
                     <!-- <van-cell-group custom-class="cell" v-if="v.type=='L'||v.type=='DT'||v.type=='LT'">
@@ -171,7 +173,7 @@
                                 input-class="inp"
                                 custom-style="font-size:34rpx;color:#333333"
                                 :required="v.require||false"
-                                disabled
+                                :disabled="disabled"
                                 :label="v.label"
                                 input-align="right"
                                 :placeholder="v.helpText"
@@ -247,7 +249,8 @@ export default {
                     fields:{}
                 },
             },
-            testLists:[]
+            testLists:[],
+            disabled:true
         }
     },
     computed:{

@@ -894,7 +894,7 @@ export default {
         getDetail(item){
             this.updateInstanceId(item.instanceId);
             const url = '/pages/todoBusiness/detail/main?id='+item.id+'&name='+item.name+'&processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&RuleLogId='+item.id
-            +'&createdByName='+item.createdByName+'&toActivityId='+item.toActivityId+'&fromActivityId='+item.fromActivityId;
+            +'&createdByName='+item.createdByName+'&toActivityId='+item.toActivityId+'&fromActivityId='+item.fromActivityId+'&current='+this.current+'&stateCode='+item.stateCode;
             wx.navigateTo({url:url});
         },
         // 催办
