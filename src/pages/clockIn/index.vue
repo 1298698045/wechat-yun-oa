@@ -67,7 +67,7 @@
                   <span>
                     <i-icon type="right" />
                   </span>
-                  已进入考勤范围:{{address}}
+                  已进入考勤范围:{{building}}
                 </p>
                 <p v-if="!rangeStatus">当前不在考勤范围内</p>
               </div>
@@ -269,7 +269,8 @@ export default {
         commentRemark:"",
         comentShow:"",
         attendAdmin:'',
-        isGroup:true
+        isGroup:false,
+        building:""
     };
   },
   computed:{
@@ -391,8 +392,12 @@ export default {
             if(item<this.DistanceRange){
               this.Distance = item;
               this.rangeStatus = true;
+              // console.log(this.distanceList,'distanceList')
+              const index = this.distanceList.findIndex(one=>one==this.Distance);
+              // console.log('indexindex',index);
+              this.building = this.list.locations[index].Name;
               throw new Error ('EndIterative');
-            }else {
+            }else {1
               this.Distance = item;
               this.rangeStatus = false;
             }
@@ -437,7 +442,8 @@ export default {
                 this.$set(item,'CheckTypeName',CheckTypeName);
                 this.back = 'unable';
                 item.unableCode = 0;
-                return false;
+                // return false;
+                throw Error();
               }
             }else if(item.AbnormalCode=='-1'&&item.timestamp=='0'&&item.CheckType=='1'&&this.rangeStatus==true){
               // CheckTypeName = '早退打卡';
@@ -472,7 +478,8 @@ export default {
                 this.$set(item,'CheckTypeName',CheckTypeName);
                 this.back = 'unable';
                 item.unableCode = 0;
-                return false;
+                // return false;
+                throw Error();
               }
             }else if(item.AbnormalCode=='-1'&&item.CheckType=='0'&&item.overTime==0&&this.rangeStatus==false){
               if(this.isGroup){
@@ -489,7 +496,8 @@ export default {
                 this.$set(item,'CheckTypeName',CheckTypeName);
                 this.back = 'unable';
                 item.unableCode = 0;
-                return false;
+                throw Error();
+                // return false;
               }
             } else if(item.AbnormalCode=='-1'&&item.CheckType=='0'&&item.overTime==0&&this.rangeStatus==true){
               CheckTypeName = '迟到打卡';
@@ -508,7 +516,7 @@ export default {
               clockInStatus = 1;
               this.$set(item,'clockInStatus',clockInStatus);              
             }else if(item.AbnormalCode=='-1'&&item.CheckType=='1'&&this.rangeStatus==false){
-              if(isGroup){
+              if(this.isGroup){
                 // 外勤下班打卡
                 CheckTypeName = '外勤打卡';
                 this.$set(item,'CheckTypeName',CheckTypeName);
@@ -522,7 +530,8 @@ export default {
                 this.$set(item,'CheckTypeName',CheckTypeName);
                 this.back = 'unable';
                 item.unableCode = 0;
-                return false;
+                // return false;
+                throw Error();
               }
             }else if(item.AbnormalCode=='-1'&&item.CheckType=='2'){
               if(this.isGroup){
@@ -606,6 +615,7 @@ export default {
                   qqmapsdk.reverseGeocoder({
                     success:res=>{
                       that.address = res.result.address;
+                      // that.address = res.result.formatted_addresses.recommend;
                       resolve();
                     }
                   })
@@ -617,6 +627,7 @@ export default {
               wx.getLocation({
                 type: 'gcj02',
                 success (res) {
+                  console.log(res,'location')
                   const latitude = res.latitude
                   const longitude = res.longitude
                   const speed = res.speed
@@ -632,6 +643,7 @@ export default {
                     success:res=>{
                       console.log(res);
                       that.address = res.result.address;
+                      // that.address = res.result.formatted_addresses.recommend;
                       resolve();
                     }
                   })
@@ -904,7 +916,8 @@ export default {
             file:"",
             Description:this.Description,
             id:this.AttendanceEmpId,
-            AbnormalCode:this.clockInCode
+            AbnormalCode:this.clockInCode,
+            BuildingName: this.building
           }
         }).then(res=>{
           console.log(res);
