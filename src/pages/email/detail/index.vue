@@ -60,7 +60,7 @@
             <div class="box" v-for="(item,index) in enclosure" :key="index" @click="getFiles(item)">
                 <div>
                     <p>
-                        <img v-if="item.FileExtension=='.png'||item.FileExtension=='.jpg'" :src="item.DownloadLinkUrl" alt="">
+                        <img v-if="item.FileExtension=='.png'||item.FileExtension=='.jpg'||item.FileExtension=='.webp'" :src="item.DownloadLinkUrl" alt="">
                         <img v-if="item.FileExtension=='.rar'" :src="photoUrl+'rar.png'" alt="">
                         <img v-if="item.FileExtension=='.txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
                         <img v-if="item.FileExtension=='.pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
@@ -205,7 +205,7 @@ export default {
         openImgs(){
             let temp = [];
             this.enclosure.forEach(item=>{
-                if(item.FileExtension.indexOf('jpg')!=-1||item.FileExtension.indexOf('png')!=-1){
+                if(item.FileExtension.indexOf('jpg')!=-1||item.FileExtension.indexOf('png')!=-1||item.FileExtension.indexOf('webp')!=-1){
                     temp.push(item.DownloadLinkUrl);
                 }
             })

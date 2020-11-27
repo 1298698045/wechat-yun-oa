@@ -175,7 +175,7 @@ import { mapState } from 'vuex';
         height: 32rpx;
         text-align: center;
         line-height: 32rpx;
-        font-size: 20rpx;
+        font-size: 17rpx;
         background: #ff6666;
         color: #fff;
         border-radius: 50%;

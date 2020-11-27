@@ -373,6 +373,7 @@ export default {
                 font-size: 25rpx!important;
             }
             .boxWrap{
+                margin-top: 16rpx;;
                 .box{
                     background: #fff;
                     padding: 30rpx;

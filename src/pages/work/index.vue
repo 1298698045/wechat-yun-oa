@@ -15,7 +15,7 @@
         </div>
         <div class="header padding">
             <div class="boxWrap">
-                <div class="box">
+                <div class="box" @click="getGroup">
                     <p>
                         <img :src="imgUrls+'04.Organizational_Structure.png'" alt="">
                     </p>
@@ -127,6 +127,11 @@ export default {
         })
     },
     methods:{
+        // 组织架构
+        getGroup(){
+            const url = '/pages/mailList/organization/main';
+            wx.navigateTo({url:url});
+        },
         getOpen(index){
             this.list[index].showContent = !this.list[index].showContent;
             console.log(this.list[index].showContent);
@@ -285,6 +290,9 @@ export default {
                 wx.navigateTo({url:url});
             }else if(item.id==30091){
                 const url = '/pages/hr/holidayAccount/main';
+                wx.navigateTo({url:url});
+            }else if(item.id==20500){
+                const url = '/pages/workNotice/main';
                 wx.navigateTo({url:url});
             }
         },

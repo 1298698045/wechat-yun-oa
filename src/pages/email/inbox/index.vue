@@ -2,7 +2,7 @@
     <div class="wrap">
          <div class="nav" v-if="!show">
             <p>
-                <van-search :value="value" placeholder="搜索邮件" />
+                <van-search :value="value" placeholder="搜索邮件" @click="changeSearch" />
             </p>
             <!-- <p @click="getEdit" v-if="!show">编辑</p> -->
             <!-- <p @click="getAllSelect" v-if="show&&result==''">全选</p> -->
@@ -254,6 +254,10 @@ export default {
         getUnreadEmail(){
             this.isUnread = !this.isUnread;
             console.log(this.isUnread,'-')
+        },
+        changeSearch(){
+            const url = '/pages/email/searchEmail/main';
+            wx.navigateTo({url:url});
         },
         getQuery(){
             this.$httpWX.get({

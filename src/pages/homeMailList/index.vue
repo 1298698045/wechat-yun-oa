@@ -396,9 +396,8 @@ export default {
                     .text{
                         width: 100%;
                         font-size: 34rpx;
-                        // line-height: 80rpx;
                         margin-left: 10px;
-                        border-bottom: 1rpx solid #e2e4e3;
+                        // border-bottom: 1rpx solid #e2e4e3;
                         .dept{
                             font-size: 26rpx;
                             color: #999999;

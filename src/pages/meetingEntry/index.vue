@@ -114,6 +114,7 @@ export default {
         this.scrollLeft = this.day * 50;
         let date = new Date(), month = date.getMonth()+1;
         this.getEveryDay(date, month);
+        this.getQuery();
     },
     methods:{
         getEveryDay(date, month) {

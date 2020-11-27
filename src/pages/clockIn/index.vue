@@ -41,7 +41,7 @@
                 <span>{{item.Location}}</span>
               </p>
               <div class="toWrap">
-                <p class="toUpdate" v-if="item.CheckTime!=''&&item.IsUpdate==true" @click="getToUpdate(item)">更新打卡<i-icon type="enter" /></p>
+                <p class="toUpdate" v-if="item.CheckTime!=''&&item.IsUpdate==true&&isToUpdate" @click="getToUpdate(item)">更新打卡<i-icon type="enter" /></p>
                 <p class="toUpdate" v-if="item.CheckTime!=''&&(item.AbnormalCode=='1'||item.AbnormalCode=='2')&&item.Remark!=''" @click="getSeeComment(item)">查看备注<i-icon type="enter" /></p>
               </div>
               <!-- 缺卡 -->
@@ -270,7 +270,9 @@ export default {
         comentShow:"",
         attendAdmin:'',
         isGroup:false,
-        building:""
+        building:"",
+        timeNull:null,
+        isToUpdate:false // 判断是否为今日
     };
   },
   computed:{
@@ -284,6 +286,9 @@ export default {
       let time = new Date().getTime();
       return time;
     }
+  },
+  watch:{
+    
   },
   onLoad() {
       let sessionkey = wx.getStorageSync('sessionkey');
@@ -305,6 +310,7 @@ export default {
           this.getQuery();
         });
       })
+      this.getTimer();
       // wx.getConnectedWifi({
       //   success:res=>{
       //     console.log(res,'12312332');
@@ -316,8 +322,19 @@ export default {
   },
   onUnload(){
     clearTimeout(this.timer);
+    clearInterval(this.timeNull);
   },
   methods: {
+    // 实时刷新
+    getTimer(){
+      this.timeNull = setInterval(()=>{
+        this.getLocation().then(()=>{
+          this.getUserInfo().then(()=>{
+            this.getQuery();
+          });
+        })
+      },10000)
+    },
     getPrivilege(){
         this.$httpWX.get({
             url:this.$api.message.queryList,
@@ -362,12 +379,24 @@ export default {
           data:{
             method:"sys.userinfo.get",
             SessionKey:this.SessionKey     
+          },
+          loadingOption:{
+              loading:false
           }
         }).then(res=>{
           this.userInfo = res.data[0];
           resolve();
         })
       })
+    },
+    isToday(str){
+        var d = new Date(str.replace(/-/g,"/"));
+        var todaysDate = new Date();
+        if(d.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0)){
+            return true;
+        } else {
+            return false;
+        }
     },
     getQuery(){
       this.$httpWX.get({
@@ -376,8 +405,12 @@ export default {
           method:"hr.attend.empdaily.get",
           SessionKey:this.SessionKey,
           AttendDate:this.startTime
+        },
+        loadingOption:{
+            loading:false
         }
       }).then(res=>{
+        this.isToUpdate = this.isToday(this.startTime); // 判断是否为今日
         this.distanceList = [];
         this.list = res.data;
         this.DistanceRange = res.data.globalSettings.DistanceRange;

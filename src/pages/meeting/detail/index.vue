@@ -121,8 +121,8 @@
                         </div>
                         <div class="r">
                             <p>
-                                <span class="avatar">{{detailInfo.owningUserName}}</span>
-                                <span class="name">{{detailInfo.owningUserNam}}</span>
+                                <span class="avatar">{{detailInfo.fullName}}</span>
+                                <span class="name">{{detailInfo.owningUserName}}</span>
                                 <span class="tag">组织人</span>
                             </p>
                         </div>
@@ -184,7 +184,7 @@
                     </div> -->
                     <div class="comment items" v-for="(item,index) in commentList" :key="index">
                         <div class="lBox">
-                            <p>{{item.CreatedByName}}</p>
+                            <p>{{item.Name}}</p>
                         </div>
                         <div class="rBox">
                             <p class="info">{{item.CreatedByName}} <span>信息中心</span><span>{{item.CreatedOn}}</span></p>
@@ -228,7 +228,7 @@
                             </p>
                             <p>评论</p>
                         </div>
-                        <div class="box" @click="getSignIn">
+                        <div class="box" @click="isSign?getSignIn():''">
                             <p>
                                 <i class="iconfont icon-qiandao"></i>
                             </p>
@@ -246,7 +246,7 @@
                             <span :class="{'refuse':audienceStatusCode==2}" @click="audienceStatusCode==2?'':getRefuse(2)">
                                 {{audienceStatusCode==2?'已拒绝':'拒绝'}}
                             </span>
-                            <span :class="{'accept':audienceStatusCode!=1}" @click="audienceStatusCode==1?'':getRefuse(1)">
+                            <span :class="{'accept':audienceStatusCode==1}" @click="audienceStatusCode==1?'':getRefuse(1)">
                                 {{audienceStatusCode==1?'已接受':'接受'}}
                             </span>
                         </p>
@@ -292,7 +292,11 @@
 import Summarys from '@/components/summary/summarys';
 import Topics from "@/components/summary/topics";
 import mapList from '@/components/mapList';
+import QQMapWX from '@/utils/qqmap-wx-jssdk.js';
 import {mapState, mapMutations} from 'vuex';
+var qqmapsdk = new QQMapWX({
+    key: 'UVRBZ-UN2WU-KMJV6-2DAPJ-JW5QE-C5BYC' // 必填
+}); 
 export default {
     components:{
         Summarys,
@@ -374,7 +378,9 @@ export default {
             location:"",
             listFile:[],
             isEdit:false,
-            audienceStatusCode:""
+            audienceStatusCode:"",
+            scheduledStart:"",
+            scheduledEnd:""
         }
     },
     computed:{
@@ -396,6 +402,9 @@ export default {
             })
             return temp;
         },
+        isSign(){
+            return this.nowInDateBetwen(this.scheduledStart,this.scheduledEnd); // 判断签到时间是否在范围内
+        }
     },
     onLoad(options){
         this.clearFile([]);
@@ -414,12 +423,34 @@ export default {
     },
     onShow(){
         this.getAddFile();
+        this.getQueryDetail();
     },
     methods:{
         ...mapMutations([
             'getClear',
             'clearFile'
         ]),
+        nowInDateBetwen (d1,d2) {
+            //如果时间格式是正确的，那下面这一步转化时间格式就可以不用了
+            // var dateBegin = new Date(d1.replace(/-/g, "/"));//将-转化为/，使用new Date
+            // var dateEnd = new Date(d2.replace(/-/g, "/"));//将-转化为/，使用new Date
+            var dateBegin = new Date(d1);//将-转化为/，使用new Date
+            var dateEnd = new Date(d2);//将-转化为/，使用new Date
+            var dateNow = new Date();//获取当前时间
+
+            var beginDiff = dateNow.getTime() - dateBegin.getTime();//时间差的毫秒数       
+            var beginDayDiff = Math.floor(beginDiff / (24 * 3600 * 1000));//计算出相差天数
+
+            var endDiff = dateEnd.getTime() - dateNow.getTime();//时间差的毫秒数
+            var endDayDiff = Math.floor(endDiff / (24 * 3600 * 1000));//计算出相差天数       
+            if (endDayDiff < 0) {//已过期
+                return false
+            }
+            if (beginDayDiff < 0) {//没到开始时间
+                return false;
+            }
+            return true;
+        },
         getChildFn(val,isBook){
             console.log(val,isBook);
             this.isShow = isBook;
@@ -504,6 +535,8 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.detailInfo = res.data;
+                this.detailInfo.fullName = this.detailInfo.owningUserName.length>2?this.detailInfo.owningUserName.substr(1):
+                this.detailInfo.owningUserName;
                 this.listFile = res.data.files;
                 this.isEdit = res.data.isEdit;
                 if(!this.isEdit){
@@ -512,6 +545,8 @@ export default {
                 this.audienceStatusCode = res.data.audienceStatusCode;
                 let scheduledStart = this.detailInfo.scheduledStart;
                 let scheduledEnd = this.detailInfo.scheduledEnd;
+                this.scheduledStart = scheduledStart;
+                this.scheduledEnd = scheduledEnd;
                 let date = new Date(scheduledStart);
                 let endDate = new Date(scheduledEnd);
                 this.startMonth = date.getMonth()+1<10?'0'+(date.getMonth()+1):date.getMonth()+1;
@@ -565,6 +600,14 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.commentList =  res.listData;
+                this.commentList.map(item=>{
+                    if(item.CreatedByName.length>2){
+                        item.Name = item.CreatedByName.substr(1);
+                    }else {
+                        item.Name = item.CreatedByName;
+                    }
+                    return item;
+                })
             })
         },
         onChange(e){
@@ -656,50 +699,90 @@ export default {
             })
         },
         getSignIn(){
-            if(this.isEdit){
-                // this.isShow = true; // 地图
-                const url = '/pages/meeting/signin/main?id='+this.id;
-                wx.navigateTo({url:url});
-            }else {
+            // if(this.isEdit){
+                // 管理员签到二维码
+            //     // this.isShow = true; // 地图
+            //     const url = '/pages/meeting/signin/main?id='+this.id;
+            //     wx.navigateTo({url:url});
+            // }else {
                 var that = this;
-                wx.chooseLocation({
-                    success: function (res) {
+                // wx.chooseLocation({
+                //     success: function (res) {
+                //         console.log(res);
+                //         if (res.name == '') {
+                //         } else {
+                //             that.location = res.name;
+                //             that.latitude = res.latitude;
+                //             that.longitude = res.longitude;
+                //             that.address = res.address;
+                //             that.$httpWX.get({
+                //                 url:that.$api.message.queryList,
+                //                 data:{
+                //                     method:"meeting.audience.checkin",
+                //                     SessionKey:that.sessionkey,
+                //                     id:that.id,
+                //                     location:that.address,
+                //                     latitude:that.latitude,
+                //                     longitude:that.longitude
+                //                 }
+                //             }).then(res=>{
+                //                 console.log(res);
+                //                 wx.showToast({
+                //                     title:res.msg,
+                //                     icon:"success",
+                //                     duration:2000
+                //                 })
+                //             })
+                //         }
+                //     },
+                //     fail: function () {
+                //         // fail
+                //     },
+                //     complete: function () {
+                //         // complete
+                //     }
+                // })
+                wx.getLocation({
+                    type: 'wgs84',
+                    success (res) {
                         console.log(res);
-                        // success
-                        if (res.name == '') {
-                        } else {
-                            that.location = res.name;
-                            that.latitude = res.latitude;
-                            that.longitude = res.longitude;
-                            that.address = res.address;
-                            that.$httpWX.get({
-                                url:that.$api.message.queryList,
-                                data:{
-                                    method:"meeting.audience.checkin",
-                                    SessionKey:that.sessionkey,
-                                    id:that.id,
-                                    location:that.address,
-                                    latitude:that.latitude,
-                                    longitude:that.longitude
-                                }
-                            }).then(res=>{
+                        const latitude = res.latitude
+                        const longitude = res.longitude
+                        const speed = res.speed
+                        const accuracy = res.accuracy
+                        qqmapsdk.reverseGeocoder({
+                            location:{
+                                latitude:latitude,
+                                longitude:longitude
+                            },
+                            success:res=>{
                                 console.log(res);
-                                wx.showToast({
-                                    title:res.msg,
-                                    icon:"success",
-                                    duration:2000
+                                that.address = res.result.address;
+                                that.$httpWX.get({
+                                    url:that.$api.message.queryList,
+                                    data:{
+                                        method:"meeting.audience.checkin",
+                                        SessionKey:that.sessionkey,
+                                        id:that.id,
+                                        location:that.address,
+                                        latitude:latitude,
+                                        longitude:longitude
+                                    }
+                                }).then(res=>{
+                                    console.log(res);
+                                    wx.showToast({
+                                        title:res.msg,
+                                        icon:"success",
+                                        duration:2000
+                                    })
                                 })
-                            })
-                        }
-                    },
-                    fail: function () {
-                        // fail
-                    },
-                    complete: function () {
-                        // complete
+                                resolve();
+                            }
+                        })
+                        
                     }
                 })
-            }
+            // }
             
         },
         // 签到详情
@@ -1130,6 +1213,7 @@ export default {
             bottom: 20rpx;
             background: #fff;
             z-index: 999;
+            border-top: 1rpx solid #e2e3e5;
             .boxWrap{
                 display: flex;
                 // justify-content: space-around;
@@ -1178,12 +1262,15 @@ export default {
                             border-left: none;
                             border-top-right-radius: 7rpx;
                             border-bottom-right-radius: 7rpx;
-                            background:rgba(51, 153, 255, .5);
+                            // background:rgba(51, 153, 255, .5);
+                            background: #3399ff;
                             color: #fff;
                         }
                         span:nth-child(2).accept{
-                            background: #fff;
-                            color: #3399ff;
+                            // background: #fff;
+                            // color: #3399ff;
+                            background:rgba(51, 153, 255, .5);
+                            color: #fff;
                         }
                         span:nth-child(1).refuse{
                             background: #bfc1c2;

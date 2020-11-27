@@ -267,7 +267,9 @@ export default {
         this.sessionkey = sessionkey;
         this.params.processId = this.ProcessId;
         this.getQueryFrom();
-        this.getLayoutData();
+        this.$nextTick(()=>{
+            this.getLayoutData();
+        })
     },
     methods:{
         getQueryFrom(){

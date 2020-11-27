@@ -180,13 +180,16 @@
                 <div class="cont">
                     <div v-for="(item,index) in stepList" :key="index">
                         <h3>
-                            <van-checkbox use-icon-slot custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item)}">
+                            <!-- <van-checkbox use-icon-slot custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item)}">
                                 
                                 {{item.ToActivityName}}
                                 <div class="slot" slot="icon" v-if="item.Selected">
                                     <p></p>
                                 </div>
                                 <div class="default" slot="icon" v-else></div>
+                            </van-checkbox> -->
+                            <van-checkbox  custom-class="checkbox" :name="item.TransitionId" :value="item.Selected" @change="(e)=>{changeAll(e,item,index)}">
+                                {{item.ToActivityName}}
                             </van-checkbox>
                         </h3>
                         <div class="box">
@@ -307,7 +310,8 @@ export default {
             isStatus:true, 
             stateCode:'',
             statusCurrent:"",
-            jurisdiction:"" // 权限
+            jurisdiction:"", // 权限
+            SplitType:''
         }
     },
     computed:{
@@ -436,11 +440,25 @@ export default {
                 wx.removeStorageSync('forward');
             })
         },
-        changeAll(e,item){
+        changeAll(e,item,index){
             item.Selected = e.mp.detail;
-            item.ParticipantMember.forEach(v=>{
-                v.Selected = item.Selected;
-            })
+            // item.ParticipantMember.forEach(v=>{
+            //     v.Selected = item.Selected;
+            // })
+            if (!item.Selected) {
+                item.ParticipantMember.forEach(v=>{
+                    v.Selected = false;
+                })
+                if (this.SplitType == 'or') {
+                    if (item.Selected) {
+                        item.ParticipantMember.forEach((v, idx) => {
+                            if (idx != index) {
+                                v.Selected = false;
+                            }
+                        })
+                    }
+                }
+            }
         },
         changeItem(e,item,v){
             v.Selected = e.mp.detail;
@@ -572,66 +590,84 @@ export default {
         },
         // 同意-提交
         getSubmit(){
-            
             let temp = [];
-            this.stepList.forEach((item,index)=>{
-                if(item.Selected){
-                    temp.push({
-                        toActivityId:item.ToActivityId,
-                        transitionId:item.TransitionId,
-                        participators:[]
-                    })
-                    for(let i=0; i<item.ParticipantMember.length;i++){
-                        if(item.ParticipantMember[i].Selected){
-                            temp[temp.length-1].participators.push(item.ParticipantMember[i].UserId);
+            let isBook = this.stepList.some(d=>d.Selected);
+            if(isBook){
+                this.stepList.forEach((item,index)=>{
+                    if(item.Selected){
+                        temp.push({
+                            toActivityId:item.ToActivityId,
+                            transitionId:item.TransitionId,
+                            participators:[]
+                        })
+                        let is = item.ParticipantMember.some(c=>c.Selected);
+                        if(is){
+                            for(let i=0; i<item.ParticipantMember.length;i++){
+                                if(item.ParticipantMember[i].Selected){
+                                    temp[temp.length-1].participators.push(item.ParticipantMember[i].UserId);
+                                }
+                            }
+                        }else {
+                            wx.showToast({
+                                title:"人员不能为空",
+                                icon:'none',
+                                duration:2000
+                            })
+                            throw Error('error');
                         }
                     }
-                }
-            })
-            for(let i=0;i<temp.length;i++){
-                if(temp[i].participators==''){
-                    temp.splice(i,1)
-                }
-            }
-            let obj = {
-                actions:[
-                    {
-                        params:{
-                            processId:this.processId,
-                            name:this.title,
-                            processInstanceId:this.processInstanceId,
-                            ruleLogId:this.RuleLogId,
-                            fromActivityId:this.stepList[0].FromActivityId,
-                            description:this.description,
-                            transitions:temp
-                        }
-                    }
-                ]
-            }
-            
-        //    let array = this.stepList.map((v,idx)=>{
-        //        console.log(v,idx);
-        //        return {
-        //             toActivityId:v.ToActivityId,
-        //             transitionId:v.TransitionId,
-
-        //             participators: v.ParticipantMember.map(item=>item.UserId)
-        //        }
-        //     })
-        //     console.log(array,'array')
-            console.log(obj,temp,'obj')
-            this.$httpWX.post({
-                url:this.$api.message.queryList+'?method='+this.$api.approval.accept,
-                data:{
-                    SessionKey:this.sessionkey,
-                    message:JSON.stringify(obj)
-                }
-            }).then(res=>{
-                console.log(res);
-                wx.navigateBack({
-                    delta:1
                 })
-            })
+                for(let i=0;i<temp.length;i++){
+                    if(temp[i].participators==''){
+                        temp.splice(i,1)
+                    }
+                }
+                let obj = {
+                    actions:[
+                        {
+                            params:{
+                                processId:this.processId,
+                                name:this.title,
+                                processInstanceId:this.processInstanceId,
+                                ruleLogId:this.RuleLogId,
+                                fromActivityId:this.stepList[0].FromActivityId,
+                                description:this.description,
+                                transitions:temp
+                            }
+                        }
+                    ]
+                }
+                
+            //    let array = this.stepList.map((v,idx)=>{
+            //        console.log(v,idx);
+            //        return {
+            //             toActivityId:v.ToActivityId,
+            //             transitionId:v.TransitionId,
+    
+            //             participators: v.ParticipantMember.map(item=>item.UserId)
+            //        }
+            //     })
+            //     console.log(array,'array')
+                console.log(obj,temp,'obj');
+                this.$httpWX.post({
+                    url:this.$api.message.queryList+'?method='+this.$api.approval.accept,
+                    data:{
+                        SessionKey:this.sessionkey,
+                        message:JSON.stringify(obj)
+                    }
+                }).then(res=>{
+                    console.log(res);
+                    wx.navigateBack({
+                        delta:1
+                    })
+                })
+            }else {
+                wx.showToast({
+                    title:"人员不能为空",
+                    icon:'none',
+                    duration:2000
+                })
+            }
         },
         ...mapMutations(['updateInstanceId','getClear']),
         getQueryFrom(){
@@ -744,6 +780,7 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.stepList = res.transitions;
+                this.SplitType = res.SplitType;
             })
 
         },

@@ -136,7 +136,7 @@
             </div>
             <div class="row" v-if="item.type=='UCS'">
                 <p class="title">*<span>{{item.label}}</span></p>
-                <textarea :value="item.value" @input="function(val){changeText(val,item,index)}" name="" id="" cols="30" rows="10" placeholder-class="placeholder" placeholder="请输入"></textarea>
+                <textarea :v-model="item.value" @input="function(val){changeText(val,item,index)}" name="" id="" cols="30" rows="10" placeholder-class="placeholder" placeholder="请输入"></textarea>
             </div>
             <div class="parentWrap" v-if="item.type=='RelatedList'">
                 <h3>{{item.label}}</h3>

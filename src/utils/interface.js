@@ -183,6 +183,10 @@ const api = {
         queryComment: "chatter.commentme.getlist",
         comment: "object.comment.add",
         del: "chatter.status.destroy"
+    },
+    hr:{
+        payList: "salary.pay.app.paylist",
+        payempdetail :"salary.pay.app.payempdetail"
     }
 }
 export default api;

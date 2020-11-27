@@ -27,11 +27,28 @@ export default {
             year:""
         }
     },
+    computed:{
+        sessionkey(){
+            return wx.getStorageSync('sessionkey');
+        }
+    },
     onLoad(){
         const myDate = new Date();
         this.year = myDate.getFullYear();
+        this.getQuery();
     },
     methods:{
+        getQuery(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:this.$api.hr.payList,
+                    SessionKey:this.sessionkey
+                }
+            }).then(res=>{
+                console.log(res);
+            })
+        },
         bindDateChange(e){
             this.year = e.mp.detail.value;
         },
