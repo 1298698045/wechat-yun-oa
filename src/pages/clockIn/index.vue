@@ -793,13 +793,17 @@ export default {
         let name = '打卡';
         if(this.current=='homepage'){
           name = '打卡'
+          this.getTimer();
         }else if(this.current=='apply'){
           name = '申请'
+          clearInterval(this.timeNull);
         }
         else if(this.current=='statistics'){
           name = '统计'
+          clearInterval(this.timeNull);
         }else if(this.current=='setting'){
           name = '设置'
+          clearInterval(this.timeNull);
         }
         wx.setNavigationBarTitle({
           title: name
