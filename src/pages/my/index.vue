@@ -20,7 +20,7 @@
         <div class="header">
             <div class="navBox" @click="getInfo">
                 <div>
-                    <p class="radius" v-if="imgUrl==''">{{info.fullName}}</p>
+                    <p class="radius" v-if="imgUrl==''">{{info.name}}</p>
                     <p class="imgs" v-if="imgUrl!=''">
                         <img :src="imgUrl" alt="">
                     </p>
@@ -286,6 +286,11 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.info = res.data[0];
+                if(this.info.fullName.length>2){
+                    this.info.name = this.info.fullName.substr(1);
+                }else {
+                    this.info.name = this.info.fullName;
+                }
                 this.getAvatar();
                 // let that = this;
                 // const downloadTask = wx.downloadFile({
