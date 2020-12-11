@@ -44,6 +44,33 @@ export default {
         {"code":"07","text":"text7","type":"type7"}
       ]
     }
+  },
+  computed:{
+    sessionkey(){
+      return wx.getStorageSync('sessionkey');
+    },
+    userId(){
+      return wx.getStorageSync('userId');
+    }
+  },
+  onLoad(){
+    this.getQuery();
+  },
+  methods:{
+    getQuery(){
+      this.$httpWX.get({
+        url:this.$api.message.queryList,
+        data:{
+          method:this.$api.hr.holidayaccount,
+          SessionKey:this.sessionkey,
+          yearNumber:'2020',
+          EmployeeId:this.userId,
+          leaveTypeCode: 1
+        }
+      }).then(res=>{
+        console.log(res);
+      })
+    }
   }
 }
 </script>

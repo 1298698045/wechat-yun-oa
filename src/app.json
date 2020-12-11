@@ -216,7 +216,8 @@
                 "personnelFiles/main",
                 "holidayAccount/main",
                 "businesstravel/main",
-                "goOut/main"
+                "goOut/main",
+                "weRunData/main"
             ]
         }
     ],

@@ -164,6 +164,9 @@ export default {
             }else if(id==111){
                 const url = '/pages/meeting/notice/main';
                 wx.navigateTo({url:url});
+            }else if(id==6030){
+                const url = '/pages/hr/weRunData/main';
+                wx.navigateTo({url:url});
             }
         }
     }

@@ -186,7 +186,8 @@ const api = {
     },
     hr:{
         payList: "salary.pay.app.paylist",
-        payempdetail :"salary.pay.app.payempdetail"
+        payempdetail :"salary.pay.app.payempdetail",
+        holidayaccount:"attendance.holidayaccount.personal.getlist", //  获取当前用户所有假期账户列表
     }
 }
 export default api;
