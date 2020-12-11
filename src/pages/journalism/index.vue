@@ -156,7 +156,7 @@ export default {
     data(){
         return {
             keyValue:"",
-            current_scroll:"推荐",
+            current_scroll:"",
             current:"homepage",
             showPopup:false,
             num:0,
@@ -264,6 +264,7 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.tagLists= res.rows;
+                this.current_scroll = this.tagLists[0].ItemName;
             })
         },
         getQuery(){
