@@ -109,6 +109,7 @@ const api = {
         getFile: "file.attachfiles.getlist", // 获取附件
         delete: "entity.info.delete",
         edit: "entity.save", // 修改
+        leaveQuery:"stringmap.getlist"
     },
     my: {
         Avatar: "sys.user.uploadavatar",
