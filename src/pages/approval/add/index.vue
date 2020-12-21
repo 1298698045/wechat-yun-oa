@@ -572,7 +572,7 @@ export default {
         onChangeGroup(e){
             console.log(e,'123123123');
             this.result = e.mp.detail;
-             this.params.parentRecord.fields[item.id] = this.result;
+            this.params.parentRecord.fields[item.id] = this.result;
         },
         toggle(e){
             console.log(e);

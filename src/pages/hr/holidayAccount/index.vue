@@ -15,16 +15,16 @@
       </view>
       <block v-for="(item,index) in listData" :key="index">
       <view class="tr bg-g" v-if="''">
-        <view class="td">{{item.code}}</view>
-        <view class="td">{{item.text}}</view>
-        <view class="td">{{item.type}}</view>
+        <view class="td">{{item.LeaveTypeCode}}</view>
+        <view class="td">{{item.EmployeeIdName}}</view>
+        <view class="td">{{item.TotalDays}}</view>
       </view>
       <view class="tr bg-g" v-else>
-        <view class="td">{{item.code}}</view>
-        <view class="td">{{item.text}}</view>
-        <view class="td">{{item.type}}</view>
-        <view class="td">{{item.type}}</view>
-        <view class="td">{{item.type}}</view>
+        <view class="td">{{item.LeaveTypeCode}}</view>
+        <view class="td">{{item.EmployeeIdName}}</view>
+        <view class="td">{{item.TotalDays}}</view>
+        <view class="td">{{item.UsedDays||0}}</view>
+        <view class="td">{{item.TotalDays-item.UsedDays||0}}</view>
       </view>
       </block>
     </view>
@@ -51,6 +51,10 @@ export default {
     },
     userId(){
       return wx.getStorageSync('userId');
+    },
+    yearNumber(){
+      let year = new Date().getFullYear();
+      return year;
     }
   },
   onLoad(){
@@ -63,12 +67,12 @@ export default {
         data:{
           method:this.$api.hr.holidayaccount,
           SessionKey:this.sessionkey,
-          yearNumber:'2020',
+          yearNumber:this.yearNumber,
           EmployeeId:this.userId,
           leaveTypeCode: 1
         }
       }).then(res=>{
-        console.log(res);
+        this.listData = res.rows;
       })
     }
   }
