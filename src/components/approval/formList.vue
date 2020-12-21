@@ -143,7 +143,7 @@
                     <div v-for="(v,idx) in item.item" :key="idx">
                         <!-- <p class="imgs">
                             <img :src="photoUrl+v.SignUrl" alt="">
-                        </p> -->
+                        </p> --> 
                         <p>
                             [  {{v.UserName}} ({{v.DeptName}}) {{v.Comment}} {{v.CreateTime}}  ]
                         </p>
