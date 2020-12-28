@@ -49,7 +49,7 @@
             <div class="box" v-if="current=='tab2'">
                 <p>提醒</p>
             </div>
-             <div class="box" v-if="current=='tab3'">
+            <div class="box" v-if="current=='tab3'">
                 <p>修改参与人</p>
             </div>
         </div>
