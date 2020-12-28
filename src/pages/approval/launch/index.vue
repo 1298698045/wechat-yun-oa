@@ -322,8 +322,12 @@ export default {
             'updateInstanceId'
         ]),
         getDetail(item){
+            let draft = false;
+            if(item.stateCode==0){
+                draft = true;
+            }
             this.updateInstanceId(item.instanceId);
-            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId+'&processId='+item.processId;
+            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&draft='+draft;
             wx.navigateTo({
                 url:url
             })

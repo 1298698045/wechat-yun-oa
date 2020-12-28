@@ -895,8 +895,12 @@ export default {
         // 事务详情
         getDetail(item){
             this.updateInstanceId(item.instanceId);
+            let draft = false;
+            if(this.current=='tab1' && item.stateCode==0){
+                draft = true;
+            }
             const url = '/pages/todoBusiness/detail/main?id='+item.id+'&name='+item.name+'&processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&RuleLogId='+item.id
-            +'&toActivityId='+item.toActivityId+'&fromActivityId='+item.fromActivityId+'&current='+this.current+'&stateCode='+item.stateCode+'&instanceId='+item.instanceId+'&createdByName='+item.createdByName+'&processIdName='+item.processIdName;
+            +'&toActivityId='+item.toActivityId+'&fromActivityId='+item.fromActivityId+'&current='+this.current+'&stateCode='+item.stateCode+'&instanceId='+item.instanceId+'&createdByName='+item.createdByName+'&processIdName='+item.processIdName+'&draft='+draft;
             wx.navigateTo({url:url});
         },
         // 催办

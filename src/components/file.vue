@@ -58,7 +58,7 @@
                 <p :class="{'active':resultList!=''}" @click="getDelete">删除</p>
             </div>
         </div>
-        <div class="clues-add-button" v-if="!isCheck&&!sheetShow" @click="onCluesAddBtnClick">
+        <div class="clues-add-button" v-if="!isCheck&&!sheetShow&&draft=='true'" @click="onCluesAddBtnClick">
             <van-icon name="plus" size="20" color="#fff" />
         </div>
          <van-action-sheet
@@ -86,7 +86,7 @@ import {mapState,mapMutations,mapActions,mapGetters} from 'vuex';
 import getOpenFiles from '@/utils/openFiles';
 export default {
     name:"File",
-    props:['instanceId','processInstanceId'],
+    props:['instanceId','processInstanceId','draft'],
     data(){
         return {
             show:false,

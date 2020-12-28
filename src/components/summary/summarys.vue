@@ -30,7 +30,7 @@
                     <p>
                         {{MeetingSummary.CreatedOn}}
                     </p>
-                    <p @click="getMore">
+                    <p @click="getMore" v-if="isEdit">
                         <i-icon type="more" color="#666666" size="20" />
                     </p>
                 </div>
@@ -68,7 +68,7 @@
 import { message } from '@/utils/message';
 export default {
     name:"Summarys",
-    props:['name','Meetingid','current','detailInfo'],
+    props:['name','Meetingid','current','detailInfo','isEdit'],
     data(){
         return {
             isShow:false,

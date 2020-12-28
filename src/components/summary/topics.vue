@@ -12,7 +12,7 @@
                     </div>
                 </div>
                 <p class="title">
-                    {{item.description}}
+                    <!-- {{item.description}} -->
                 </p>
                 <div class="cont">
                     {{item.description}}
@@ -21,7 +21,7 @@
                     <p>
                         {{item.modifiedOn}}
                     </p>
-                    <p @click="getMore(item)">
+                    <p @click="getMore(item)" v-if="isEdit">
                         <i-icon type="more" color="#666666" size="20" />
                     </p>
                 </div>
@@ -56,7 +56,7 @@
 import { message } from '@/utils/message';
 export default {
     name:"Topics",
-    props:['name','Meetingid','current'],
+    props:['name','Meetingid','current','isEdit'],
     data(){
         return {
             isShow:false,
@@ -259,6 +259,8 @@ export default {
                     font-size: 34rpx;
                     color: #333333;
                     margin-bottom: 50rpx;
+                    word-break: break-all;
+                    
                 }
                 .more{
                     display: flex;
