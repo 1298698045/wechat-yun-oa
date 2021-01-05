@@ -551,9 +551,11 @@ export default {
    * 页面上拉触底事件的处理函数
    */
   onReachBottom() {
-    if(this.$refs.child.isPage){
-      this.$refs.child.pageNumber++;
-      this.$refs.child.getQuery();
+    if(this.current==1){
+      if(this.$refs.child.isPage){
+        this.$refs.child.pageNumber++;
+        this.$refs.child.getQuery();
+      }
     }
   }
 };
