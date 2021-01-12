@@ -423,6 +423,7 @@ export default {
                         Selected:true,
                         BusinessUnitIdName:item.DeptName
                     })
+                    this.testLists[index].ParticipantMember = this.unique(this.testLists[index].ParticipantMember);
                     this.testLists[index].Selected = true;
                 })
             }
@@ -499,6 +500,17 @@ export default {
             console.log(e,v);
             this.list[i].value = e.mp.detail.value;
             // v.value = e.mp.detail.value;
+        },
+        unique(arr){
+            for(let i = 0; i < arr.length; i++){
+                for(let j = i + 1; j < arr.length; j++){
+                    if(arr[i].UserId==arr[j].UserId){
+                        arr.splice(j,1);
+                        j--;
+                    }
+                }
+            }
+            return arr;
         },
         getQueryFrom(){
             this.$httpWX.get({
