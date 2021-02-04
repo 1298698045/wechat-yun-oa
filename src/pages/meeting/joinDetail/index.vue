@@ -10,7 +10,7 @@
                 <div class="row" v-for="(item,index) in list" :key="index">
                     <div class="l">
                         <p>
-                            {{item.owningUserName}}
+                            {{item.name}}
                         </p>
                     </div>
                     <div class="c">
@@ -56,6 +56,7 @@
     </div>
 </template>
 <script>
+import { splitName } from '@/utils/splitName';
 export default {
     data(){
         return {
@@ -96,6 +97,10 @@ export default {
                 let temp = [];
                 this.list.forEach(item=>{
                     temp.push(item.meetingId);
+                })
+                this.list.map(v=>{
+                    v.name = splitName(v.owningUserName);
+                    return v;
                 })
                 this.userIds = temp.join(',');
             })
