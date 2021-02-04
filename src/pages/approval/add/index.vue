@@ -399,7 +399,10 @@ export default {
             createdByName:"",
             processIdName:"",
             SplitType:"",
-            Balance:"" // 假期余额
+            leaveType:"", // 假期类型
+            Balance:"", // 假期余额
+            startTime:"",
+            endTime:""
         }
     },
     computed:{
@@ -709,6 +712,15 @@ export default {
             item.multiIndex = v.mp.detail.value;
             item.value = this.getCurrentTime(item.multiIndex);
             this.params.parentRecord.fields[item.id] = item.value;
+            if(item.id=='StartTime'){
+                this.startTime = item.value;
+            }else if(item.id=='EndTime'){
+                this.endTime = item.value;
+            }
+            let EntityType = wx.getStorageSync('EntityType');
+            if(EntityType==30022){
+                this.getBalance();
+            }
         },
         bindYear(e,item){
             console.log(e,item);
@@ -756,7 +768,7 @@ export default {
             // 对象代码 
             let EntityType = wx.getStorageSync('EntityType');
             if(EntityType==30022){
-                if(this.Balance>0){
+                if(!this.isBalanceLimit || this.isBalanceLimit&&this.Balance>0){
 
                 }else {
                     wx.showToast({
@@ -824,6 +836,7 @@ export default {
             this.params.parentRecord.fields[item.id] = item.value;
             let EntityType = wx.getStorageSync('EntityType');
             if(EntityType==30022){
+                this.leaveType = item.value;
                 this.getBalance(item.value);
             }
         },
@@ -836,14 +849,22 @@ export default {
                     SessionKey:this.sessionkey,
                     yearNumber:this.yearNumber,
                     EmployeeId:this.UserId,
-                    leaveTypeCode:leaveType
+                    leaveTypeCode:this.leaveType,
+                    startTime:this.startTime,
+                    endTime:this.endTime
                 }
             }).then(res=>{
-                if(res.rows!=''){
-                    this.Balance = res.rows[0].Balance;
+                if(res!=''){
+                    this.isBalanceLimit = res.isBalanceLimit;
+                    this.Balance = res.balanceAmount;
                     const index =  this.list.findIndex((item)=>item.id=='BalanceAmount');
                     this.list[index].value = this.Balance;
                 }
+                // if(res.rows!=''){
+                //     this.Balance = res.rows[0].Balance;
+                //     const index =  this.list.findIndex((item)=>item.id=='BalanceAmount');
+                //     this.list[index].value = this.Balance;
+                // }
             })
         },
         getChooseImage(){
@@ -1284,6 +1305,7 @@ export default {
                 bottom: 0;
                 background: #fff;
                 border-top: 1rpx solid #e2e3e5;
+                z-index: 999;
                 .box{
                     display:flex;
                     justify-content: center;
