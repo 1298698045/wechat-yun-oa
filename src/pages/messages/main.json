@@ -5,7 +5,8 @@
       "i-notice-bar":"/static/view/notice-bar/index",
       "i-row":"/static/view/row/index",
       "i-col":"/static/view/col/index",
-      "i-badge":"/static/view/badge/index"
+      "i-badge":"/static/view/badge/index",
+      "van-swipe-cell":"/static/vant/swipe-cell/index"
     }
   }
   
