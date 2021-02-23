@@ -247,7 +247,9 @@
         {
             "root":"pages/personnelFiles",
             "pages":[
-                "main"
+                "main",
+                "classification/main",
+                "detail/main"
             ]
         }
     ],
