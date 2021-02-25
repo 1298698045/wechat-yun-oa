@@ -40,7 +40,6 @@
 <script>
 import calendar from '@/utils/Calendar-lunar';
 export default {
-    name:'MonthTable',
     data(){
         return {
             list:[],

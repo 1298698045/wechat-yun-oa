@@ -276,7 +276,7 @@ export default {
                             setTimeout(() => {
                                 that.getClear([]);
                                 that.$parent.current = 1;
-                                that.$parent.getQuery();
+                                // that.$parent.getQuery();
                                 // wx.navigateBack({
                                 //     delta: 1
                                 // })
