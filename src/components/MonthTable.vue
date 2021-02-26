@@ -514,7 +514,12 @@ export default {
             this.currDate = v.currDate;
             let id = `id_${index}`;
             wx.createSelectorQuery().select('#'+id).boundingClientRect(rect=>{
-                this.modalHeight = rect.top + 100;
+                console.log(rect.top,'===')
+                if(rect.top>200){
+                    this.modalHeight = rect.top - 250;
+                }else {
+                    this.modalHeight = rect.top + 100;
+                }
             }).exec()
             this.ModalData = v.tagList;
             this.isModal = true;
@@ -632,8 +637,14 @@ page{
                 
             }
             .td.activeBack{
-                background: rgba(51, 153, 255,.8);
+                background: rgba(216,229,245,0.8);
                 .times{
+                    width: 90%;
+                    margin: 0 auto;
+                    background: #3399ff;
+                    border-bottom: 10rpx;
+                    margin-top: 5rpx;
+                    border-radius: 10rpx;
                   .day,.lunar{
                       color: #fff;
                   }  
@@ -661,7 +672,9 @@ page{
         }
         .td_Modal{
             width: 350px;
-            height: auto;
+            // height: auto;
+            height: 250px;
+            overflow: scroll;
             position: absolute;
             left: 12px;
             top: 0;

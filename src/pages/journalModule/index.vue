@@ -335,7 +335,7 @@ export default {
             }
         },
         changeSearch(e){
-            this.search = e.mp.detail.value;
+            this.search = e.mp.detail;
             this.getQuery();
         },
         getMore(item){
