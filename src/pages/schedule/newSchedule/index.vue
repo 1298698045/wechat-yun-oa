@@ -793,7 +793,8 @@ export default {
     },
     // 会议室
     getConference() {
-      const url = "/pages/conferenceRoom/main?sign=" + "add";
+      console.log(this.startTime,'1231231');
+      const url = "/pages/conferenceRoom/main?sign=" + "add"+'&startTime='+this.startTime;
       wx.navigateTo({ url: url });
       // this.isConference = !this.isConference;
     },
@@ -977,6 +978,7 @@ export default {
       this.hours = this.RemoveChinese(hour) + ":" + this.RemoveChinese(minute);
       this.time = this.RemoveChinese(this.time);
       this.startTime = this.RemoveChinese(this.time);
+      console.log(this.startTime,'123==-=-=-=-=')
       this.copyStartTime =
         year + "-" + month + "-" + day + " " + hour + ":" + minute;
       this.copyStartTime = this.RemoveChinese(this.copyStartTime);
