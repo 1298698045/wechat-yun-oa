@@ -9,6 +9,14 @@
                     <van-switch :checked="checked" @change="changeSwitch" size="25px" />
                 </p>
             </div>
+            <div class="box" @click="editPhone">
+                <p class="text">
+                     更换手机号
+                </p>
+                <p>
+                    <i-icon type="enter" size="25" color="#cccccc" />
+                </p>
+            </div>
             <div class="box" @click="getEditPass">
                 <p class="text">
                      修改密码
@@ -85,7 +93,37 @@
                 </div>
             </div>
         </van-popup>
-
+        <van-popup
+            :show="isPhone"
+            position="center"
+            custom-style="width:80%;height: auto;border-radius: 28rpx;"
+            @close="closePhone"
+        >
+            <div class="phone_wrap">
+                <h3 class="title">更换手机号</h3>
+                <div class="phone_bd">
+                    <van-field
+                        type="number"
+                        title-width="100rpx"
+                        label="手机号:"
+                        :value="phone"
+                        placeholder="请输入手机号"
+                        :border="false"
+                        @change="changePhone"
+                        :clearable="true"
+                        maxlength="11"
+                    />
+                    <div class="btnWrap">
+                        <p @click="handlePhoneCancel">
+                            取消
+                        </p>
+                        <p @click="submitPhone">
+                            确认
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </van-popup>
     </div>
 </template>
 <script>
@@ -100,7 +138,9 @@ export default {
             oldPwd:"",
             newPassword:"",
             sessionKey:"",
-            confirmPwd:""
+            confirmPwd:"",
+            isPhone: false,
+            phone: ""
         }
     },
     onLoad(){
@@ -216,6 +256,19 @@ export default {
                     this.editShow = false;
                 })
             }
+        },
+        // 更换手机号
+        editPhone(){
+            this.isPhone = true
+        },
+        changePhone(e){
+            this.phone = e.mp.detail
+        },
+        handlePhoneCancel(){
+            this.isPhone = false
+        },
+        submitPhone(){
+            this.isPhone = false
         }
     }
 }
@@ -285,6 +338,30 @@ export default {
                 display: flex;
                 justify-content: center;
                 border-top: 2rpx solid #ccc;
+                p{
+                    flex: 1;
+                    font-size: 30rpx;
+                    color: #007aff;
+                    padding: 22rpx 0;
+                    text-align: center;
+                }
+                p:nth-child(1){
+                    border-right: 1rpx solid #ccc;
+                }
+            }
+        }
+        .phone_wrap{
+            .title{
+                text-align: center;
+                line-height: 100rpx;
+                color: #333;
+                font-weight: bold;
+            }
+            .btnWrap{
+                display: flex;
+                justify-content: center;
+                border-top: 2rpx solid #ccc;
+                margin-top: 30rpx;
                 p{
                     flex: 1;
                     font-size: 30rpx;

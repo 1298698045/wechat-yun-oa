@@ -1,5 +1,5 @@
 <template>
-    <div class="wrap">
+    <div class="wrap" @click="cancelMore">
         <div class="header">
             <div class="year"></div>
             <div class="andTime">
@@ -64,26 +64,115 @@
                     </p>
                 </div>
             </div>
-            <div class="tr tr_cont" id="table_tr" v-for="(item,index) in list" :key="index">
-                <div class="td td_name_cont" :style="{'height':tdHeight+'px','line-height':tdHeight+'px'}" @click="getCheck(1)">
-                    {{item.Name}}
+            <div class="tbody">
+                <div class="tr tr_cont" id="table_tr" v-for="(item,index) in list" :key="index">
+                    <div class="td td_name_cont" :style="{'height':tdHeight+'px','line-height':tdHeight+'px'}" @click="getCheck(1)">
+                        {{item.Name}}
+                    </div>
+                    <div class="td tds" :class="{'active':idx==activeIdx&&index==activeIndex}" v-for="(v,idx) in item.AttendData" :key="idx" :style="{'height':tdHeight+'px'}" @click="setShift(index, idx)">
+                        <p>
+                            <span v-for="(self,i) in v.Shifts" :key="i">{{self.WorkShiftIdName}}</span>
+                        </p>
+                    </div>
+                    <!--
+                        <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                        <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                        <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                        <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                        <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                        <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                        <div class="td" :style="{'height':tdHeight+'px'}"></div>
+                    -->
                 </div>
-                <div class="td tds" v-for="(v,idx) in item.AttendData" :key="idx" :style="{'height':tdHeight+'px'}">
-                    <p>
-                        <span v-for="(self,i) in v.Shifts" :key="i">{{self.WorkShiftIdName}}</span>
-                    </p>
-                </div>
-                <!--
-                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                    <div class="td" :style="{'height':tdHeight+'px'}"></div>
-                -->
             </div>
         </div>
+        <van-popup
+            :show="isShift"
+            position="bottom"
+            @close="closeShift"
+            :overlay="false"
+
+        >
+            <div class="popup">
+                <div class="column">
+                    <div class="item">
+                        <p class="icon">
+                            <van-icon name="like-o" />
+                        </p>
+                        <p class="name">期望排版</p>
+                    </div>
+                    <div class="item">
+                        <p class="icon">
+                            <van-icon name="like-o" />
+                        </p>
+                        <p class="name">自动排班</p>
+                    </div>
+                    <div class="item">
+                        <p class="icon">
+                            <van-icon name="like-o" />
+                        </p>
+                        <p class="name">排班检查</p>
+                    </div>
+                    <div class="item">
+                        <p class="icon">
+                            <van-icon name="like-o" />
+                        </p>
+                        <p class="name">轮班设置</p>
+                    </div>
+                    <div class="item">
+                        <div @click.stop="handleMore">
+                            <p class="icon">
+                                <van-icon name="like-o" />
+                            </p>
+                            <p class="name">更多</p>
+                        </div>
+                        <div class="select" v-if="isMore">
+                            <p class="option" @click="clearSchedule">清空排班表</p>
+                            <p class="icon"></p>
+                        </div>
+                    </div>
+                    <div class="item" @click="closeShift">
+                        <p class="icon">
+                            <van-icon name="arrow-down" />
+                        </p>
+                    </div>
+                </div>
+                <div class="shift_bd">
+                    <div class="left">
+                        <div class="item" @click="clearShift">
+                            <p class="icon">
+                                <i-icon type="trash" size=20 />
+                            </p>
+                            删除
+                        </div>
+                    </div>
+                    <div class="right">
+                        <swiper
+                            :current="current"
+                            @change="getCurrent"
+                            slidesPerView="1"
+                            :autoplay="false"
+                            class="swiper_wrap"
+                            :indicator-dots="true"
+                            indicator-color="#f4f4f4"
+                            indicator-active-color="#3399ff"
+
+                        >
+                            <swiper-item class="swiper_item" v-for="(self,idx) in shiftList" :key="idx">
+                                <div class="bd">
+                                    <p class="tag" v-for="item in self" :key="item.id" @click="handleChoice(item)">{{item.name}}</p>
+                                    <p class="tag tag_add" v-if="self.length<8">
+                                        <i-icon type="add" size=20 color="#3399ff" />
+                                    </p>
+                                    <p class="fack_item"></p>
+                                    <p class="fack_item"></p>
+                                </div>
+                            </swiper-item>
+                        </swiper>
+                    </div>
+                </div>
+            </div>
+        </van-popup>
     </div>
 </template>
 <script>
@@ -97,7 +186,62 @@ export default {
                 {
                     AttendDate:[]
                 }
-            ]
+            ],
+            isShift: true,
+            activeIdx: -1,
+            activeIndex: -1,
+            shiftList: [
+                {
+                    id:1,
+                    name: '白班'
+                },
+                {
+                    id:2,
+                    name: '中班'
+                },
+                {
+                    id:3,
+                    name: '晚班'
+                },
+                {
+                    id:4,
+                    name: '夜班'
+                },
+                {
+                    id:5,
+                    name: '行政'
+                },
+                {
+                    id:6,
+                    name: '休息'
+                },
+                {
+                    id:1,
+                    name: '白班'
+                },
+                {
+                    id:2,
+                    name: '中班'
+                },
+                {
+                    id:3,
+                    name: '晚班'
+                },
+                {
+                    id:4,
+                    name: '夜班'
+                },
+                {
+                    id:5,
+                    name: '行政'
+                },
+                {
+                    id:6,
+                    name: '休息'
+                }
+            ],
+            current: 0,
+            isMore: false
         }
     },
     computed:{
@@ -143,6 +287,12 @@ export default {
         //         date:time
         //     })
         // })
+        let result = []
+        for(var i=0;i<this.shiftList.length;i+=8){
+            result.push(this.shiftList.slice(i,i+8))
+        }
+        this.shiftList = result;
+        console.log(result)
     },
     methods:{
         getQuery(){
@@ -184,13 +334,63 @@ export default {
         },
         getCheck(index){
             this.num = index;
+        },
+        closeShift(){
+            this.isShift = false;
+        },
+        setShift(index, idx){
+            this.activeIndex = index
+            this.activeIdx = idx
+            console.log(this.list[index].Name,this.timeList[idx].time)
+            this.isShift = true
+        },
+        // 选择班次
+        handleChoice(item){
+            if(this.activeIdx>=0){
+                let isContain = this.list[this.activeIndex].AttendData[this.activeIdx].Shifts.some(self=>self.id==item.id);
+                if(!isContain){
+                    this.list[this.activeIndex].AttendData[this.activeIdx].Shifts.push({
+                        id: item.id,
+                        WorkShiftIdName: item.name
+                    })
+                    if(this.list[this.activeIndex].AttendData[this.activeIdx].Shifts!=''){
+                        this.activeIdx < 6 ? this.activeIdx++ : this.activeIdx
+                    }
+                }
+            }
+        },
+        // 清空班次
+        clearShift(){
+            if(this.activeIdx>=0){
+                this.list[this.activeIndex].AttendData[this.activeIdx].Shifts = [];
+            }
+        },
+        handleMore(){
+            this.isMore = !this.isMore;
+        },
+        cancelMore(){
+            this.isMore = false
+        },
+        // 清空排班表
+        clearSchedule(){
+            this.list.forEach(item=>{
+                item.AttendData.forEach(self=>{
+                    self.Shifts = []
+                })
+            })
+            this.isMore = false
         }
     }
 }
 </script>
 <style lang="scss">
+page{
+    height: auto;
+    background: #f6f7fb;
+}
     .wrap{
         width: 100%;
+        min-height: 100vh;
         height: 100%;
         .header{
             display: flex;
@@ -209,6 +409,8 @@ export default {
         }
         .table{
             width: 100%;
+            height: 600rpx;
+            overflow-y: auto;
             font-size: 28rpx;
             .tr{
                 display: flex;
@@ -223,7 +425,11 @@ export default {
                 }
             }
             .tr_head{
+                width: 100%;
+                position: fixed;
                 height: 130rpx;
+                z-index: 999;
+                background: #fff;
                 .td_name{
                     line-height: 130rpx;
                 }
@@ -232,6 +438,9 @@ export default {
                         margin-top: 25rpx;
                     }
                 }
+            }
+            .tbody{
+                margin-top: 130rpx;
             }
             .tr_cont{
                 .td{
@@ -245,14 +454,112 @@ export default {
                     display:flex;
                     justify-content:center;
                     align-items:center;
+                    background: #fff;
                     span{
                         font-size:20rpx;
-                        display:inline-block;
+                        display:block;
                     }
+                }
+                .tds.active{
+                    border: 2rpx solid #3399ff;
+                    box-sizing: border-box;
                 }
                 // .td.active_td{
                 //     border: 1px solid #333333;
                 // }
+            }
+        }
+        .van-popup{
+            overflow-y: initial !important;
+        }
+        .popup{
+            box-shadow: 0px 0px 23px 0px rgba(0, 0, 0, 0.2);
+            .column{
+                display: flex;
+                align-items: center;
+                // padding: 20rpx 0;
+                border-bottom: 1rpx solid #e2e3e5;
+                .item{
+                    flex: 1;
+                    text-align: center;
+                    position: relative;
+                    padding: 20rpx 0;
+                    .name{
+                        font-size: 20rpx;
+                    }
+                    .select{
+                        position: absolute;
+                        width: 200rpx;
+                        // height: 100rpx;
+                        background: #fff;
+                        bottom: 100%;
+                        left: -35rpx;
+                        margin-bottom: 10rpx;
+                        .option{
+                            height: 60rpx;
+                            line-height: 60rpx;
+                            font-size: 26rpx;
+                            text-align: center;
+                            border-bottom: 1rpx solid #e2e3e5;
+                        }
+                        .icon{
+                            position: absolute;
+                            bottom: -8rpx;
+                            left: calc(50% - 20rpx);
+                            width: 0px;
+                            height: 0px;
+                            border-top: 20rpx solid #fff;
+                            border-left: 20rpx solid transparent;
+                            border-right: 20rpx solid transparent;
+                        }
+                    }
+                }
+                .item:last-child{
+                    border-left: 1rpx solid #e2e3e5;
+                }
+            }
+            .shift_bd{
+                display: flex;
+                .left{
+                    width: 125rpx;
+                    min-height: 180rpx;
+                    background: #f4f4f4;
+                    border-right: 1px solid #e2e3e5;
+                    .item{
+                        text-align: center;
+                        vertical-align: middle;
+                        font-size: 20rpx;
+                        margin-top: 30rpx;
+                    }
+                }
+                .right{
+                    flex: 1;
+                    .swiper_wrap{
+                        height: 106px;
+                    }
+                    .bd{
+                        padding: 0 20rpx 20rpx;
+                        box-sizing: border-box;
+                        font-size: 20rpx;
+                        font-weight: bold;
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        .tag{
+                            width: 130rpx;
+                            height: 60rpx;
+                            line-height: 60rpx;
+                            margin-top: 20rpx;
+                            border-radius: 10rpx;
+                            text-align: center;
+                            border: 1rpx solid #e2e3e5;
+                        }
+                        .fack_item{
+                            flex: 0 0 130rpx;
+                            height: 0;
+                        }
+                    }
+                }
             }
         }
     }
