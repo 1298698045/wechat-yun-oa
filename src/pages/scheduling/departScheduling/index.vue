@@ -1,10 +1,10 @@
 <template>
     <div class="wrap" @click="cancelMore">
         <div class="header">
-            <div class="year"></div>
+            <div class="year">&nbsp;&nbsp;</div>
             <div class="andTime">
                 <div class="leftIcon" @click="getPrevTime">
-                    <i-icon type="return" size="24" />
+                    <i-icon type="return" size="20" />
                 </div>
                 <div class="cont">
                     <span class="start_time">{{timeList[0].time}}</span>
@@ -12,9 +12,12 @@
                     <span class="end_time">{{timeList[6].time}}</span>
                 </div>
                 <div class="rightIcon" @click="getNextTime">
-                    <i-icon type="enter" size="24" />
+                    <i-icon type="enter" size="20" />
                 </div>
             </div>
+            <p class="release">
+                发布
+            </p>
         </div>
         <div class="table">
             <div class="tr tr_head">
@@ -85,6 +88,21 @@
                     -->
                 </div>
             </div>
+        </div>
+        <div class="operation">
+            <p class="add" @click="addPeople">添加人员</p>
+            <p class="del" @click="delPeople">删除人员</p>
+        </div>
+        <div class="remarks">
+            <p class="label">排版备注</p>
+            <!-- <van-field
+                :value="remarks"
+                type="textarea"
+                placeholder="点击输入排班备注"
+                autosize
+                :border="false"
+            /> -->
+            <textarea v-model="remarks" placeholder="点击输入排班备注" name="" id="" cols="30" rows="10"></textarea>
         </div>
         <van-popup
             :show="isShift"
@@ -354,7 +372,8 @@ export default {
                         WorkShiftIdName: item.name
                     })
                     if(this.list[this.activeIndex].AttendData[this.activeIdx].Shifts!=''){
-                        this.activeIdx < 6 ? this.activeIdx++ : this.activeIdx
+                        this.activeIdx < 6 ? this.activeIdx++ : (this.activeIndex<this.list.length-1 ? (this.activeIndex++,this.activeIdx=0):this.activeIdx)
+                        console.log(this.activeIndex,'activeIndex')
                     }
                 }
             }
@@ -379,6 +398,15 @@ export default {
                 })
             })
             this.isMore = false
+        },
+        // 添加人员
+        addPeople(){
+            const url = '/pages/publics/mailList/main';
+            wx.navigateTo({url:url});
+        },
+        delPeople(){
+            const url = '/pages/scheduling/departScheduling/delMailList/main';
+            wx.navigateTo({url:url})
         }
     }
 }
@@ -394,7 +422,7 @@ page{
         height: 100%;
         .header{
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             background: #fff;
             padding: 20rpx 0;
@@ -404,7 +432,19 @@ page{
                 align-items: center;
                 .cont{
                     padding: 0 20rpx;
+                    font-size: 28rpx;
                 }
+            }
+            .release{
+                font-size: 24rpx;
+                width: 100rpx;
+                height: 60rpx;
+                line-height: 60rpx;
+                border-top-left-radius: 30rpx;
+                border-bottom-left-radius: 30rpx;
+                color: #fff;
+                background: #3399ff;
+                text-align: center;
             }
         }
         .table{
@@ -415,7 +455,7 @@ page{
             .tr{
                 display: flex;
                 align-items: center;
-                border-bottom: 1px solid #e2e3e5;
+                border-bottom: 2rpx solid #e2e3e5;
                 .td_name{
                     background: #ccc;
                 }
@@ -446,6 +486,7 @@ page{
                 .td{
                     box-sizing: border-box;
                     border-right: 1rpx solid #e2e3e5;
+                    font-size: 22rpx;
                 }
                 .td:nth-child(8){
                     border: none;
@@ -467,6 +508,36 @@ page{
                 // .td.active_td{
                 //     border: 1px solid #333333;
                 // }
+            }
+        }
+        .operation{
+            background: #fff;
+            display: flex;
+            margin: 20rpx 0;
+            p{
+                flex: 1;
+                text-align: center;
+                font-size: 24rpx;
+                color: #3399ff;
+                padding: 20rpx 0;
+                box-sizing: border-box;
+            }
+        }
+        .remarks{
+            margin-bottom: 20rpx;
+            background: #fff;
+            padding: 20rpx;
+            box-sizing: border-box;
+            .label{
+                font-size: 28rpx;
+                color: #333;
+            }
+            textarea{
+                padding: 10rpx 0;
+                font-size: 24rpx;
+                width: 100%;
+                height: 100rpx !important;
+                min-height: 100rpx;
             }
         }
         .van-popup{

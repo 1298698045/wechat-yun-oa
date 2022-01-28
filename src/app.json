@@ -255,7 +255,11 @@
             "root":"pages/scheduling",
             "pages":[
                 "main",
-                "departScheduling/main"
+                "departScheduling/main",
+                "departScheduling/delMailList/main",
+                "shift/main",
+                "shift/add_shift/main",
+                "administrator/main"
             ]
         }
     ],

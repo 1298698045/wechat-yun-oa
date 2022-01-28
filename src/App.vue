@@ -63,7 +63,8 @@ console.log(options.scene)
             console.log(res)
             let modelmes = res.model; //手机品牌
             console.log('手机品牌', modelmes)
-            if (modelmes.indexOf('iPhone X') != -1) {　　//XS,XR,XS MAX均可以适配,因为indexOf()会将包含'iPhone X'的字段都查出来
+            // 判断是否是iPhone x以上机型
+            if (res.safeArea.top > 20) {　　//XS,XR,XS MAX均可以适配,因为indexOf()会将包含'iPhone X'的字段都查出来
               wx.setStorageSync('isModelmes',true);
             }else {
               wx.setStorageSync('isModelmes',false);
