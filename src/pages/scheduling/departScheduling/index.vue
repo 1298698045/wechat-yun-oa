@@ -194,6 +194,7 @@
     </div>
 </template>
 <script>
+import { mapState, mapMutations } from 'vuex';
 export default {
     data(){
         return {
@@ -286,7 +287,12 @@ export default {
         },
         endTime(){
             return this.startTime = this.currentList[this.currentList.length-1];
-        }
+        },
+        ...mapState({
+            selectListName: (state) => {
+                return state.mailList.selectListName;
+            }
+        })
     },
     onLoad(){
         wx.createSelectorQuery().select('.td').boundingClientRect(rect=>{
@@ -312,7 +318,15 @@ export default {
         this.shiftList = result;
         console.log(result)
     },
+    onShow(){
+        // 选择的人
+        console.log('selectListName:', this.selectListName)
+    },
+    onUnload(){
+        this.getClear([]);
+    },
     methods:{
+        ...mapMutations(['getClear']),
         getQuery(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,

@@ -22,64 +22,125 @@
                     </div> -->
                     <div class="timeWrap">
                         <picker
-                        class="picker"
-                        mode="multiSelector"
-                        :value="multiIndex"
-                        @change="bindMultiPickerChange"
-                        :disabled="checked"
-                        :range="newMultiArray"
-                        >
-                        <input
-                            type="text"
-                            v-if="month == ''"
-                            placeholder="开始时间"
-                            disabled
-                            placeholder-class="placeholder"
-                        />
-                        <div class="box">
-                            <p>
-                            {{ month }}{{ day }} <span v-if="!checked">{{ startDay }}</span>
-                            </p>
-                            <p>{{ !checked ? hours : startDay }}</p>
-                        </div>
+                            class="picker"
+                            mode="multiSelector"
+                            :value="multiIndex"
+                            @change="bindMultiPickerChange"
+                            :disabled="checked"
+                            :range="newMultiArray"
+                            >
+                            <input
+                                type="text"
+                                v-if="month == ''"
+                                placeholder="开始时间"
+                                disabled
+                                placeholder-class="placeholder"
+                            />
+                            <div class="box">
+                                <p>
+                                {{ month }}{{ day }} <span v-if="!checked">{{ startDay }}</span>
+                                </p>
+                                <p>{{ !checked ? hours : startDay }}</p>
+                            </div>
                         </picker>
                         <div class="imgBox">
                         <img src="https://wx.phxinfo.com.cn/img/wechat/2845.png" alt="" />
                         </div>
                         <picker
-                        class="picker"
-                        mode="multiSelector"
-                        :value="endmultiIndex"
-                        @change="endbindMultiPickerChange"
-                        :disabled="checked"
-                        :range="newMultiArray"
-                        >
-                        <input
-                            type="text"
-                            v-if="endMonth == ''"
-                            placeholder="结束时间"
-                            disabled
-                            placeholder-class="placeholder"
-                        />
-                        <div class="box rBox">
-                            <p>
-                            {{ endMonth }}{{ endDay }}
-                            <span v-if="!checked">{{ endWeek }}</span>
-                            </p>
-                            <p>{{ !checked ? endHours : endWeek }}</p>
-                        </div>
+                            class="picker"
+                            mode="multiSelector"
+                            :value="endmultiIndex"
+                            @change="endbindMultiPickerChange"
+                            :disabled="checked"
+                            :range="newMultiArray"
+                            >
+                            <input
+                                type="text"
+                                v-if="endMonth == ''"
+                                placeholder="结束时间"
+                                disabled
+                                placeholder-class="placeholder"
+                            />
+                            <div class="box rBox">
+                                <p>
+                                {{ endMonth }}{{ endDay }}
+                                <span v-if="!checked">{{ endWeek }}</span>
+                                </p>
+                                <p>{{ !checked ? endHours : endWeek }}</p>
+                            </div>
                         </picker>
                     </div>
-                    <p class="add_time">+添加时间段</p>
+                    <div class="timeWrap" v-if="isTimeTwo">
+                        <picker
+                            class="picker"
+                            mode="multiSelector"
+                            :value="multiIndexTwo"
+                            @change="bindMultiPickerChangeTwo"
+                            :disabled="checkedTwo"
+                            :range="newMultiArray"
+                            >
+                            <input
+                                type="text"
+                                v-if="monthTwo == ''"
+                                placeholder="开始时间"
+                                disabled
+                                placeholder-class="placeholder"
+                            />
+                            <div class="box">
+                                <p>
+                                {{ monthTwo }}{{ dayTwo }} <span v-if="!checked">{{ startDayTwo }}</span>
+                                </p>
+                                <p>{{ !checkedTwo ? hoursTwo : startDayTwo }}</p>
+                            </div>
+                        </picker>
+                        <div class="imgBox">
+                        <img src="https://wx.phxinfo.com.cn/img/wechat/2845.png" alt="" />
+                        </div>
+                        <picker
+                            class="picker"
+                            mode="multiSelector"
+                            :value="endmultiIndexTwo"
+                            @change="endbindMultiPickerChangeTwo"
+                            :disabled="checkedTwo"
+                            :range="newMultiArray"
+                            >
+                            <input
+                                type="text"
+                                v-if="endMonthTwo == ''"
+                                placeholder="结束时间"
+                                disabled
+                                placeholder-class="placeholder"
+                            />
+                            <div class="box rBox">
+                                <p>
+                                {{ endMonthTwo }}{{ endDayTwo }}
+                                <span v-if="!checkedTwo">{{ endWeekTwo }}</span>
+                                </p>
+                                <p>{{ !checkedTwo ? endHoursTwo : endWeekTwo }}</p>
+                            </div>
+                        </picker>
+                    </div>
+                    <p class="add_time" @click="addTimeSlot">{{!isTimeTwo?'+添加时间段':'删除时间段'}}</p>
                 </div>
-                <div class="timeLength">
+                <van-cell-group>
+                    <van-field
+                        label-class="filed_label"
+                        label="时长(可修改)"
+                        :value="(hourTotal||'')+'小时'"
+                        placeholder="请输入班次名称"
+                        :border="false"
+                        @change="changeShiftName"
+                        input-align="right"
+                    />
+                </van-cell-group>
+                <!-- <div class="timeLength">
                     <p class="l_text">
                         时长(可修改)
                     </p>
                     <p class="r_text">
-                        09.00 小时
+                       {{hourTotal || ''}} 小时
                     </p>
-                </div>
+                </div> -->
             </div>
         </div>
         <div class="desc">
@@ -170,7 +231,22 @@ export default {
             endDay: "",
             endHours: "",
             startTime: "2020-06-03 04:00",
-            endTime: "2020-06-03 05:00"
+            endTime: "2020-06-03 05:00",
+            isTimeTwo: false,
+            multiIndexTwo: [0, 0, 0, 0, 0],
+            endmultiIndexTwo: [0, 0, 0, 0, 0],
+            monthTwo: "",
+            dayTwo: "",
+            hoursTwo: "",
+            endMonthTwo: "",
+            endDayTwo: "",
+            endHoursTwo: "",
+            startTimeTwo: "",
+            endTimeTwo: "",
+            time: '',
+            timeTwo: '',
+            endTime: '',
+            endTimeTwo: ''
         }
     },
     computed:{
@@ -221,8 +297,45 @@ export default {
             array.push(minutes);
             return array;
         },
+        hourTotal(){
+            let total = 0;
+            let oneTotal = 0;
+            let towTotal = 0;
+            if(this.time!=''&&this.endTime!=''){
+                oneTotal = this.getCalculationHour(this.time, this.endTime)
+                total = oneTotal
+            }
+            if(this.isTimeTwo){
+                if(this.time!=''&&this.endTime!=''&&this.timeTwo!=''&&this.endTime!=''){
+                    oneTotal = this.getCalculationHour(this.time, this.endTime)
+                    towTotal = this.getCalculationHour(this.timeTwo, this.endTimeTwo)
+                    console.log(oneTotal, towTotal)
+                    total = oneTotal + towTotal
+                }
+            }
+            // if(this.timeTwo!=''&&this.timeTwo!=''){
+            //     towTotal = this.getCalculationHour(this.timeTwo, this.timeTwo)
+            //     total = towTotal
+            // }
+            
+            console.log(total,'total')
+            return total
+        }
     },
     methods:{
+        // 两个时间相差的小时
+        getCalculationHour(s1, s2) {
+            var reDate = /\d{4}-\d{1,2}-\d{1,2} /;
+            s1 = new Date((reDate.test(s1) ? s1 : '2017-1-1 ' + s1).replace(/-/g, '/'));
+            s2 = new Date((reDate.test(s2) ? s2 : '2017-1-1 ' + s2).replace(/-/g, '/'));
+            var ms = s2.getTime() - s1.getTime();
+            if (ms < 0) return 0;
+            return Math.floor(ms / 1000 / 60 / 60);
+        },
+        // 添加时间段
+        addTimeSlot(){
+            this.isTimeTwo = !this.isTimeTwo;
+        },
         changeShiftName(e){
 
         },
@@ -247,25 +360,31 @@ export default {
             this.hours = this.RemoveChinese(hour) + ":" + this.RemoveChinese(minute);
             this.time = this.RemoveChinese(this.time);
             this.startTime = this.RemoveChinese(this.time);
-            console.log(this.startTime,'123==-=-=-=-=')
             this.copyStartTime =
                 year + "-" + month + "-" + day + " " + hour + ":" + minute;
             this.copyStartTime = this.RemoveChinese(this.copyStartTime);
             let startTime = year + "-" + month + "-" + day;
             startTime = this.RemoveChinese(startTime);
             this.startDay = this.getWeekDay(startTime);
-            // console.log('this.time',this.time);
-            let nDate = new Date(this.startTime.replace(/-/g,'/'));
-            let yy = nDate.getFullYear();
-            let mm = nDate.getMonth()+1;
-            let dd = nDate.getDate();
-            let h = nDate.getHours();
-            let min = nDate.getMinutes();
-            let endTime = `${yy}-${mm}-${Number(h)=='23'?dd+1:dd} ${
-                Number(h)=='23'?'00':
-                Number(h) + Number(1)
-            }:${min}`;
-            this.getCurrent(this.startTime,endTime);
+        },
+        bindMultiPickerChangeTwo(e) {
+            this.multiIndexTwo = e.target.value;
+            console.log("当前选择的时间", this.multiIndexTwo);
+            const index = this.multiIndexTwo;
+            const year = this.newMultiArray[0][index[0]];
+            const month = this.newMultiArray[1][index[1]];
+            const day = this.newMultiArray[2][index[2]];
+            const hour = this.newMultiArray[3][index[3]];
+            const minute = this.newMultiArray[4][index[4]];
+            this.timeTwo = year + "-" + month + "-" + day + " " + hour + ":" + minute;
+            this.monthTwo = month;
+            this.dayTwo = day;
+            this.hoursTwo = this.RemoveChinese(hour) + ":" + this.RemoveChinese(minute);
+            this.timeTwo = this.RemoveChinese(this.timeTwo);
+            this.startTimeTwo = this.RemoveChinese(this.timeTwo);
+            let startTime = year + "-" + month + "-" + day;
+            startTime = this.RemoveChinese(startTime);
+            this.startDayTwo = this.getWeekDay(startTime);
         },
         // 默认日期
         getCurrent(startTime, endTime) {
@@ -301,7 +420,6 @@ export default {
         },
         endbindMultiPickerChange(e) {
             this.endmultiIndex = e.target.value;
-            // console.log( "当前选择的时间", this.multiIndex );
             const index = this.endmultiIndex;
             const year = this.newMultiArray[0][index[0]];
             const month = this.newMultiArray[1][index[1]];
@@ -331,7 +449,37 @@ export default {
             let endTime = year + "-" + month + "-" + day;
             endTime = this.RemoveChinese(endTime);
             this.endWeek = this.getWeekDay(endTime);
-            // console.log(this.endTime,this.time);
+            console.log(this.endTime,this.time);
+        },
+        endbindMultiPickerChangeTwo(e) {
+            this.endmultiIndexTwo = e.target.value;
+            const index = this.endmultiIndexTwo;
+            const year = this.newMultiArray[0][index[0]];
+            const month = this.newMultiArray[1][index[1]];
+            const day = this.newMultiArray[2][index[2]];
+            const hour = this.newMultiArray[3][index[3]];
+            const minute = this.newMultiArray[4][index[4]];
+            let oldTime = this.RemoveChinese(year + "-" + month + "-" + day + " " + hour + ":" + minute);
+            let startStamp = new Date(this.startTimeTwo.replace(/-/g,'/')).getTime(); // 开始时间戳
+            let endStamp = new Date(oldTime.replace(/-/g,'/')).getTime(); // 结束时间戳
+            if(endStamp<startStamp){
+                wx.showToast({
+                    title:'请选择大于开始时间',
+                    icon:'none',
+                    duration:2000
+                })
+                return false;
+            }
+            this.endTimeTwo = year + "-" + month + "-" + day + " " + hour + ":" + minute;
+            this.endMonthTwo = month;
+            this.endDayTwo = day;
+            this.endHoursTwo =
+                this.RemoveChinese(hour) + ":" + this.RemoveChinese(minute);
+            this.endTimeTwo = this.RemoveChinese(this.endTimeTwo);
+            let endTimeTwo = year + "-" + month + "-" + day;
+            endTimeTwo = this.RemoveChinese(endTimeTwo);
+            this.endWeekTwo = this.getWeekDay(endTimeTwo);
+            console.log(this.endTimeTwo,this.timeTwo);
         },
     }
 }
