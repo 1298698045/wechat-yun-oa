@@ -259,7 +259,18 @@
                 "departScheduling/delMailList/main",
                 "shift/main",
                 "shift/add_shift/main",
-                "administrator/main"
+                "administrator/main",
+                "shift_setting/main",
+                "shift_setting/pattern/main",
+                "shift_setting/phoneRemind/main",
+                "shift_setting/vacationType/main"
+            ]
+        },
+        {
+            "root":"pages/human",
+            "pages":[
+                "main",
+                "employeeRoster/main"
             ]
         }
     ],
