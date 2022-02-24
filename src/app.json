@@ -270,7 +270,9 @@
             "root":"pages/human",
             "pages":[
                 "main",
-                "employeeRoster/main"
+                "employeeRoster/main",
+                "personnelEntry/main",
+                "employeeRoster/detail/main"
             ]
         }
     ],

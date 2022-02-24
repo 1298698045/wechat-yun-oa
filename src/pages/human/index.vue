@@ -77,6 +77,34 @@
                         更多 <van-icon name="arrow" color="#3399ff" />
                     </p>
                 </div>
+                <div class="bd">
+                    <div class="column">
+                        <div class="box_item">
+                            <block>
+                                <p class="num">0</p>
+                                <p class="name">迟到</p>
+                            </block>
+                        </div>
+                        <div class="box_item">
+                            <block>
+                                <p class="num">0</p>
+                                <p class="name">迟到</p>
+                            </block>
+                        </div>
+                        <div class="box_item">
+                            <block>
+                                <p class="num">0</p>
+                                <p class="name">迟到</p>
+                            </block>
+                        </div>
+                        <div class="box_item">
+                            <block>
+                                <p class="num">0</p>
+                                <p class="name">迟到</p>
+                            </block>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -167,6 +195,37 @@ export default {
                     .more_text{
                         font-size: 24rpx;
                         color: #3399ff;
+                    }
+                }
+                .bd{
+                    .column{
+                        display: flex;
+                        flex-wrap: wrap;
+                        align-items: center;
+                        justify-content: space-between;
+                        padding: 0 30rpx;
+                        box-sizing: border-box;
+                        .box_item{
+                            width: 22%;
+                            margin: 30rpx 0;
+                            text-align: center;
+                            .img_icon{
+                                width: 100rpx;
+                                height: 100rpx;
+                                background: yellow;
+                                border-radius: 20rpx;
+                                margin: 0 auto;
+                            }
+                            .name{
+                                text-align: center;
+                                font-size: 24rpx;
+                                padding-top: 15rpx;
+                            }
+                        }
+                        .fake_item{
+                            flex: 0 0 22%;
+                            height: 0;
+                        }
                     }
                 }
             }

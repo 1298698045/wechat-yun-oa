@@ -212,6 +212,13 @@ const api = {
         query:"workshift.monthowner.getlist",
         calendar:"calendar.holiday.getlist",
         departQuery:"workshift.dept.employee.search"
+    },
+    // 人力资源
+    human:{
+        employeeRoster: 'entity.grid.search', // 人员花名册
+        formList:'entity.config.get',
+        saverecord:'entity.saverecord',
+        detail: 'entity.detail.get'
     }
 }
 export default api;
