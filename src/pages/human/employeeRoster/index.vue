@@ -15,9 +15,20 @@
                             {{item.DeptId}}
                         </p>
                     </div>
+                    <div class="more" @click.stop="handleMore(item)">
+                        <van-icon name="ellipsis" size="20" />
+                    </div>
                 </div>
             </div>
         </div>
+        <van-action-sheet
+            :show="show"
+            :actions="actions"
+            cancel-text="取消"
+            close-on-click-action
+            @cancel="onCancel"
+            @select="handleSelect"
+        />
     </div>
 </template>
 <script>
@@ -30,6 +41,11 @@ export default {
             pageSize: 10,
             pageNumber: 1,
             isPage: false,
+            show: false,
+            actions:[
+                { name: '编辑' }
+            ],
+            id: ''
         }
     },
     onLoad(){
@@ -67,6 +83,23 @@ export default {
             wx.navigateTo({
                 url: '/pages/human/employeeRoster/detail/main?id='+item.LIST_RECORD_ID
             });
+        },
+        handleMore(item){
+            console.log('item:', item)
+            this.id = item.LIST_RECORD_ID;
+            this.show = true;
+        },
+        onCancel(){
+            this.show = false
+        },
+        handleSelect(e){
+            let {name} = e.mp.detail;
+            if(name=='编辑'){
+                wx.navigateTo({
+                    url:'/pages/human/personnelEntry/main?id='+this.id
+                })
+            }
+            this.show = false
         }
     },
         // 下拉刷新
@@ -96,6 +129,7 @@ page{
             .content{
                 .row{
                     display: flex;
+                    justify-content: space-between;
                     align-items: center;
                     border-bottom: 1rpx solid #e2e3e5;
                     padding: 20rpx ;
@@ -108,6 +142,7 @@ page{
                     }
                     .cont{
                         margin-left: 20rpx;
+                        flex: 1;
                         .name{
                             font-size: 30rpx;
                             color: #333;

@@ -212,7 +212,7 @@
             <p class="title">*<span>内容</span></p>
             <textarea v-model="content" name="" id="" cols="30" rows="10" placeholder-class="placeholder" placeholder="请输入"></textarea>
         </div> -->
-        <div class="row">
+        <!-- <div class="row">
             <p class="text">图片</p>
             <div class="content">
                 <div class="box" v-for="(item,index) in imgList" :key="index">
@@ -222,7 +222,7 @@
                     <i-icon type="add" size="40" color="#bec5c5" />
                 </div>
             </div>
-        </div>
+        </div> -->
         <!-- <div class="row">
             <p class="text">附件</p>
             <div class="content">
@@ -310,7 +310,8 @@ export default {
             Balance:"", // 假期余额
             startTime:"",
             endTime:"",
-            HasMatched:false
+            HasMatched:false,
+            id: ''
         }
     },
     computed:{
@@ -371,6 +372,7 @@ export default {
         this.params.recordRep.id = options.ProcessInstanceId;
         this.createdByName = wx.getStorageSync('fullName');
         this.processIdName = options.name;
+        this.id = options.id;
         this.getLayoutData();
     },
     methods:{
@@ -393,7 +395,7 @@ export default {
             return arr;
         },
         getLayoutData(){
-            let message = JSON.stringify({"params":{"recordId":"","record":null,"inContextOfComponent":"","entityApiName":"HREmployee","mode":"EDIT","layoutType":"FULL","navigationLocation":"DETAIL"},"storable":true})
+            let message = JSON.stringify({"params":{"recordId":this.id,"record":null,"inContextOfComponent":"","entityApiName":"HREmployee","mode":"EDIT","layoutType":"FULL","navigationLocation":"DETAIL"},"storable":true})
             this.$httpWX.get({
                 url:this.$api.message.queryList,
                 data:{
@@ -440,6 +442,7 @@ export default {
                             this.params.recordRep.fields[item.id] = {Id:this.record[obj].Id};
                         }else {
                             item.value = this.record[obj];
+                            this.params.recordRep.fields[item.id] = item.value
                         }
                     }
                 })
