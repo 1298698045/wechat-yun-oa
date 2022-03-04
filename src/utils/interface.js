@@ -211,7 +211,10 @@ const api = {
     scheduling:{
         query:"workshift.monthowner.getlist",
         calendar:"calendar.holiday.getlist",
-        departQuery:"workshift.dept.employee.search"
+        departQuery:"workshift.dept.employee.search",
+        shiftQuery: 'workshift.owner.getlist',
+        shiftList: 'workshift.search',
+        pickerList: 'layout.picklistvalues.get'
     },
     // 人力资源
     human:{
@@ -219,6 +222,7 @@ const api = {
         formList:'entity.config.get',
         saverecord:'entity.saverecord',
         detail: 'entity.detail.get'
+        
     }
 }
 export default api;

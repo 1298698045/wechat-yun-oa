@@ -1,7 +1,7 @@
 <template>
     <div class="wrapper">
         <div class="panel">
-            <van-cell-group>
+            <div class="row_inp">
                 <van-field
                     label-class="filed_label"
                     label="名称"
@@ -11,7 +11,95 @@
                     @change="changeShiftName"
                     input-align="right"
                 />
-            </van-cell-group>
+            </div>
+            <picker @change="(e)=>{changePicker(e,'shiftMethodCodeIdx')}" :value="shiftMethodCodeIdx" range-key="label" :range="params.ShiftMethodCode.values">  
+                <div class="row">
+                    <p class="l_text">
+                        排班方式
+                    </p>
+                    <p class="r_text"> 
+                        {{params.ShiftMethodCode.values[shiftMethodCodeIdx].label}}
+                        <i-icon type="enter" size="18" />
+                    </p>
+                </div>
+            </picker>
+            <picker @change="(e)=>{changePicker(e,'shiftTypeCodeIdx')}" :value="shiftTypeCodeIdx" range-key="label" :range="params.ShiftTypeCode.values">  
+                <div class="row">
+                    <p class="l_text">
+                        班次类型
+                    </p>
+                    <p class="r_text">
+                        {{params.ShiftTypeCode.values[shiftTypeCodeIdx].label}}
+                        <i-icon type="enter" size="18" />
+                    </p>
+                </div>
+            </picker>
+            <picker @change="(e)=>{changePicker(e,'statusCodeIdx')}" :value="statusCodeIdx" range-key="label" :range="params.StatusCode.values">  
+                <div class="row">
+                    <p class="l_text">
+                        状态
+                    </p>
+                    <p class="r_text">
+                        {{params.StatusCode.values[statusCodeIdx].label}}
+                        <i-icon type="enter" size="18" />
+                    </p>
+                </div>
+            </picker>
+            <picker @change="(e)=>{changePicker(e,'leaveTypeIdx')}" :value="leaveTypeIdx" range-key="label" :range="params.LeaveType.values">  
+                <div class="row">
+                    <p class="l_text">
+                        关联请假类型
+                    </p>
+                    <p class="r_text">
+                        {{params.LeaveType.values[leaveTypeIdx].label}}
+                        <i-icon type="enter" size="18" />
+                    </p>
+                </div>
+            </picker>
+            <picker @change="(e)=>{changePicker(e,'nightTypeCodeIdx')}" :value="nightTypeCodeIdx" range-key="label" :range="params.NightTypeCode.values">  
+                <div class="row">
+                    <p class="l_text">
+                        夜班类型
+                    </p>
+                    <p class="r_text">
+                        {{params.NightTypeCode.values[nightTypeCodeIdx].label}}
+                        <i-icon type="enter" size="18" />
+                    </p>
+                </div>
+            </picker>
+            <picker @change="(e)=>{changePicker(e,'categoryCodeIdx')}" :value="categoryCodeIdx" range-key="label" :range="params.CategoryCode.values">  
+                <div class="row">
+                    <p class="l_text">
+                        分类
+                    </p>
+                    <p class="r_text">
+                        {{params.CategoryCode.values[categoryCodeIdx].label}}
+                        <i-icon type="enter" size="18" />
+                    </p>
+                </div>
+            </picker>
+            <div class="row_inp">
+                <van-field
+                    label-class="filed_label"
+                    label="缩写或符号"
+                    :value="shift.name"
+                    placeholder="请输入缩写或符号"
+                    :border="false"
+                    @change="changeShiftName"
+                    input-align="right"
+                />
+            </div>
+            <div class="row_inp">
+                <van-field
+                    label-class="filed_label"
+                    label="补贴金额"
+                    :value="shift.name"
+                    placeholder="请输入补贴金额"
+                    :border="false"
+                    @change="changeShiftName"
+                    input-align="right"
+                />
+            </div>
             <div class="timeSlot">
                 <div class="timeBlock">
                     <!-- <div class="box">
@@ -169,19 +257,6 @@
         <div class="desc">
             管床开启后，可在排班时对改班次设置管床信息
         </div>
-        <div class="panel">
-            <picker @change="changeType" :value="typeIdx" range-key="label" :range="typeList">  
-                <div class="row">
-                    <p class="l_text">
-                        类型
-                    </p>
-                    <p class="r_text">
-                        {{typeList[typeIdx].label}}
-                        <i-icon type="enter" size="18" />
-                    </p>
-                </div>
-            </picker>
-        </div>
         <div class="desc">
             类型为“休息”的班次将不会收到上班提醒
         </div>
@@ -246,7 +321,96 @@ export default {
             time: '',
             timeTwo: '',
             endTime: '',
-            endTimeTwo: ''
+            endTimeTwo: '',
+            params:{
+                // 排班方式
+                ShiftMethodCode:{
+                    values: [
+                        {attributes: null, label: "固定班制", validFor: null, value: "1"},
+                        {attributes: null, label: "排班制", validFor: null, value: "2"},
+                        {attributes: null, label: "自由班", validFor: null, value: "3"}
+                    ]
+                },
+                // 班次类型
+                ShiftTypeCode: {
+                    index: '',
+                    values: [
+                        {attributes: null, label: "白天班", validFor: null, value: "1"},
+                        {attributes: null, label: "晚上班", validFor: null, value: "2"},
+                        {attributes: null, label: "24小时全天班", validFor: null, value: "3"},
+                        {attributes: null, label: "法定节假日", validFor: null, value: "4"},
+                        {attributes: null, label: "休息", validFor: null, value: "0"},
+                        {attributes: null, label: "请假", validFor: null, value: "30022"}
+                    ]
+                },
+                // 状态
+                StatusCode:{
+                    index: '',
+                    values: [
+                        {attributes: null, label: "未启用", validFor: null, value: "0"},
+                        {attributes: null, label: "已启用", validFor: null, value: "1"}
+                    ]
+                },
+                // 关联请假类型
+                LeaveType: {
+                    index: '',
+                    values: [
+                        {attributes: null, label: "无", validFor: null, value: "0"},
+                        {attributes: null, label: "事假", validFor: null, value: "1"},
+                        {attributes: null, label: "病假", validFor: null, value: "2"},
+                        {attributes: null, label: "产假", validFor: null, value: "3"},
+                        {attributes: null, label: "婚假", validFor: null, value: "4"},
+                        {attributes: null, label: "探亲假", validFor: null, value: "5"},
+                        {attributes: null, label: "公休", validFor: null, value: "6"},
+                        {attributes: null, label: "公伤假", validFor: null, value: "7"},
+                        {attributes: null, label: "丧假", validFor: null, value: "8"},
+                        {attributes: null, label: "公休日加班", validFor: null, value: "10"},
+                        {attributes: null, label: "节假日加班", validFor: null, value: "11"},
+                        {attributes: null, label: "平时加班", validFor: null, value: "12"},
+                        {attributes: null, label: "规培", validFor: null, value: "14"},
+                        {attributes: null, label: "进修", validFor: null, value: "15"},
+                        {attributes: null, label: "其它", validFor: null, value: "16"},
+                        {attributes: null, label: "补休", validFor: null, value: "17"},
+                        {attributes: null, label: "计生假", validFor: null, value: "18"},
+                        {attributes: null, label: "哺乳假", validFor: null, value: "19"},
+                        {attributes: null, label: "夜班天数", validFor: null, value: "22"},
+                        {attributes: null, label: "本地外出", validFor: null, value: "27"},
+                        {attributes: null, label: "外地出差", validFor: null, value: "28"},
+                        {attributes: null, label: "旷工", validFor: null, value: "25"},
+                        {attributes: null, label: "上研", validFor: null, value: "31"},
+                        {attributes: null, label: "放射假", validFor: null, value: "32"},
+                        {attributes: null, label: "下乡", validFor: null, value: "39"},
+                        {attributes: null, label: "学习", validFor: null, value: "47"}
+                    ]
+                },
+                // 夜班类型
+                NightTypeCode:{
+                    index: '',
+                    values:[
+                        {attributes: null, label: "小夜班", validFor: null, value: "1"},
+                        {attributes: null, label: "大夜班", validFor: null, value: "2"},
+                        {attributes: null, label: "通宵", validFor: null, value: "3"}
+                    ]
+                },
+                //  分类
+                CategoryCode:{
+                    index: '',
+                    values: [
+                        {attributes: null, label: "中班", validFor: null, value: "0"},
+                        {attributes: null, label: "行政职能", validFor: null, value: "1"},
+                        {attributes: null, label: "门诊医生", validFor: null, value: "2"},
+                        {attributes: null, label: "住院医生", validFor: null, value: "3"},
+                        {attributes: null, label: "护理", validFor: null, value: "4"},
+                        {attributes: null, label: "其他", validFor: null, value: "5"}
+                    ]
+                }
+            },
+            shiftMethodCodeIdx: 0,
+            shiftTypeCodeIdx: 0,
+            statusCodeIdx: 0,
+            leaveTypeIdx: 0,
+            nightTypeCodeIdx: 0,
+            categoryCodeIdx: 0
         }
     },
     computed:{
@@ -320,9 +484,36 @@ export default {
             
             console.log(total,'total')
             return total
+        },
+        sessionkey(){
+            return wx.getStorageSync('sessionkey')
         }
     },
+    onLoad(){
+        for(var key in this.params){
+            // console.log(key,'key')
+            // console.log('values:', this.params[key])
+            this.$set(this.params[key],'index',0)
+        }
+        this.getQuery();
+    },
     methods:{
+        getQuery(){
+            this.$httpWX.get({
+                url: this.$api.message.queryList,
+                data:{
+                    method: this.$api.scheduling.pickerList,
+                    Sessionkey: this.sessionkey,
+                    objectTypeCode: 30040
+                }
+            }).then(res=>{
+                console.log(res,'res')
+            })
+        },
+        changePicker(e,field){
+            let index = e.mp.detail.value;
+            this[field] = index;
+        },
         // 两个时间相差的小时
         getCalculationHour(s1, s2) {
             var reDate = /\d{4}-\d{1,2}-\d{1,2} /;
@@ -489,6 +680,9 @@ export default {
         .panel{
             background: #fff;
             margin-top: 20rpx;
+            .row_inp{
+                border-bottom: 1rpx solid #e2e3e5;
+            }
             .row{
                 display: flex;
                 justify-content: space-between;
@@ -496,6 +690,7 @@ export default {
                 padding: var(--cell-vertical-padding,10px) var(--cell-horizontal-padding,16px);
                 font-size: 26rpx;
                 color: #333;
+                border-bottom: 1rpx solid #e2e3e5;
                 .r_text{
                     display: flex;
                     align-items: center;

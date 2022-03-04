@@ -43,7 +43,7 @@
                             <div class="box" @click="handleShiftAdmin">
                                 班次管理
                             </div>
-                            <div class="box">
+                            <div class="box" @click="handleShiftSetting">
                                 排班设置
                             </div>
                         </div>
@@ -87,6 +87,11 @@ export default {
         handleShiftAdmin(){
             wx.navigateTo({
                 url: '/pages/scheduling/shift/main'
+            })
+        },
+        handleShiftSetting(){
+            wx.navigateTo({
+                url: '/pages/scheduling/shift_setting/main'
             })
         }
     }

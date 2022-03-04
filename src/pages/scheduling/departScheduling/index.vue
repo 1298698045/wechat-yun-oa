@@ -178,7 +178,7 @@
                         >
                             <swiper-item class="swiper_item" v-for="(self,idx) in shiftList" :key="idx">
                                 <div class="bd">
-                                    <p class="tag" v-for="item in self" :key="item.id" @click="handleChoice(item)">{{item.name}}</p>
+                                    <p class="tag" v-for="item in self" :key="item.Id" @click="handleChoice(item)">{{item.Name}}</p>
                                     <p class="tag tag_add" v-if="self.length<8">
                                         <i-icon type="add" size=20 color="#3399ff" />
                                     </p>
@@ -311,12 +311,6 @@ export default {
         //         date:time
         //     })
         // })
-        let result = []
-        for(var i=0;i<this.shiftList.length;i+=8){
-            result.push(this.shiftList.slice(i,i+8))
-        }
-        this.shiftList = result;
-        console.log(result)
     },
     onShow(){
         // 选择的人
@@ -340,6 +334,13 @@ export default {
                 }
             }).then(res=>{
                 this.list = res.listData;
+                this.shiftList = res.AttendTypes;
+                let result = []
+                for(var i=0;i<this.shiftList.length;i+=8){
+                    result.push(this.shiftList.slice(i,i+8))
+                }
+                this.shiftList = result;
+                console.log(result)
             })
         },
         getDates(currentTime) {//JS获取当前周从星期一到星期天的日期
@@ -378,6 +379,8 @@ export default {
         },
         // 选择班次
         handleChoice(item){
+            item.id = item.Id;
+            item.name = item.Name;
             if(this.activeIdx>=0){
                 let isContain = this.list[this.activeIndex].AttendData[this.activeIdx].Shifts.some(self=>self.id==item.id);
                 if(!isContain){

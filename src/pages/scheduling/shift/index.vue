@@ -14,15 +14,15 @@
                     班次排序</p>
             </div>
             <div class="content">
-                <div class="row">
+                <div class="row" v-for="(item,index) in listData" :key="index">
                     <p class="shift_name">
-                        白班<span>8小时</span>
+                        {{item.Name}}<span>8小时</span>
                     </p>
                     <p class="time">
-                        09:00-18:00
+                        {{item.StartTime1}}-{{item.EndTime1}}
                     </p>
                 </div>
-                <p class="more">没有更多了</p>
+                <!-- <p class="more">没有更多了</p> -->
             </div>
         </div>
         <div class="footer" @click="handleAddShift">
@@ -36,23 +36,91 @@
 export default {
     data(){
         return {
-            current: 'tab1'
+            current: 'tab1',
+            page: 1,
+            rows: 10,
+            listData: [],
+            isPage: false,
         }
     },
     computed:{
         isModelmes(){
             return wx.getStorageSync('isModelmes');
+        },
+        sessionkey(){
+            return wx.getStorageSync('sessionkey')
         }
     },
+    onLoad(){
+        this.getQuery();  
+    },
     methods:{
+        getQuery(){
+            let url = this.$api.scheduling.shiftQuery
+            if(this.current=='tab2'){
+                url = this.$api.scheduling.shiftList
+            }
+            this.$httpWX.get({
+                url: this.$api.message.queryList,
+                data:{
+                    method: url,
+                    SessionKey:this.sessionkey,
+                    isPaginaTion: true,
+                    page: this.page,
+                    rows: this.rows
+                }
+            }).then(res=>{
+                let result = []
+                if(this.current=='tab2'){
+                    if(this.page*this.rows<res.total){
+                        this.isPage = true
+                    }else {
+                        this.isPage = false
+                    }
+                    if(this.page==1){
+                        result = res.listData;
+                    }else {
+                        result = this.listData.concat(res.listData);
+                    }
+                }else {
+                    if(this.page*this.rows<res.total){
+                        this.isPage = true
+                    }else {
+                        this.isPage = false
+                    }
+                    if(this.page==1){
+                        result = res.rows;
+                    }else {
+                        result = this.listData.concat(res.rows);
+                    }
+                }
+                this.listData = result;
+            })
+        },
         handleChange(e){
-            console.log(e);
             this.current = e.mp.detail.key
+            this.page = 1;
+            this.listData = [];
+            this.getQuery();
         },
         handleAddShift(){
             wx.navigateTo({
                 url: '/pages/scheduling/shift/add_shift/main'
             })
+        }
+    },
+    onPullDownRefresh() {
+        this.page = 1;
+        this.getQuery();
+        wx.stopPullDownRefresh();
+    },
+    /**
+     * 页面上拉触底事件的处理函数
+     */
+    onReachBottom() {
+        if(this.isPage){
+            this.page++;
+            this.getQuery();
         }
     }
 }
@@ -62,6 +130,7 @@ export default {
         background: #fff;
     }
     .center{
+        padding-bottom: 100px;
         .tips{
             padding: 20rpx 30rpx;
             box-sizing: border-box;
