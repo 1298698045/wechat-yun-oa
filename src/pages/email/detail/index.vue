@@ -66,6 +66,7 @@
                         <img v-if="item.FileExtension=='.pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
                         <img v-if="item.FileExtension=='.ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
                         <img v-if="item.FileExtension=='.word'" :src="photoUrl+'word.png'" alt="">
+                        <img v-if="item.FileExtension.indexOf('xls')!=-1" :src="photoUrl+'xls.png'" alt="">
                     </p>
                 </div>
                 <div>

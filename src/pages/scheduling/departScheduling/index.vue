@@ -72,7 +72,7 @@
                     <div class="td td_name_cont" :style="{'height':tdHeight+'px','line-height':tdHeight+'px'}" @click="getCheck(1)">
                         {{item.Name}}
                     </div>
-                    <div class="td tds" :class="{'active':idx==activeIdx&&index==activeIndex}" v-for="(v,idx) in item.AttendData" :key="idx" :style="{'height':tdHeight+'px'}" @click="setShift(index, idx)">
+                    <div class="td tds" :class="{'active':idx==activeIdx&&index==activeIndex}" v-for="(v,idx) in item.AttendData" :key="idx" :style="{'height':tdHeight+'px'}" @click="setShift(v,index, idx)">
                         <p>
                             <span v-for="(self,i) in v.Shifts" :key="i">{{self.WorkShiftIdName}}</span>
                         </p>
@@ -178,8 +178,8 @@
                         >
                             <swiper-item class="swiper_item" v-for="(self,idx) in shiftList" :key="idx">
                                 <div class="bd">
-                                    <p class="tag" v-for="item in self" :key="item.Id" @click="handleChoice(item)">{{item.Name}}</p>
-                                    <p class="tag tag_add" v-if="self.length<8">
+                                    <p class="tag" :class="{active:item.Id==shiftId}" v-for="item in self" :key="item.Id" @click="handleChoice(item)">{{item.Name}}</p>
+                                    <p class="tag tag_add" v-if="self.length<8" @click="handleAddShift">
                                         <i-icon type="add" size=20 color="#3399ff" />
                                     </p>
                                     <p class="fack_item"></p>
@@ -260,7 +260,10 @@ export default {
                 }
             ],
             current: 0,
-            isMore: false
+            isMore: false,
+            unitId:'',
+            shiftId: '',
+            departId:''
         }
     },
     computed:{
@@ -315,6 +318,23 @@ export default {
     onShow(){
         // 选择的人
         console.log('selectListName:', this.selectListName)
+        let ids = this.selectListName.map(item=> item.id).join(',')
+        if(this.selectListName.length>0){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method: this.$api.scheduling.add_employee,
+                    SessionKey: this.sessionkey,
+                    unitId:this.unitId,
+                    startDate: this.timeList[0].time,
+                    endDate: this.timeList[6].time,
+                    employeeId: ids
+                }
+            }).then(res=>{
+                console.log(res);
+            })
+            this.getQuery();
+        }
     },
     onUnload(){
         this.getClear([]);
@@ -327,10 +347,14 @@ export default {
                 data:{
                     SessionKey:this.sessionkey,
                     method:this.$api.scheduling.departQuery,
-                    unitId:this.unitId,
+                    // unitId:this.unitId,
                     startDate:this.startTime,
                     endDate:this.endTime,
-                    unitType:10
+                    unitType:10,
+                    viewMode:2,
+                    calendar:1,
+                    md0: 0,
+                    md1: 0
                 }
             }).then(res=>{
                 this.list = res.listData;
@@ -340,6 +364,8 @@ export default {
                     result.push(this.shiftList.slice(i,i+8))
                 }
                 this.shiftList = result;
+                this.departId = res.Units[0].businessUnitId;
+                this.unitId = res.UnitId;
                 console.log(result)
             })
         },
@@ -371,29 +397,67 @@ export default {
         closeShift(){
             this.isShift = false;
         },
-        setShift(index, idx){
+        setShift(v,index, idx){
+            console.log(v)
             this.activeIndex = index
             this.activeIdx = idx
-            console.log(this.list[index].Name,this.timeList[idx].time)
-            this.isShift = true
+                // console.log(this.list[index].Name,this.timeList[idx].time)
+            if(v.ShiftSymbol==""&&this.shiftId){
+                this.$httpWX.get({
+                    url:this.$api.message.queryList,
+                    data:{
+                        method: this.$api.scheduling.set_shift,
+                        SessionKey:this.sessionkey,
+                        day: this.timeList[idx].time,
+                        objectTypeCode: 10,
+                        UnitId: this.unitId,
+                        deptId: this.departId,
+                        workshiftId: this.shiftId,
+                        employeeId: this.list[index].EmployeeId
+                    }
+                }).then(res=>{
+                    console.log(res);
+                    this.isShift = true
+                    
+                })
+            }else {
+                this.$httpWX.get({
+                    url:this.$api.message.queryList,
+                    data:{
+                        method: this.$api.scheduling.del_shift,
+                        SessionKey:this.sessionkey,
+                        objectTypeCode: 10,
+                        deptId: this.departId,
+                        employeeId: this.list[index].EmployeeId,
+                        id: v.Shifts[0].EmpWorkShiftId
+                    }
+                }).then(res=>{
+                    console.log(res);
+                    this.isShift = true
+                    
+                })
+            }
+            this.getQuery();
+            
         },
         // 选择班次
         handleChoice(item){
+            this.shiftId = item.Id;
             item.id = item.Id;
             item.name = item.Name;
-            if(this.activeIdx>=0){
-                let isContain = this.list[this.activeIndex].AttendData[this.activeIdx].Shifts.some(self=>self.id==item.id);
-                if(!isContain){
-                    this.list[this.activeIndex].AttendData[this.activeIdx].Shifts.push({
-                        id: item.id,
-                        WorkShiftIdName: item.name
-                    })
-                    if(this.list[this.activeIndex].AttendData[this.activeIdx].Shifts!=''){
-                        this.activeIdx < 6 ? this.activeIdx++ : (this.activeIndex<this.list.length-1 ? (this.activeIndex++,this.activeIdx=0):this.activeIdx)
-                        console.log(this.activeIndex,'activeIndex')
-                    }
-                }
-            }
+            // if(this.activeIdx>=0){
+            //     let isContain = this.list[this.activeIndex].AttendData[this.activeIdx].Shifts.some(self=>self.id==item.id);
+            //     if(!isContain){
+            //         this.list[this.activeIndex].AttendData[this.activeIdx].Shifts.push({
+            //             id: item.id,
+            //             WorkShiftIdName: item.name
+            //         })
+            //         if(this.list[this.activeIndex].AttendData[this.activeIdx].Shifts!=''){
+            //             this.activeIdx < 6 ? this.activeIdx++ : (this.activeIndex<this.list.length-1 ? (this.activeIndex++,this.activeIdx=0):this.activeIdx)
+            //             console.log(this.activeIndex,'activeIndex')
+            //         }
+            //     }
+            // }
         },
         // 清空班次
         clearShift(){
@@ -422,8 +486,14 @@ export default {
             wx.navigateTo({url:url});
         },
         delPeople(){
-            const url = '/pages/scheduling/departScheduling/delMailList/main';
+            let startTime = this.timeList[0].time;
+            let endTime = this.timeList[6].time;
+            const url = '/pages/scheduling/departScheduling/delMailList/main?startTime='+startTime+'&endTime='+endTime+'&unitId='+this.unitId;
             wx.navigateTo({url:url})
+        },
+        handleAddShift(){
+            const url = '/pages/scheduling/shift/add_shift/main';
+            wx.navigateTo({url:url});
         }
     }
 }
@@ -641,6 +711,10 @@ page{
                             border-radius: 10rpx;
                             text-align: center;
                             border: 1rpx solid #e2e3e5;
+                        }
+                        .tag.active{
+                            background: #3399ff;
+                            color: #fff;
                         }
                         .fack_item{
                             flex: 0 0 130rpx;

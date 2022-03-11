@@ -211,10 +211,17 @@ const api = {
     scheduling:{
         query:"workshift.monthowner.getlist",
         calendar:"calendar.holiday.getlist",
-        departQuery:"workshift.dept.employee.search",
+        // departQuery:"workshift.dept.employee.search",
+        departQuery:"workshift.dept.employee.week.search",
+        set_shift: "workshift.employee.day.set",
+        del_shift: "workshift.employee.month.delete",
         shiftQuery: 'workshift.owner.getlist',
         shiftList: 'workshift.search',
-        pickerList: 'layout.picklistvalues.get'
+        pickerList: 'layout.picklistvalues.get',
+        add_shift: 'entity.saverecord', // 添加班次
+        add_employee:"attendance.employee.month.transferdept", // 新增人员
+        sort: "attendance.deptorgroup.employee.sort", // 排序
+        del_employee:"attendance.employee.month.transferout", // 删除人员
     },
     // 人力资源
     human:{

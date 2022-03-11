@@ -16,7 +16,7 @@
             <div class="content">
                 <div class="row" v-for="(item,index) in listData" :key="index">
                     <p class="shift_name">
-                        {{item.Name}}<span>8小时</span>
+                        {{item.Name}}<span>{{item.diffHour || ''}}小时</span>
                     </p>
                     <p class="time">
                         {{item.StartTime1}}-{{item.EndTime1}}
@@ -95,7 +95,20 @@ export default {
                     }
                 }
                 this.listData = result;
+                let time = '2022-01-01 '
+                this.listData.map(item=>{
+                    var diffHour = this.getInervalHour(time+item.StartTime1,time+item.EndTime1)
+                    item.diffHour = diffHour
+                    return item;
+                })
             })
+        },
+        getInervalHour(startDate, endDate) {
+            startDate = new Date(startDate.replace(/-/g,'/'));
+            endDate = new Date(endDate.replace(/-/g,'/'));
+            var ms = endDate.getTime() - startDate.getTime();
+            if (ms < 0) return 0;
+            return Math.floor(ms/1000/60/60);
         },
         handleChange(e){
             this.current = e.mp.detail.key

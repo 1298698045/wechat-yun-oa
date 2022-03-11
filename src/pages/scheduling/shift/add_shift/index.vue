@@ -8,7 +8,7 @@
                     :value="shift.name"
                     placeholder="请输入班次名称"
                     :border="false"
-                    @change="changeShiftName"
+                    @change="(e)=>{changeInput(e,'name')}"
                     input-align="right"
                 />
             </div>
@@ -82,10 +82,10 @@
                 <van-field
                     label-class="filed_label"
                     label="缩写或符号"
-                    :value="shift.name"
+                    :value="shift.symbol"
                     placeholder="请输入缩写或符号"
                     :border="false"
-                    @change="changeShiftName"
+                    @change="(e)=>{changeInput(e,'symbol')}"
                     input-align="right"
                 />
             </div>
@@ -93,10 +93,10 @@
                 <van-field
                     label-class="filed_label"
                     label="补贴金额"
-                    :value="shift.name"
+                    :value="shift.amount"
                     placeholder="请输入补贴金额"
                     :border="false"
-                    @change="changeShiftName"
+                    @change="(e)=>{changeInput(e,'amount')}"
                     input-align="right"
                 />
             </div>
@@ -272,7 +272,7 @@
         </div>
         <div class="footer">
             <div class="row">
-                <p class="label" :class="{'active':isModelmes}">保存</p>
+                <p class="label" :class="{'active':isModelmes}" @click="handleSave">保存</p>
                 <p class="btn" :class="{'active':isModelmes}">保存并继续添加</p>
             </div>
         </div>
@@ -527,8 +527,8 @@ export default {
         addTimeSlot(){
             this.isTimeTwo = !this.isTimeTwo;
         },
-        changeShiftName(e){
-
+        changeInput(e,name){
+            this.shift[name] = e.mp.detail;
         },
         changeSwitch(e){
             this.checked = e.mp.detail
@@ -672,6 +672,37 @@ export default {
             this.endWeekTwo = this.getWeekDay(endTimeTwo);
             console.log(this.endTimeTwo,this.timeTwo);
         },
+        // 保存
+        handleSave(){
+            const obj = {
+                params: {
+                    recordRep:{
+                        objTypeCode: 30040,
+                        fields:{
+                            Name: this.shift.name,
+                            Symbol: this.shift.symbol,
+                            Amount: this.shift.amount,
+                            ShiftMethodCode: this.params.ShiftMethodCode.values[this.shiftMethodCodeIdx].value,
+                            ShiftTypeCode: this.params.ShiftTypeCode.values[this.shiftTypeCodeIdx].value,
+                            StatusCode: this.params.StatusCode.values[this.statusCodeIdx].value,
+                            LeaveType: this.params.LeaveType.values[this.leaveTypeIdx].value,
+                            NightTypeCode: this.params.NightTypeCode.values[this.nightTypeCodeIdx].value,
+                            CategoryCode: this.params.CategoryCode.values[this.categoryCodeIdx].value
+                        },
+                        id: ""
+                    }
+                }
+            }
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method: this.$api.scheduling.add_shift,
+                    message: JSON.stringify(obj)
+                }
+            }).then(res=>{
+                console.log(res,'res')
+            })
+        }
     }
 }
 </script>

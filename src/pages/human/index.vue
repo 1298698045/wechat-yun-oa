@@ -38,7 +38,7 @@
                         <p class="name">团队考勤</p>
                     </block>
                 </div>
-                <div class="box_item">
+                <div class="box_item" @click="handleRouter(2)">
                     <block>
                         <div class="img_icon">
 
@@ -46,7 +46,7 @@
                         <p class="name">排班</p>
                     </block>
                 </div>
-                <div class="box_item">
+                <div class="box_item" @click="handleRouter(1)">
                     <block>
                         <div class="img_icon">
 
@@ -122,6 +122,22 @@ export default {
                 'https://wx.phxinfo.com.cn/img/banner/work_banner.png?1645156214233',
                 'https://wx.phxinfo.com.cn/img/banner/work_banner.png?1645156214233'
             ]
+        }
+    },
+    methods:{
+        handleRouter(state){
+            switch(state) {
+                case 1: 
+                    wx.navigateTo({
+                        url:"/pages/human/employeeRoster/main"
+                    })
+                    break;
+                case 2:
+                    wx.navigateTo({
+                        url: "/pages/scheduling/administrator/main"
+                    })
+                    break;
+            }
         }
     }
 }

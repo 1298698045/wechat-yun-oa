@@ -318,6 +318,9 @@ export default {
             }else if(item.id==303){
                 const url = '/pages/scheduling/main';
                 wx.navigateTo({url:url});
+            }else if(item.id==3002000){
+                const url = '/pages/human/main';
+                wx.navigateTo({url:url});
             }
         },
         getOpenPhoto(){
