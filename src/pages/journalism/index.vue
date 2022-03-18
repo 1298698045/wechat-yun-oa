@@ -204,10 +204,10 @@ export default {
     },
     onShow(){
         this.pageNumber = 1;
-        this.getQuery();
-        // this.getMyTag().then(res=>{
-        //     this.getQuery();
-        // });
+        // this.getQuery();
+        this.getMyTag().then(res=>{
+            this.getQuery();
+        });
     },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());    
@@ -222,9 +222,9 @@ export default {
         // this.selectList = [];
         this.isEdit = false;
         this.showPopup = false;
-        this.getMyTag().then(res=>{
-            this.getQuery();
-        });
+        // this.getMyTag().then(res=>{
+        //     this.getQuery();
+        // });
         wx.getSystemInfo({
             success: (res) => {
                 console.log(res)

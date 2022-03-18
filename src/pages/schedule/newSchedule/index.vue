@@ -135,8 +135,8 @@
             placeholder="输入地点"
           />
         </p>
-        <p>
-          <i class="iconfont icon-dizhi1" @click="getOpenLocation"></i>
+        <p @click="getOpenLocation">
+          <i class="iconfont icon-dizhi1"></i>
           <!-- <i-icon type="coordinates" @click="getOpenLocation" size="20" color="#666666" /> -->
         </p>
       </div>
@@ -1153,59 +1153,61 @@ export default {
         url = "meeting.info.add";
         id = "";
       }
-      if(this.conference.id==''){
+      if(this.location!='' || this.conference.id!=''){
+        this.createMettingSubmig(url,id);
+      }else if(this.location==''&&this.conference.id=='') {
         wx.showToast({
-          title: '请选择会议室',
+          title: '请选择会议室或地址',
           icon: 'none',
           duration:2000
         })
         return false;
-      }else 
-      this.$httpWX
-        .get({
-          url: this.$api.message.queryList,
-          data: {
-            method: url,
-            SessionKey: this.sessionkey,
-            name: this.title,
-            ScheduledStart: this.startTime,
-            ScheduledEnd: this.endTime,
-            isAllDayEvent: this.isAllDayEvent,
-            Location: this.location,
-            description: this.description,
-            calendarType: this.calendarType,
-            displayStatus: this.displayStatus,
-            reminderTime: 15,
-            invtee: this.filterList.join(),
-            id: id,
-            owningUser: this.organizer.id,
-            // meetingMgrId:this.designee.id,
-            RoomId: this.conference.id,
-          },
-        })
-        .then((res) => {
-          const id = res.data[0].ValueId;
-          var that = this;
-          if(res.status==1){
-            message.toast( {
-                title:'创建成功',
-                delta: 1,
-                success() {
-                  //这里是回调
-                      if(that.FileIds!=""){
-                          that.getAddFile(id);
-                      }else {
-                        setTimeout(()=>{
-                          wx.navigateBack({
-                            detail:1
-                          })
-                        },500)
-                      }
-                },
-            });
-          }
-        });
+      }
     },
+    createMettingSubmig(url,id){
+      this.$httpWX.get({
+            url: this.$api.message.queryList,
+            data: {
+              method: url,
+              SessionKey: this.sessionkey,
+              name: this.title,
+              ScheduledStart: this.startTime,
+              ScheduledEnd: this.endTime,
+              isAllDayEvent: this.isAllDayEvent,
+              Location: this.location,
+              description: this.description,
+              calendarType: this.calendarType,
+              displayStatus: this.displayStatus,
+              reminderTime: 15,
+              invtee: this.filterList.join(),
+              id: id,
+              owningUser: this.organizer.id,
+              // meetingMgrId:this.designee.id,
+              RoomId: this.conference.id,
+            },
+          }).then((res) => {
+            const id = res.data[0].ValueId;
+            var that = this;
+            if(res.status==1){
+              message.toast( {
+                  title:'创建成功',
+                  delta: 1,
+                  success() {
+                    //这里是回调
+                        if(that.FileIds!=""){
+                            that.getAddFile(id);
+                        }else {
+                          setTimeout(()=>{
+                            wx.navigateBack({
+                              detail:1
+                            })
+                          },500)
+                        }
+                  },
+              });
+            }
+        });
+    }
   },
 };
 </script>

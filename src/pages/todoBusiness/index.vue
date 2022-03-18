@@ -89,10 +89,10 @@
                             </div>
                         </div>
                         <!-- 更多 -->
-                        <!-- <div class="more">
+                        <div class="more">
                             <p><i-icon type="more" size="20" color="#a4a4a4" @click="getMore(item)" v-if="current!='tab4'" /></p>
                             <p v-if="item.StateCode" class="sp" :class="item.StateCode==0?'blue':item.StateCode==3?'success':item.StateCode==5?'error':''">{{item.StateCode==0?'草稿':item.StateCode==1?'审批中':item.StateCode==3?'已完成':'已拒绝'}}</p>
-                        </div> -->
+                        </div>
                     </div>
                 </van-checkbox-group>
             </div>
@@ -265,6 +265,7 @@
 import { mapState,mapMutations,mapActions,mapGetters } from 'vuex';
 import Notify from '../../../static/vant/notify/notify';
 import NavShow from '@/components/approval/navShow';
+import {message} from '@/utils/message.js';
 export default {
     components:{
         NavShow
@@ -280,7 +281,7 @@ export default {
             screenShow:false,
             actions:[
                 {
-                    name: '撤回',
+                    name: '委托',
                     color:"#3399ff"
                 },
                 {
@@ -288,7 +289,7 @@ export default {
                     color:"#3399ff"
                 },
                 {
-                    name: '催办',
+                    name: '加签',
                     color:"#3399ff"
                 }
             ],
@@ -742,7 +743,7 @@ export default {
                         color:"#3399ff"
                     },
                     {
-                        name: '加签',
+                        name: '重办',
                         color:"#3399ff"
                     }
                 ]
@@ -855,16 +856,41 @@ export default {
                 })
             }else if(name=='传阅'){
                 this.showMore = false;
-                const url = '/pages/todoBusiness/circulate/main?name='+this.name+'&id='+this.processInstanceId;
+                const url = '/pages/todoBusiness/circulate/main?name='+this.name+'&id='+this.processInstanceId+'&sign='+'C';
                 wx.navigateTo({url:url});
             }else if(name=='催办'){
                 this.showMore = false;
                 this.cbShow = true;
             }else if(name=='委托'){
                 this.showMore = false;
-                const url = '/pages/todoBusiness/circulate/main?name='+this.name+'&id='+this.id+'&sign='+1;
+                const url = '/pages/todoBusiness/circulate/main?name='+this.name+'&id='+this.id+'&sign='+'W';
                 wx.navigateTo({url:url});
+            }else if(name=='重办'){
+                this.handleRedo();
             }
+        },
+        // 重办
+        handleRedo(){
+            this.$httpWX.get({
+                url: this.$api.message.queryList,
+                data:{
+                    method: this.$api.instance.redo,
+                    SessionKey: this.sessionkey,
+                    ruleLogId: this.id,
+                    processInstanceId: this.processInstanceId
+                }
+            }).then(res=>{
+                if(res.status!==1){
+                    message.toast({
+                        title: res.msg,
+                        success:success=>{
+
+                        }
+                    })
+                }else {
+                    this.getQuery();
+                }
+            })
         },
         onClose(){
             this.cbShow = false;

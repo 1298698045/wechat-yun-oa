@@ -116,34 +116,38 @@
                     <i-tab key="tab1" :title="'评论 '+info.CommentCount"></i-tab>
                     <i-tab key="tab2" :title="'已读 '+info.ReadCount"></i-tab>
                 </i-tabs>
-                <div class="content" v-for="(item,index) in commentList" :key="index" v-if="current=='tab1'">
-                    <div class="row">
-                        <p>{{item.CreatedByName}}</p>
+                <template v-if="current=='tab1'">
+                    <div class="content" v-for="(item,index) in commentList" :key="index">
+                        <div class="row">
+                            <p>{{item.CreatedByName}}</p>
+                        </div>
+                        <div class="row">
+                            <p class="name">{{item.name}}</p>
+                            <p class="dept">{{item.BusinessUnitName}}</p>
+                            <p class="cont">{{item.Comment}}</p>
+                            <p class="info"><span>{{item.CreatedOn}}</span></p>
+                        </div>
+                        <div class="row" @click="getCommentLive(item)">
+                            <i class="iconfont icon-zan2 zan" :class="item.IsLike==1?'active':''">
+                            </i>
+                            <span :class="item.IsLike==1?'active':''">{{item.IsLike==1?item.LikeQty:'赞'}}</span>
+                        </div>
                     </div>
-                    <div class="row">
-                        <p class="name">{{item.name}}</p>
-                        <p class="dept">{{item.BusinessUnitName}}</p>
-                        <p class="cont">{{item.Comment}}</p>
-                        <p class="info"><span>{{item.CreatedOn}}</span></p>
+                </template>
+                <template v-if="current=='tab2'">
+                    <div class="content" v-for="(item,index) in readerList" :key="index">
+                        <div class="row">
+                            <p>{{item.name}}</p>
+                        </div>
+                        <div class="row">
+                            <p class="name">{{item.ReaderIdName}}</p>
+                            <p class="info">{{item.BusinessUnitIdName}} <span>{{item.CreatedOn}}</span></p>
+                        </div>
+                        <!-- <div class="row">
+                            <i class="iconfont icon-zan zan">58</i>
+                        </div> -->
                     </div>
-                    <div class="row" @click="getCommentLive(item)">
-                        <i class="iconfont icon-zan2 zan" :class="item.IsLike==1?'active':''">
-                        </i>
-                        <span :class="item.IsLike==1?'active':''">{{item.IsLike==1?item.LikeQty:'赞'}}</span>
-                    </div>
-                </div>
-                <div class="content" v-for="(item,index) in readerList" :key="index" v-if="current=='tab2'">
-                    <div class="row">
-                        <p>{{item.name}}</p>
-                    </div>
-                    <div class="row">
-                        <p class="name">{{item.ReaderIdName}}</p>
-                        <p class="info">{{item.BusinessUnitIdName}} <span>{{item.time}}</span></p>
-                    </div>
-                    <!-- <div class="row">
-                        <i class="iconfont icon-zan zan">58</i>
-                    </div> -->
-                </div>
+                </template>
             </van-index-bar>   
         </div>
         <div class="inpWrap" :style="{'height':height+'px'}" catchtouchmove="true" v-if="overlayShow==true">

@@ -27,7 +27,12 @@
                         <span>{{item.BusinessUnitIdName}}  {{item.CreatedByName}}</span>
                     </p>
                     <p class="name top">
-                        处理意见
+                        处理方式
+                        <span>{{item.SourceType}}</span>
+                    </p>
+                    <p class="name top">
+                        <!-- 处理意见 -->
+                        留言
                         <span>{{item.Description}}</span>
                     </p>
                 </div>
@@ -64,9 +69,10 @@ export default {
                 console.log(res);
                 this.list = res.rows;
                 this.list.map(item=>{
-                    const name = item.StateCode == 0 ?'草稿':item.StateCode == 1?'流转中':
-                    item.StateCode == 2 ? '挂起' :item.StateCode == '3'?'已完成':item.StateCode==4?'已终止'
-                    :item.StateCode == 5 ? '退回' :'';
+                    // const name = item.StateCode == 0 ?'草稿':item.StateCode == 1?'流转中':
+                    // item.StateCode == 2 ? '挂起' :item.StateCode == '3'?'已完成':item.StateCode==4?'已终止'
+                    // :item.StateCode == 5 ? '退回' :'';
+                    const name = item.StateCode == 0 ? '未办理' : item.StateCode == 2 ? '已办理' : '';
                     item.statusName = name;
                     return item;
                 })
@@ -154,7 +160,7 @@ page{
                     span{
                         display: inline-block;
                         width: 2rpx;
-                        height: 277rpx;
+                        height: 352rpx;
                         background: #3399ff;
                     }
                 }

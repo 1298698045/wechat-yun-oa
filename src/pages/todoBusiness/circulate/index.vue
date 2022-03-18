@@ -129,7 +129,7 @@ export default {
               processId:this.processId,
               processInstanceId:this.processInstanceId,
               FromActivityId:this.ToActivityId,
-              participators:temp,
+              participators:temp.join(','),
               description:this.message
             }
           }
@@ -188,7 +188,7 @@ export default {
               processInstanceId: this.id,
               instanceName: this.name,
               Message: this.message,
-              members: this.selectId.join(',')
+              members: this.selectListName.map(item=>item.id).join(',')
             }
           })
           .then(res => {

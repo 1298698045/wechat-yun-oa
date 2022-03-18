@@ -102,6 +102,12 @@
                         </p>
                         <p>传阅</p>
                     </div>
+                    <div @click="handleRedo" v-if="statusCurrent=='tab3'">
+                        <p>
+                            <i class="iconfont icon-chuanyue2"></i>
+                        </p>
+                        <p>重办</p>
+                    </div>
                     <div @click="getDetailMore">
                         <p>
                             <i class="iconfont icon-gengduo1"></i>
@@ -268,6 +274,7 @@ import process from '@/components/process';
 import { mapMutations, mapState } from 'vuex';
 import FormList from '@/components/approval/formList';
 import Urging from '@/components/instance/urging';
+import {message} from '@/utils/message.js'
 export default {
     components:{
         relation,
@@ -770,6 +777,29 @@ export default {
             const url = '/pages/todoBusiness/circulate/main?name='+this.name+'&ruleLogId='+this.RuleLogId
             +'&processId='+this.processId+'&processInstanceId='+this.processInstanceId+'&sign='+sign+'&ToActivityId='+this.ToActivityId+'&fromActivityId='+this.fromActivityId;
             wx.navigateTo({url:url});
+        },
+        // 重办
+        handleRedo(){
+            this.$httpWX.get({
+                url: this.$api.message.queryList,
+                data:{
+                    method: this.$api.instance.redo,
+                    SessionKey: this.sessionkey,
+                    ruleLogId: this.RuleLogId,
+                    processInstanceId: this.processInstanceId
+                }
+            }).then(res=>{
+                if(res.status!==1){
+                    message.toast({
+                        title: res.msg,
+                        success:success=>{
+
+                        }
+                    })
+                }else {
+                    this.getQuery();
+                }
+            })
         },
         // 评论列表
         getCommentQuery(){

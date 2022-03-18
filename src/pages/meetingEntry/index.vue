@@ -48,6 +48,12 @@
                     <p @click="getApprovalDetail(item)">审批详情</p>
                 </div>
             </div>
+            <div class="empty" v-if="list.length==0">
+                <img :src="pathUrl+'/img/wechat/metting_empty.svg'" alt="">
+                <p class="text">
+                    暂无会议数据
+                </p>
+            </div>
         </div>
         <div class="clues-add-button" @click="onCluesAddBtnClick">
             <van-icon name="plus" color="#fff" size="20px" />
@@ -90,6 +96,11 @@ export default {
                 '我发出的'
             ],
             statusIdx:0
+        }
+    },
+    computed:{
+        pathUrl(){
+            return this.$api.pathUrl;
         }
     },
     onLoad(){
@@ -298,6 +309,21 @@ export default {
         }
         .center{
             margin-top: 76px;
+            .empty{
+                width: 300rpx;
+                // height: 300rpx;
+                margin: 200rpx auto;
+                img{
+                    width: 100%;
+                    height: 300rpx;
+                }
+                .text{
+                    text-align: center;
+                    font-size: 28rpx;
+                    color: #333333;
+                    padding-top: 20rpx;
+                }
+            }
             .pickers{
                 padding: 32rpx 0;
                 text-align: center;

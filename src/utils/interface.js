@@ -134,7 +134,8 @@ const api = {
         steptree: "process.steptree.get",
         jump: "process.approve.jump", // 跳转
         entrust: "process.approve.entrust", // 委托
-        steppri: "process.steppri.get" // 权限
+        steppri: "process.steppri.get", // 权限
+        redo: "process.rulelog.rehandle" // 重办
     },
     // 审批
     approval: {
