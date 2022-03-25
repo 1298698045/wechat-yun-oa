@@ -45,6 +45,8 @@ const api = {
     // 通讯录
     mailList: {
         queryAll: "oa.addresslist.user.search", // 查询所有联系人
+        delUser: "sys.group.removeuser", // 小组删除人员
+        addUser: "sys.group.adduser"    // 小组添加人员
     },
     // 会议
     // meeting:{
@@ -230,7 +232,10 @@ const api = {
         formList:'entity.config.get',
         saverecord:'entity.saverecord',
         detail: 'entity.detail.get'
-        
+    },
+    // 新闻
+    journalism:{
+        unread: 'content.unread.search', // 新闻未读
     }
 }
 export default api;

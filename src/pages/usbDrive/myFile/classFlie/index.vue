@@ -14,17 +14,23 @@
                 <div class="rowWrap" v-for="(item,index) in files" :key="index">
                     <h3>{{item.DateTypeName}}</h3>
                     <div class="row" v-for="(v,i) in item.FileList" :key="i">
-                        <div class="l">
+                        <div class="l" @click.stop="getPreviewImage(v)">
                             <p>
-                                <img :src="v.imgUrl" alt="">
+                                <img v-if="v.fileExtension=='jpg'||v.fileExtension=='png'" :src="v.link" alt="">
+                                <img v-else-if="v.fileExtension=='xls' || v.fileExtension=='xlsx'" :src="photoUrl+'xls.png'" alt="">
+                                <img v-else-if="v.fileExtension=='doc' || v.fileExtension=='word' || v.fileExtension=='docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+                                <img v-else-if="v.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
+                                <img v-else-if="v.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+                                <img v-else-if="v.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+                                <img v-else-if="v.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
                             </p>
                         </div>
                         <div class="r">
-                            <div class="text">
+                            <div class="text" @click.stop="getPreviewImage(v)">
                                 <p>{{v.name}}.{{v.fileExtension}}</p>
                                 <p>{{v.createdOn}}</p>
                             </div>
-                            <p class="icon" @click="getEditFile(v,'files')">
+                            <p class="icon" @click.stop="v.Privilege.canAdmin?getEditFile(v,'files'):toastNull()">
                                 <i class="iconfont icon-gengduo"></i>
                             </p>
                         </div>
@@ -58,7 +64,8 @@
     </div>
 </template>
 <script>
-import newFolder from '../../../../components/newFolder'
+import newFolder from '../../../../components/newFolder';
+import openFiles from '@/utils/openFiles';
 export default {
     components:{
         newFolder
@@ -75,7 +82,9 @@ export default {
             createdOn:"",
             editSheet:false,
             newShow:false,
-            sessionkey:""
+            sessionkey:"",
+            srchType: "",
+            folderId:"10010000-0000-0000-0000-000000000001"
         }
     },
     computed:{
@@ -87,18 +96,36 @@ export default {
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.fileType = options.fileType;
+        this.srchType = options.srchType;
+        this.folderId = options.folderId;
         this.getQuery();
     },
     methods:{
+        toastNull(){
+            wx.showToast({
+                title:'无权限',
+                icon:'none',
+                duration: 2000,
+                success:res=>{
+
+                }
+            })
+        },
+        getPreviewImage(item){
+            console.log(item)
+            const openImgs = JSON.stringify([item.link]);
+            openFiles(item,openImgs);
+        },
         getQuery(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,
                 data:{
                     method:this.$api.usb.filesQuery,
                     SessionKey:this.sessionkey,
-                    srchType:"my",
+                    srchType:this.srchType,
                     Sort:"Createdon",
-                    ParentId:"10010000-0000-0000-0000-000000000001",
+                    // ParentId:this.folderId,
+                    folderId: this.folderId,
                     fileType:this.fileType
                 }
             }).then(res=>{

@@ -29,11 +29,11 @@
                 <p>企业内快速共享资料，不用重复发送</p>
             </div>
             <div v-for="(item,index) in folders" :key="index">
-                <div class="content" @click="getOpen" v-if="!show">
+                <div class="content" v-if="!show">
                     <div class="radioWrap" v-if="electionShow">
                         <van-checkbox :value="checked" custom-class="radio" @change="onChange"></van-checkbox>
                     </div>
-                    <div class="img">
+                    <div class="img" @click="getFlodersDetail(item)">
                         <p>
                             <img :src="photoUrl+'02.3.3.Shared_folder.png'" alt="">
                         </p>
@@ -45,28 +45,34 @@
                             <p class="text">{{item.createdByName==item.modifiedByName?item.createdByName+' 创建':item.modifiedByName+' 更新'}}</p>
                         </div>
                         <p class="icon">
-                            <i class="iconfont icon-gengduo" @click="getEditFile(item)"></i>
+                            <i class="iconfont icon-gengduo" @click="item.Privilege.canAdmin==true?getEditFile(item):toastNull()"></i>
                         </p>
                     </div>
                 </div>
             </div>
-            <div v-for="(item,index) in files" :key="index">
-                <div class="content" @click="getOpen" v-if="!show">
+            <div v-for="(item,index) in files" :key="index"  @click.stop="getPreviewImage(item)">
+                <div class="content" v-if="!show">
                     <div class="radioWrap" v-if="electionShow">
                         <van-checkbox :value="checked" custom-class="radio" @change="onChange"></van-checkbox>
                     </div>
                     <div class="img">
                         <p>
-                            <img :src="photoUrl+'Other.png'" alt="">
+                            <img v-if="item.fileExtension=='jpg'||item.fileExtension=='png'" :src="item.link" alt="">
+                            <img v-else-if="item.fileExtension=='xls' || item.fileExtension=='xlsx'" :src="photoUrl+'xls.png'" alt="">
+                            <img v-else-if="item.fileExtension=='doc' || item.fileExtension=='word' || item.fileExtension=='docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+                            <img v-else-if="item.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
+                            <img v-else-if="item.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+                            <img v-else-if="item.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+                            <img v-else-if="item.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
                         </p>
                     </div>
                     <div class="cont">
                         <div>
                             <p class="title">{{item.name}}</p>
-                            <p class="text">暂无文件  卫辉  归属  绍兴第二医院</p>
+                            <!-- <p class="text">暂无文件  卫辉  归属  绍兴第二医院</p> -->
                         </div>
                         <p class="icon">
-                            <i class="iconfont icon-gengduo" @click="getEditFile(item)"></i>
+                            <i class="iconfont icon-gengduo" @click="item.Privilege.canAdmin?getEditFile(item):toastNull()"></i>
                         </p>
                     </div>
                 </div>
@@ -80,17 +86,17 @@
                         <div class="radioWrap" v-if="electionShow">
                             <van-checkbox :name="item.id+item.str" custom-class="radio"></van-checkbox>
                         </div>
-                        <div class="l">
+                        <div class="l" @click.stop="getFlodersDetail(item)">
                             <p>
                                 <img :src="photoUrl+'Folder.png'" alt="">
                             </p>
                         </div>
                         <div class="r">
-                            <div class="text">
+                            <div class="text" @click.stop="getFlodersDetail(item)">
                                 <p>{{item.name}}</p>
                                 <p>{{item.createdOn}}</p>
                             </div>
-                            <p class="icon" @click="getEditFile(item,'folders')">
+                            <p class="icon" @click="item.Privilege.canAdmin?getEditFile(item,'folders'):toastNull()">
                                 <i class="iconfont icon-gengduo"></i>
                             </p>
                         </div>
@@ -102,13 +108,19 @@
                         <div class="radioWrap" v-if="electionShow">
                             <van-checkbox :name="v.id+v.str" custom-class="radio"></van-checkbox>
                         </div>
-                        <div class="l">
+                        <div class="l" @click.stop="getPreviewImage(v)">
                             <p>
-                                <img :src="v.link" alt="">
+                                <img v-if="v.fileExtension=='jpg'||v.fileExtension=='png'" :src="v.link" alt="">
+                                <img v-else-if="v.fileExtension=='xls' || v.fileExtension=='xlsx'" :src="photoUrl+'xls.png'" alt="">
+                                <img v-else-if="v.fileExtension=='doc' || v.fileExtension=='word' || v.fileExtension=='docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+                                <img v-else-if="v.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
+                                <img v-else-if="v.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+                                <img v-else-if="v.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+                                <img v-else-if="v.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
                             </p>
                         </div>
                         <div class="r">
-                            <div class="text">
+                            <div class="text" @click.stop="getPreviewImage(v)">
                                 <p>{{v.name}}</p>
                                 <p>{{v.createdOn}}</p>
                             </div>
@@ -223,6 +235,7 @@
 </template>
 <script>
 import newFolder from '../../../components/newFolder';
+import openFiles from '@/utils/openFiles';
 export default {
     components:{
         newFolder
@@ -291,6 +304,16 @@ export default {
         }
     },
     methods:{
+        toastNull(){
+            wx.showToast({
+                title:'无权限',
+                icon:'none',
+                duration: 2000,
+                success:res=>{
+
+                }
+            })
+        },
         changeSearch(e){
             this.search = e.mp.detail;
             this.getQuery();
@@ -464,9 +487,19 @@ export default {
         },
         getFlodersDetail(item){
             // const url = '/pages/usbDrive/shareFile/detail/main?Folderid='+item.id;
-            const url = '/pages/usbDrive/myFile/main?id='+item.id+'&srchType='+'share'+'&shareFileName='+item.name;
+            const url = '/pages/usbDrive/myFile/main?id='+item.id+'&srchType='+this.srchType+'&shareFileName='+item.name+'&canAdmin='+item.Privilege.canAdmin+'&canCreate='+item.Privilege.canCreate;
             wx.navigateTo({url:url});
-        }
+        },
+        getPreviewImage(item){
+            // this.isSwitch = true;
+            const openImgs = JSON.stringify(this.openImgs);
+            openFiles(item,openImgs);
+            // let that = this;
+            // wx.previewImage({
+            //     current: url, // 当前显示图片的http链接
+            //     urls: that.imgList// 需要预览的图片http链接列表
+            // })
+        },
     }
 }
 </script>

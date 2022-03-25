@@ -206,7 +206,12 @@ export default {
         this.pageNumber = 1;
         // this.getQuery();
         this.getMyTag().then(res=>{
-            this.getQuery();
+            if(this.current_name == '未读'){
+                // 未读
+                this.getUnQuery()
+            }else {
+                this.getQuery();
+            }
         });
     },
     onLoad(options){
@@ -274,10 +279,25 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.tagLists= res.rows;
+                this.tagLists.splice(0, 0, {ItemName:'未读'})
                 this.current_scroll = this.tagLists[0].ItemId;
                 this.current_name = this.tagLists[0].ItemName;
+                // this.tagLists.unshift({
+                //     ItemName: '未读'
+                // })
             })
             return ret;
+        },
+        getUnQuery() {
+            this.$httpWX.get({
+                url: this.$api.message.queryList,
+                data:{
+                    method: this.$api.journalism.unread,
+                    SessionKey: this.sessionkey
+                }
+            }).then(res=>{
+                console.log(res);
+            })
         },
         getQuery(){
             this.$httpWX.get({

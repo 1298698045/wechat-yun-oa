@@ -174,7 +174,8 @@
                 "pubGroup/group/main",
                 "pubGroup/department/main",
                 "createGroup/main",
-                "externalMailList/main"
+                "externalMailList/main",
+                "add_user/main"
             ]
         },
         {

@@ -35,6 +35,7 @@
                     <van-index-anchor :index="item.title" />
                     <div class="box" v-for="(v,i) in item.item" :key="i"  @click="getSubagency(v)">
                         <p>{{v.name}}({{v.quantity}})</p>
+                        <p class="phone">{{v.Telephone1 || ''}}</p>
                     </div>
                 </view>
             </van-index-bar>
@@ -69,8 +70,9 @@
                 </div>
             </div> -->
             <view class="boxWrap" v-for="(item,index) in unitData" :key="index">
-                <div class="box" v-for="(v,idx) in item.item" :key="idx" @click="getSubagency(v)">
+                <div class="box active" v-for="(v,idx) in item.item" :key="idx" @click="getSubagency(v)">
                     <p>{{v.name}}({{v.quantity}})</p>
+                    <p class="phone">{{v.Telephone1 || ''}}</p>
                 </div>
             </view>
             <van-index-bar :scroll-top="scrollTopSon" :index-list="indexListSon" @select="getSelectSon">
@@ -80,7 +82,9 @@
                         <p class="name">
                             <span>{{v.name}}</span>
                         </p>
-                        <p class="text">{{v.FullName}}</p>
+                        <div class="text">{{v.FullName}}
+                            <p class="phone">{{v.MobilePhone || ''}}</p>
+                        </div>
                     </div>
                 </view>
             </van-index-bar>
@@ -133,6 +137,10 @@ export default {
         this.getQuery();
     },
     methods:{
+        hidePhone(phone){
+            var str = phone.substr(0,3)+"****"+phone.substr(7);
+            return str;
+        },
         // 搜索
         getRouterSeach(){
             const url = '/pages/mailList/PublicSearch/main';
@@ -217,6 +225,9 @@ export default {
                         }else {
                             this.$set(v,'name',v.FullName);
                         }
+                        if(v.HiddenPhone){
+                            v.MobilePhone = this.hidePhone(v.MobilePhone)
+                        }
                     })
                 })
             })
@@ -274,7 +285,7 @@ export default {
             wx.navigateTo({url:url});
         },
         getCardInfo(item){
-            const url = "/pages/mailList/cardInfo/main?id="+item.ValueId;
+            const url = "/pages/mailList/cardInfo/main?id="+item.ValueId+'&hiddenphone='+item.HiddenPhone;
             wx.navigateTo({url:url});
         }
     }
@@ -384,6 +395,9 @@ export default {
                 .box:last-child{
                     border: none;
                 }
+                .box.active{
+                    display: block !important;
+                }
             }
             .departRow{
                 background: #fff;
@@ -419,7 +433,7 @@ export default {
                     .text{
                         font-size: 34rpx;
                         width: 100%;
-                        line-height: 80rpx;
+                        // line-height: 80rpx;
                         margin-left: 20rpx;
                     }
                 }

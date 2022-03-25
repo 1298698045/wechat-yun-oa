@@ -2,8 +2,8 @@
     <div class="wrap">
         <div class="header" :class="{'active':isBlock||screenShow}">
             <i-tabs :current="current" @change="handleChange">
-                <i-tab key="tab2" title="待审批"></i-tab>
-                <i-tab key="tab3" title="已审批"></i-tab>
+                <i-tab key="tab2" title="待办"></i-tab>
+                <i-tab key="tab3" title="已办"></i-tab>
                 <i-tab key="tab4" title="传阅"></i-tab>
                 <i-tab key="tab1" title="我发起"></i-tab>
             </i-tabs>
@@ -964,12 +964,12 @@ export default {
     //     margin-top: 100px;
     // }
     .wraps .searchWrap{
-        top: 50px;
+        top: 80rpx;
     }
     .wrap{
-        .header.active{
-            position: relative;
-        }
+        // .header.active{
+        //     position: relative;
+        // }
         .header{
             width: 100%;
             position: fixed;
@@ -1047,7 +1047,7 @@ export default {
             margin-top: 0 !important;
         }
         .container.mar{
-            margin-top: 150rpx;
+            margin-top: 210rpx;
         }
         .container.active{
             margin-top:130px;

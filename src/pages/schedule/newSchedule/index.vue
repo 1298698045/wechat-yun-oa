@@ -560,13 +560,25 @@ export default {
     this.meetingSign = options.meetingSign;
     if(this.meetingSign==0){
       this.index = 1;
-      wx.setNavigationBarTitle({
-        title: '新建会议'
-      })
+      if(options.id) {
+        wx.setNavigationBarTitle({
+          title: '编辑会议'
+        })
+      }else {
+        wx.setNavigationBarTitle({
+          title: '新建会议'
+        })
+      }
     }else {
-      wx.setNavigationBarTitle({
-        title: '新建日程'
-      })
+      if(options.id) {
+        wx.setNavigationBarTitle({
+          title: '编辑日程'
+        })
+      }else {
+        wx.setNavigationBarTitle({
+          title: '新建日程'
+        })
+      }
     }
     this.sessionkey = sessionkey;
     this.startTime = options.startTime;
@@ -896,7 +908,8 @@ export default {
           this.showIdx = this.showList.findIndex(
             (item) => item == this.displayStatus
           );
-          this.checked = Boolean(detail.isAllDayEvent);
+          this.checked = detail.isAllDayEvent == 'false' ? false : true;
+          console.log('checked:', typeof this.checked, detail.isAllDayEvent)
           this.startTime = detail.scheduledStart;
           this.endTime = detail.scheduledEnd;
           let date = new Date(detail.scheduledStart.replace(/-/g, "/"));

@@ -414,6 +414,7 @@ export default {
     position: fixed;
     top: 0;
     width: 100%;
+    z-index: 99999;
     .navs {
       width: 100%;
       display: flex;
@@ -490,6 +491,7 @@ export default {
     // position: fixed;
     // height: 120vh;
     margin-bottom: 80px;
+    margin-top: 85rpx;
     .navs {
       width: 100%;
       display: flex;

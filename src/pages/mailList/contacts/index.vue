@@ -19,17 +19,23 @@
             <van-index-bar sticky @select="getSelect" :index-list="indexList">
                 <view class="boxWrap" v-for="(item,index) in list" :key="index">
                     <van-index-anchor :index="item.title"></van-index-anchor>
-                    <div class="row" v-for="(v,i) in item.item" :key="i" @click="getDetail(v)">
-                        <div class="col_l">
-                            <p>{{v.name}}</p>
+                    <van-swipe-cell right-width="65" v-for="(v,i) in item.item" :key="i" @click="getDetail(v)">
+                        <div class="row">
+                            <div class="col_l">
+                                <p>{{v.name}}</p>
+                            </div>
+                            <div class="col_r">
+                                <p>{{v.FullName}}</p>
+                                <p>{{v.DeptName}}</p>
+                            </div>
                         </div>
-                        <div class="col_r">
-                            <p>{{v.FullName}}</p>
-                            <p>{{v.DeptName}}</p>
-                        </div>
-                    </div>
+                        <view slot="right" class="del" @click.stop="handleDel(v)">删除</view>
+                    </van-swipe-cell>
                 </view>
             </van-index-bar>
+        </div>
+        <div class="clues-add-button" @click="onCluesAddBtnClick" :class="{'active':isModelmes}">
+            <i class="iconfont icon-icon-add-3-copy"></i>
         </div>
     </div>
 </template>
@@ -45,6 +51,9 @@ export default {
             list:[]
         }
     },
+    onShow(){
+        this.getQueryList();
+    },
     onLoad(options){
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
@@ -53,7 +62,7 @@ export default {
         wx.setNavigationBarTitle({
             title: this.name
         })
-        this.getQueryList();
+        // this.getQueryList();
     },
     methods:{
         getQueryList(){
@@ -92,11 +101,33 @@ export default {
         getDetail(v){
             const url = '/pages/mailList/cardInfo/main?id='+v.ValueId;
             wx.navigateTo({url:url});
+        },
+        // 删除人员
+        handleDel(v){
+            console.log(v,'v')
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data: {
+                    method: this.$api.mailList.addUser,
+                    SessionKey: this.sessionkey,
+                    UserId: v.ValueId,
+                    action: '-',
+                    groupId: this.id
+                }
+            }).then(res=>{
+                console.log(res);
+                this.getQueryList();
+            })
+        },
+        onCluesAddBtnClick(){
+            const url = '/pages/publics/add_user/main?groupId='+this.id;
+            wx.navigateTo({url:url});
         }
     }
 }
 </script>
 <style lang="scss">
+@import '../../../../static/css/icon.css';
     .wrap{
         width: 100%;
         height: 100%;
@@ -183,7 +214,36 @@ export default {
                         }
                     }
                 }
+                .del{
+                    width: 130rpx;
+                    height: 122rpx;
+                    line-height: 122rpx;
+                    text-align: center;
+                    background: red;
+                    color: #fff;
+                }
             }
+        }
+        .clues-add-button {
+            position: fixed;
+            right: 20px;
+            // bottom: 80px;
+            bottom: 40px;
+            background: #049bfb;
+            width: 48px;
+            height: 48px;
+            z-index: 1002;
+            border-radius: 50%;
+            color: #fff;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0rpx 5rpx 12rpx 0rpx rgba(0, 0, 0, 0.3);
+            i{
+                font-size: 35rpx;
+            }
+
         }
     }
 </style>

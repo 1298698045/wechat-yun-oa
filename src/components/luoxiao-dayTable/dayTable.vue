@@ -21,7 +21,7 @@
           </view>
         </view>
 
-        <view v-if="meetingDetail" class='meeting_detail' :class="meetingDetail.class" :style="meetingDetail.style">
+        <view v-if="meetingDetail" class='meeting_detail' @click="handleDetail" :class="meetingDetail.class" :style="meetingDetail.style">
           <view>会议发起人</view>
           <view>{{meetingDetail.time}}</view>
           <view>{{meetingDetail.meetingName}}</view>
@@ -166,6 +166,11 @@
       this.isTodayFun(this.chooseDate)
     },
     methods: {
+      // 详情
+      handleDetail() {
+        const url = "/pages/schedule/detail/main?id="+this.meetingDetail.id;
+        wx.navigateTo({url:url});
+      },
       showError(message) {
       	wx.showToast({
       		title: message,
@@ -297,6 +302,7 @@
 
           list.push({
             top: st * this.unitHeight,
+            id: meetingList[i].id,
             style: height + top,
             meetingName: meetingList[i].meetingName,
             time: meetingList[i].startTime.substring(5, 16) + '-' + meetingList[i].endTime.substring(11, 16),
@@ -337,7 +343,8 @@
           class:detailClass,
           style:style,
           meetingName: newShow.meetingName,
-          time:newShow.time
+          time:newShow.time,
+          id: newShow.id
         }
       },
 

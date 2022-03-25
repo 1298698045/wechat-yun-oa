@@ -69,6 +69,15 @@
                         <span><i-icon type="enter" size="20" color="#cccccc" /></span>
                     </p>
                 </div>
+                <div class="box" @click="handleQrcode">
+                    <p>
+                        <i class="iconfont icon-youpan" style="color:#3399ff;"></i>
+                    </p>
+                    <p class="division">
+                        扫一扫
+                        <span><i-icon type="enter" size="20" color="#cccccc" /></span>
+                    </p>
+                </div>
             </div>
             <div class="row" @click="getRouterSet">
                 <p>
@@ -356,6 +365,13 @@ export default {
             console.log(this.number);
             const url = '/pages/myFile/personalInfo/main';
             wx.navigateTo({url:url});
+        },
+        handleQrcode() {
+            wx.scanCode({
+                success (res) {
+                    console.log(res)
+                }
+            })
         }
     }
 }

@@ -268,7 +268,26 @@ export default {
             this.isPhone = false
         },
         submitPhone(){
-            this.isPhone = false
+            var obj = {
+                recordRep: {
+                    objTypeCode: 8,
+                    fields: {
+                        MobilePhone: this.phone
+                    },
+                    id: ""
+                }
+            }
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method: this.$api.scheduling.add_shift,
+                    SessionKey: this.sessionKey,
+                    message: JSON.stringify(obj)
+                }
+            }).then(res=>{
+                console.log(res);
+            })
+            // this.isPhone = false
         }
     }
 }

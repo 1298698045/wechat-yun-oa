@@ -66,8 +66,8 @@
                         <p class="radius">{{item.name}}</p>
                     </div>
                     <div class="cont">
-                        <p>{{item.FullName}}</p>
-                        <p>{{item.TelPhone}}</p>
+                        <p>{{item.FullName || ''}}</p>
+                        <p>{{item.TelPhone || ''}}</p>
                     </div>
                 </div>
             </div>

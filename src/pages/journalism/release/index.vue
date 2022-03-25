@@ -274,6 +274,7 @@ export default {
             console.log(this.journalismInfo,'12313123');
         }
         var newData= decodeURIComponent((options.info));
+        console.log('newData:', newData);
         let info = JSON.parse(newData);
         this.uuid = info.uuid;
         this.columnId = info.columnId;
@@ -454,7 +455,7 @@ export default {
                     keyWords:this.keyWords,
                     title:this.title,
                     content:this.content,
-                    type:this.type,
+                    type:this.contentTypeCode,
                     Attach:this.Attach,
                     mainImg:this.imgList,
                     remindSms:this.checked,

@@ -403,7 +403,7 @@ export default {
                 data:{
                     method:"content.category.getlist",
                     SessionKey:this.sessionkey,
-                    objectTypeCode:1
+                    objectTypeCode: this.contentTypeCode
                 }
             }).then(res=>{
                 this.column = res.listData;

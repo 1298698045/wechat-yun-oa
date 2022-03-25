@@ -94,7 +94,8 @@ export default {
             info:{},
             id:"",
             sessionkey:"",
-            organizationName:""
+            organizationName:"",
+            hiddenphone: ""
         }
     },
     computed:{
@@ -107,9 +108,14 @@ export default {
         this.sessionkey = sessionkey;
         this.organizationName = wx.getStorageSync('organizationName');
         this.id = options.id;
+        this.hiddenphone = options.hiddenphone;
         this.getQueryInfo();
     },
     methods:{
+        hidePhone(phone){
+            var str = phone.substr(0,3)+"****"+phone.substr(7);
+            return str;
+        },
         ...mapMutations(['getListName']),
         getQueryInfo(){
             this.$httpWX.get({
@@ -126,6 +132,9 @@ export default {
                     this.info.newFullName = this.info.fullName.substr(1);
                 }else {
                     this.info.newFullName = this.info.fullName;
+                }
+                if(this.hiddenphone == true){
+                    this.info.mobile = this.hidePhone(this.info.mobile)
                 }
             })
         },

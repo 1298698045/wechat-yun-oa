@@ -102,7 +102,9 @@ export default {
                 icon:'success',
                 duration:2000,
                 success:res=>{
-                    that.getQuery();
+                    setTimeout(()=>{
+                      that.getQuery();
+                    },1000)
                 }
             })
         })

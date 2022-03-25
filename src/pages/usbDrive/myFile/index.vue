@@ -30,7 +30,7 @@
         <div class="center" v-if="!isTime">
             <van-checkbox-group :value="result" @change="changeGroup" @click.stop>
             <!-- folders -->
-                <div class="content" :class="electionShow?'contentActive':''" @click="getOpen" v-for="(item,index) in folders" :key="index">
+                <div class="content" :class="electionShow?'contentActive':''" v-for="(item,index) in folders" :key="index">
                     <div class="radioWrap" v-if="electionShow">
                         <van-checkbox :name="item.id+item.str" custom-class="radio"></van-checkbox>
                     </div>
@@ -45,23 +45,24 @@
                             <p class="text">{{!item.isToday?item.createdOn:'今日'}}</p>
                         </div>
                         <p class="icon">
-                            <i class="iconfont icon-gengduo" @click="getEditFile(item,'folders')"></i>
+                            <i class="iconfont icon-gengduo" @click="item.Privilege.canAdmin?getEditFile(item,'folders'):toastNull()"></i>
                         </p>
                     </div>
                 </div>
                 <!-- files -->
-                <div class="content" :class="electionShow?'contentActive':''" v-for="(item,index) in files" :key="index">
+                <div class="content" :class="electionShow?'contentActive':''" v-for="(item,index) in files" :key="index"  @click.stop="getPreviewImage(item)">
                     <div class="radioWrap" v-if="electionShow">
                         <van-checkbox :name="item.id+item.str" custom-class="radio"></van-checkbox>
                     </div>
-                    <div class="img"  @click.stop="getPreviewImage(item)">
+                    <div class="img">
                         <p>
                             <img v-if="item.fileExtension=='jpg'||item.fileExtension=='png'" :src="item.link" alt="">
-                            <img v-if="item.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
-                            <img v-if="item.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
-                            <img v-if="item.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
-                            <img v-if="item.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
-                            <img v-if="item.fileExtension=='word'" :src="photoUrl+'word.png'" alt="">
+                            <img v-else-if="item.fileExtension=='xls' || item.fileExtension=='xlsx'" :src="photoUrl+'xls.png'" alt="">
+                            <img v-else-if="item.fileExtension=='doc' || item.fileExtension=='word' || item.fileExtension=='docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+                            <img v-else-if="item.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
+                            <img v-else-if="item.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+                            <img v-else-if="item.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+                            <img v-else-if="item.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
                         </p>
                     </div>
                     <div class="cont">
@@ -70,7 +71,7 @@
                             <p class="text">{{!item.isToday?item.createdOn:'今日'}}&nbsp;&nbsp;{{item.conver}}</p>
                         </div>
                         <p class="icon">
-                            <i class="iconfont icon-gengduo" @click.stop="getEditFile(item,'files')"></i>
+                            <i class="iconfont icon-gengduo" @click.stop="item.Privilege.canAdmin?getEditFile(item,'files'):toastNull()"></i>
                         </p>
                     </div>
                 </div>
@@ -84,17 +85,17 @@
                         <div class="radioWrap" v-if="electionShow">
                             <van-checkbox :name="item.id+item.str" custom-class="radio"></van-checkbox>
                         </div>
-                        <div class="l">
+                        <div class="l" @click.stop="getOpenFolder(item)">
                             <p>
                                 <img :src="photoUrl+'Folder.png'" alt="">
                             </p>
                         </div>
                         <div class="r">
-                            <div class="text">
+                            <div class="text" @click.stop="getOpenFolder(item)">
                                 <p>{{item.name}}</p>
                                 <p>{{item.createdOn}}</p>
                             </div>
-                            <p class="icon" @click="getEditFile(item,'folders')">
+                            <p class="icon" @click.stop="item.Privilege.canAdmin?getEditFile(item,'folders'):toastNull()">
                                 <i class="iconfont icon-gengduo"></i>
                             </p>
                         </div>
@@ -106,17 +107,23 @@
                         <div class="radioWrap" v-if="electionShow">
                             <van-checkbox :name="v.id+v.str" custom-class="radio"></van-checkbox>
                         </div>
-                        <div class="l">
+                        <div class="l" @click.stop="getPreviewImage(v)">
                             <p>
-                                <img :src="v.link" alt="">
+                                <img v-if="v.fileExtension=='jpg'||v.fileExtension=='png'" :src="v.link" alt="">
+                                <img v-else-if="v.fileExtension=='xls' || v.fileExtension=='xlsx'" :src="photoUrl+'xls.png'" alt="">
+                                <img v-else-if="v.fileExtension=='doc' || v.fileExtension=='word' || v.fileExtension=='docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+                                <img v-else-if="v.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
+                                <img v-else-if="v.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+                                <img v-else-if="v.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+                                <img v-else-if="v.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
                             </p>
                         </div>
                         <div class="r">
-                            <div class="text">
+                            <div class="text" @click.stop="getPreviewImage(v)">
                                 <p>{{v.name}}</p>
                                 <p>{{v.createdOn}}</p>
                             </div>
-                            <p class="icon" @click="getEditFile(v,'files')">
+                            <p class="icon" @click.stop="v.Privilege.canAdmin?getEditFile(v,'files'):toastNull()">
                                 <i class="iconfont icon-gengduo"></i>
                             </p>
                         </div>
@@ -195,7 +202,7 @@
         </van-popup>
 
         <!-- <i-divider content="没有更多了"></i-divider> -->
-        <div class="clues-add-button" v-if="!showSheet&&!electionShow" @click="onCluesAddBtnClick">
+        <div class="clues-add-button" v-if="!showSheet&&!electionShow&&(canAdmin||canCreate)" @click="onCluesAddBtnClick">
             <van-icon name="plus" size="20px" />
         </div>
         <div class="footer" v-if="electionShow" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
@@ -263,7 +270,9 @@ export default {
             paramsList:[],
             openImgs:[], // 所有图片
             listLength:"",
-            isSwitch:false
+            isSwitch:false,
+            canAdmin: false, // 根据上一层文件夹的权限控制文件权限
+            canCreate: false
         }
     },
     computed:{
@@ -302,6 +311,15 @@ export default {
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.srchType = options.srchType;
+        console.log('srchType:', this.srchType);
+        this.canAdmin = options.canAdmin == 'false' ? false : options.canAdmin == 'true' ? true : false;
+        this.canCreate = options.canCreate == 'false' ? false : options.canCreate == 'true' ? true : false;
+        console.log('canAdmin:', this.canAdmin, typeof this.canAdmin)
+        console.log('canCreate', this.canCreate, typeof this.canCreate)
+        let title = this.srchType == 'my' ? '我的文件' : this.srchType == 'share' ? '共享文件' : this.srchType == 'org' ? '单位文件' : '我的文件'
+        wx.setNavigationBarTitle({
+            title: title
+        })
         // if(this.srchType=='my'){
         //     // this.ParentId = "10010000-0000-0000-0000-000000000001";
         //     this.ParentId = options.id;
@@ -312,6 +330,16 @@ export default {
         // this.getQuery();
     },
     methods:{
+        toastNull(){
+            wx.showToast({
+                title:'无权限',
+                icon:'none',
+                duration: 2000,
+                success:res=>{
+
+                }
+            })
+        },
         ...mapMutations([
             'handleFiles'
         ]),
@@ -705,7 +733,7 @@ export default {
             })
         },
         getOpenFolder(item){
-            const url = '/pages/usbDrive/myFile/main?id='+item.id+'&name='+item.name+'&srchType='+this.srchType;
+            const url = '/pages/usbDrive/myFile/main?id='+item.id+'&name='+item.name+'&srchType='+this.srchType+'&canAdmin='+item.Privilege.canAdmin+'&canCreate='+item.Privilege.canCreate;
             wx.navigateTo({
                 url:url
             })
@@ -738,7 +766,7 @@ export default {
             this.editSheet = false;
         },
         getPreviewImage(item){
-            this.isSwitch = true;
+            // this.isSwitch = true;
             const openImgs = JSON.stringify(this.openImgs);
             openFiles(item,openImgs);
             // let that = this;
@@ -748,7 +776,7 @@ export default {
             // })
         },
         getRouterClass(item){
-            const url = '/pages/usbDrive/myFile/classFlie/main?fileType='+item;
+            const url = '/pages/usbDrive/myFile/classFlie/main?fileType='+item+'&srchType='+this.srchType+'&folderId='+this.ParentId;
             wx.navigateTo({url:url});
         }
     }

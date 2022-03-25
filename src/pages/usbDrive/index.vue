@@ -3,9 +3,9 @@
         <div class="header back">
             <van-search :value="value" placeholder="请输入搜索关键词" />
         </div>
-        <div class="recyclebin" @click="getRouteBin">
+        <!-- <div class="recyclebin" @click="getRouteBin">
             回收站：我在“我的文件”删除了6个文件
-        </div>
+        </div> -->
         <div class="center back">
             <div class="rowWrap" @click="getLately">
                 <p class="imgBox">
@@ -32,7 +32,7 @@
                 <p class="imgBox">
                     <img :src="photoUrl+'Unit_file.png'" alt="">
                 </p>
-                <p class="text">{{organizationName}}</p>
+                <p class="text">{{organizationName || '单位文件'}}</p>
             </div>
         </div>
     </div>
@@ -90,7 +90,8 @@ export default {
             wx.navigateTo({url:url});
         },
         getMyFiles(){
-            const url = '/pages/usbDrive/myFile/main?srchType='+'my'+'&id='+'10010000-0000-0000-0000-000000000001';
+            const url = '/pages/usbDrive/myFile/main?srchType='+'my'+'&id='+'10010000-0000-0000-0000-000000000001'
+            +'&canAdmin='+true+'&canCreate='+true;
             wx.navigateTo({url:url});
         },
         getSharedFile(){
