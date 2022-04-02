@@ -1,6 +1,6 @@
 <template>
     <div class="wrap">
-        <van-search :value="value" placeholder="请输入搜索关键词" />    
+        <van-search :value="searchVal" placeholder="请输入搜索关键词" @change="changeSearch" />    
         <div class="header">
             <i-tabs :current="current" @change="handleChange">
                 <i-tab key="tab1" title="我的文件"></i-tab>
@@ -16,7 +16,7 @@
                     </p>
                 </div>
                 <div class="rBox">
-                    <p class="name">{{item.createdByName}}</p>
+                    <p class="name">{{item.name}}</p>
                     <p class="time">{{item.createdOn}}</p>
                 </div>    
             </div>  
@@ -26,7 +26,13 @@
                         <div class="rows">
                             <div class="lBox">
                                 <p>
-                                    <img :src="item.link" alt="">
+                                    <img v-if="item.fileExtension=='jpg'||item.fileExtension=='png'" :src="item.link" alt="">
+                                    <img v-else-if="item.fileExtension=='xls' || item.fileExtension=='xlsx'" :src="photoUrl+'xls.png'" alt="">
+                                    <img v-else-if="item.fileExtension=='doc' || item.fileExtension=='word' || item.fileExtension=='docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+                                    <img v-else-if="item.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
+                                    <img v-else-if="item.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+                                    <img v-else-if="item.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+                                    <img v-else-if="item.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
                                 </p>
                             </div>
                             <div class="rBox">
@@ -54,6 +60,7 @@ import {mapState,mapMutations,mapActions,mapGetters} from 'vuex';
 export default {
     data(){
         return {
+            searchVal: "",
             current:"tab1",
             result:[],
             sessionkey:"",
@@ -84,6 +91,9 @@ export default {
         },
         isModelmes(){
             return wx.getStorageSync('isModelmes');
+        },
+        photoUrl(){
+            return this.$api.photo.url;
         }
     },
     methods:{
@@ -131,6 +141,10 @@ export default {
             const url = '/pages/uPan/child/main?ParentId='+item.id+'&srchType='+this.srchType
             wx.navigateTo({url:url});
         },
+        changeSearch(e){
+            this.searchVal = e.mp.detail;
+            this.getQuery();
+        },
         getQuery(){
             this.$httpWX.get({
                 url:this.$api.message.queryList,
@@ -139,7 +153,8 @@ export default {
                     SessionKey:this.sessionkey,
                     srchType:this.srchType,
                     sort:this.sort,
-                    Folderid:this.ParentId
+                    Folderid:this.ParentId,
+                    search: this.searchVal
                 }
             }).then(res=>{
                 console.log(res);

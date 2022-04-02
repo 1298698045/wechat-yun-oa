@@ -78,7 +78,7 @@
                             <i class="iconfont icon-huiyishi"></i>
                         </div>
                         <div class="r">
-                            <p>会议室：2号楼国际交流中心</p>
+                            <p>会议室：{{detailInfo.roomIdName}}</p>
                         </div>
                     </div>
                 </div>
@@ -151,9 +151,15 @@
                     </p>
                 </div>
                 <div class="enclosure">
-                    <div class="rows" v-for="(item,index) in listFile" :key="index">
+                    <div class="rows" v-for="(item,index) in listFile" :key="index" @click="handleOpenFile(item)">
                         <p>
-                            <img :src="item.link" alt="">
+                            <img v-if="item.fileExtension=='.jpg'||item.fileExtension=='.png'" :src="item.link" alt="">
+                            <img v-else-if="item.fileExtension=='.xls' || item.fileExtension=='.xlsx'" :src="photoUrl+'xls.png'" alt="">
+                            <img v-else-if="item.fileExtension=='.doc' || item.fileExtension=='.word' || item.fileExtension=='.docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+                            <img v-else-if="item.fileExtension=='.rar'" :src="photoUrl+'rar.png'" alt="">
+                            <img v-else-if="item.fileExtension=='.txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+                            <img v-else-if="item.fileExtension=='.pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+                            <img v-else-if="item.fileExtension=='.ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
                         </p>
                         <p>{{item.name}}</p>
                         <p @click="getDelFiles(item)">
@@ -289,7 +295,7 @@
                 </div>
             </van-action-sheet>
         </div>
-        <Task v-if="current=='tab2'" />
+        <Task v-if="current=='tab2'" :detailInfo="detailInfo" :current="current" :name="detailInfo.name" :Meetingid="detailInfo.valueId" :isEdit="isEdit" ref="child" />
         <Summarys v-if="current=='tab3'" :detailInfo="detailInfo" :current="current" :name="detailInfo.name" :Meetingid="detailInfo.valueId" :isEdit="isEdit" ref="child" />
         <Topics v-if="current=='tab4'" :current="current" :name="detailInfo.name" :Meetingid="detailInfo.valueId" :isEdit="isEdit" ref="child"  />
         <mapList @childFn="getChildFn" @cancel="getCancelChild" v-if="isShow" />
@@ -306,6 +312,7 @@ import Task from '@/components/schedule/task';
 var qqmapsdk = new QQMapWX({
     key: 'UVRBZ-UN2WU-KMJV6-2DAPJ-JW5QE-C5BYC' // 必填
 }); 
+import openFiles from '@/utils/openFiles';
 export default {
     components:{
         Summarys,
@@ -416,6 +423,9 @@ export default {
         },
         isSign(){
             return this.nowInDateBetwen(this.scheduledStart,this.scheduledEnd); // 判断签到时间是否在范围内
+        },
+        photoUrl(){
+            return this.$api.photo.url;
         }
     },
     onLoad(options){
@@ -443,6 +453,11 @@ export default {
             'getClear',
             'clearFile'
         ]),
+        // 打开附件
+        handleOpenFile(item){
+            const openImgs = JSON.stringify([item.link]);
+            openFiles(item,openImgs);
+        },
         nowInDateBetwen (d1,d2) {
             //如果时间格式是正确的，那下面这一步转化时间格式就可以不用了
             // var dateBegin = new Date(d1.replace(/-/g, "/"));//将-转化为/，使用new Date

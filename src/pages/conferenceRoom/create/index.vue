@@ -162,7 +162,7 @@ export default {
         this.queryTag();
         if(options.id){
             this.id = options.id;
-            this.imgList = [this.conferenceLink];
+            this.imgList = this.conferenceLink ? [this.conferenceLink] : [];
         }
         if(this.id){
             wx.setNavigationBarTitle({
@@ -197,7 +197,7 @@ export default {
                     Id:this.id
                 }
             }).then(res=>{
-                console.log(res);
+                console.log(res, 'res');
                 let data = res.data;
                 this.name = data.Name;
                 this.address = data.Location;
@@ -356,11 +356,13 @@ export default {
                         Latitude:that.Latitude,
                         Location:that.address,
                         Capacity:that.Capacity,
-                        AttachInfo:that.AttachInfo
+                        AttachInfo:that.AttachInfo,
+                        StatusCode: 1 // 1启用0不启用
                     },
                     success (res){
                         console.log(res);
-                        if(res.status*1===1){
+                        let response = JSON.parse(res.data)
+                        if(response.status*1===1){
                             message.toast({
                                 title:'提交成功',
                                 delta:1
@@ -383,7 +385,8 @@ export default {
                         Latitude:this.Latitude,
                         Location:this.address,
                         Capacity:this.Capacity,
-                        AttachInfo:this.AttachInfo
+                        AttachInfo:this.AttachInfo,
+                        StatusCode: 1 // 1启用0不启用
                     }
                 }).then(res=>{
                     console.log(res);

@@ -8,7 +8,7 @@
                     </p>
                 </div>
                 <div class="rBox">
-                    <p class="name">{{item.createdByName}}</p>
+                    <p class="name">{{item.name}}</p>
                     <p class="time">{{item.createdOn}}</p>
                 </div>    
             </div>  
@@ -18,7 +18,13 @@
                         <div class="rows">
                             <div class="lBox">
                                 <p>
-                                    <img :src="item.link" alt="">
+                                    <img v-if="item.fileExtension=='jpg'||item.fileExtension=='png'" :src="item.link" alt="">
+                                    <img v-else-if="item.fileExtension=='xls' || item.fileExtension=='xlsx'" :src="photoUrl+'xls.png'" alt="">
+                                    <img v-else-if="item.fileExtension=='doc' || item.fileExtension=='word' || item.fileExtension=='docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+                                    <img v-else-if="item.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
+                                    <img v-else-if="item.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+                                    <img v-else-if="item.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+                                    <img v-else-if="item.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
                                 </p>
                             </div>
                             <div class="rBox">
@@ -56,13 +62,24 @@ export default {
             ParentId:"", // 共享文件 10010000-0000-0000-0000-000000000003 // 单位文件 10010000-0000-0000-0000-000000000002
         }
     },
+    onShow(){
+        const pages = getCurrentPages();
+        const currPage = pages[pages.length-1]
+        console.log('currpage:', currPage)
+        if(currPage.options.ParentId!==undefined){
+            this.ParentId = currPage.options.ParentId;
+        }else {
+            currPage.ParentId = this.ParentId;
+        }
+        this.getQuery();
+    },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.ParentId = options.ParentId;
         this.srchType = options.srchType;
-        this.getQuery();
+        // this.getQuery();
     },
     computed:{
         ...mapState({
@@ -72,6 +89,9 @@ export default {
         }),
         length(){
             return this.selectFiles.length;
+        },
+        photoUrl(){
+            return this.$api.photo.url;
         }
     },
     methods:{

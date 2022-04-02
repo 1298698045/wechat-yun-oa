@@ -187,6 +187,7 @@
                 <p>暂无投票</p>
             </div>
         </div>
+        <van-divider v-if="isMoreShow" contentPosition="center">没有更多了~</van-divider>
         <!-- <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <van-button type="primary" custom-class="btn" block>创建投票</van-button>
         </div> -->
@@ -249,7 +250,8 @@ export default {
                 'red',
                 'yellow',
                 '#FF6666'
-            ]
+            ],
+            isMoreShow: false
         }
     },
     computed:{
@@ -298,13 +300,16 @@ export default {
             }).then(res=>{
                 console.log(res);
                 if(res.status==1){
-                    wx.showToast({
+                    message.toast({
                         title:res.msg,
-                        icon:"success",
-                        duration:2000
+                        delta:0,
+                        success:()=>{
+                            setTimeout(()=>{
+                                this.getClear([]);
+                                this.getQuery();
+                            },500)
+                        }
                     })
-                    this.getClear([]);
-                    this.getQuery();
                 }
             })
         },
@@ -320,6 +325,9 @@ export default {
                 }
             }).then(res=>{
                 console.log(res);
+                if(this.listData.length>0&&res.listData==""){
+                    this.isMoreShow = true;
+                }
                 if(res.listData==""){
                     this.isPage = false;
                 }else {
@@ -371,6 +379,7 @@ export default {
         handleChange(e){
             this.current = e.mp.detail.key;
             this.pageNumber = 1;
+            this.isMoreShow = false;
             if(this.current=='tab1'){
                 this.scope = 0;
             }else if(this.current=='tab2'){
@@ -404,6 +413,16 @@ export default {
         },
         // 投票
         getVote(item){
+            let endTime = new Date(item.Poll.CloseTime).getTime();
+            let currenTime = new Date().getTime();
+            if(currenTime > endTime) {
+                message.toast({
+                    title: "不可投票，已超过投票截至时间!",
+                    duration: 3000,
+                    delta: 0
+                })
+                return false
+            }
             this.$httpWX.get({
                 url:this.$api.message.queryList,
                 data:{

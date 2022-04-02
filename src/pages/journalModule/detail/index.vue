@@ -4,19 +4,19 @@
             <div class="content">
                 <div class="row">
                     <div class="avatar">
-                        <p>{{info.name}}</p>
+                        <p>{{info && info.name || ''}}</p>
                     </div>
                     <div class="rBox">
                         <div class="top">
-                            <p class="name">{{info.OwningUserName}}</p>
+                            <p class="name">{{info && info.OwningUserName || ''}}</p>
                         </div>
                         <div class="info">
-                            {{info.DeptName}}    {{info.CreatedOn}}
+                            {{info && info.DeptName || ''}}    {{info && info.CreatedOn || ''}}
                         </div>
                     </div>
                 </div>
                 <p class="text">
-                    {{info.ContentBody}}
+                    {{info && info.ContentBody || ''}}
                 </p>
             </div>
             <div class="container">
@@ -78,7 +78,7 @@
             <div class="box">
                 <div class="btn">
                     <i class="iconfont icon-chuanyue"></i>
-                    阅读数量 {{info.ReadQty}}
+                    阅读数量 {{info && info.ReadQty}}
                 </div>
                 <div class="btn"  @click="getComment">
                     <i class="iconfont icon-pinglun"></i>
@@ -102,6 +102,7 @@
 </template>
 <script>
 import {splitName} from '@/utils/splitName';
+import {message} from '@/utils/message';
 export default {
     data(){
         return {
@@ -143,6 +144,7 @@ export default {
         }
     },
     onLoad(options){
+        console.log('options:', options)
         this.id = options.id;
         wx.onKeyboardHeightChange(res => { //监听键盘高度变化
             console.log(res.height,'res');

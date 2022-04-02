@@ -1,7 +1,9 @@
 const getOpenFiles = function(item, openImgs) {
     let imgs = JSON.parse(openImgs);
     let url = item.link;
-    if (item.fileExtension == 'docx' || item.fileExtension == 'doc' || item.fileExtension == 'word' || item.fileExtension == 'pdf' || item.fileExtension.indexOf('xls') != -1 || item.fileExtension == 'xlsx') {
+    if (item.fileExtension == 'docx' || item.fileExtension == 'doc' || item.fileExtension == 'word' || item.fileExtension == 'pdf' || item.fileExtension.indexOf('xls') != -1 || item.fileExtension == 'xlsx'
+    || item.fileExtension == '.docx' || item.fileExtension == '.doc' || item.fileExtension == '.word' || item.fileExtension == '.pdf' || item.fileExtension.indexOf('xls') != -1 || item.fileExtension == 'xlsx'
+    ) {
         if(item.fileExtension.indexOf('.')!=-1){
             item.fileExtension = item.fileExtension.slice(1,item.fileExtension.length)
         }

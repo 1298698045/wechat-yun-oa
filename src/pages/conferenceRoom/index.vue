@@ -308,7 +308,7 @@ export default {
     },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());
-        this.startTime = options.startTime;
+        this.startTime = options.startTime || this.getCurrenTime();
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.sign = options.sign;
@@ -329,6 +329,16 @@ export default {
         this.getQuery();
     },
     methods:{
+        getCurrenTime(){
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = date.getMonth()+1;
+            const day = date.getDate();
+            const hour = date.getHours();
+            const min = date.getMinutes();
+            const currenTime = `${year}-${month}-${day} ${hour}:${min}`
+            return currenTime;
+        },
         getSelectTime(item,v,i,index){
             if(item.status==0){
                 if(this.ResourceId==''){

@@ -45,6 +45,7 @@
                     </div>
                 </div>
             </div>
+            <van-divider v-if="isMoreShow" contentPosition="center">没有更多了~</van-divider>
         </div>
         <CommunityMy v-if="activeIdx==2" />
         <!-- <Drag v-if="activeIdx==1" /> -->
@@ -111,7 +112,8 @@ export default {
             list:[],
             show:false,
             id:"",
-            activeIdx:0
+            activeIdx:0,
+            isMoreShow: false
         }
     },
     computed:{
@@ -123,6 +125,7 @@ export default {
         }
     },
     onLoad(){
+        Object.assign(this.$data,this.$options.data())
         this.getQuery();
     },
     methods:{
@@ -136,6 +139,9 @@ export default {
                     pageSize:this.pageSize
                 }
             }).then(res=>{
+                if(this.list.length>0&&res.listData==""){
+                    this.isMoreShow = true;
+                }
                 if(res.listData==""){
                     this.isPage = false;
                 }else {
@@ -145,9 +151,9 @@ export default {
                 if(this.pageNumber==1){
                     result = res.listData;
                 }else {
-                    result = this.listData.concat(res.listData);
+                    result = this.list.concat(res.listData);
                 }
-                this.list = res.listData;
+                this.list = result;
                 this.list.map(item=>{
                     item.name = splitName(item.OwningUserName);
                     return item;
@@ -234,6 +240,11 @@ export default {
         },
         getBottomTab(idx){
             this.activeIdx = idx;
+            if(activeIdx==0){
+                this.pageNumber = 1;
+                this.isMoreShow = false;
+                this.getQuery();
+            }
         }
     },
     onPullDownRefresh() {
@@ -287,7 +298,7 @@ export default {
                         display: flex;
                         justify-content: space-between;
                         .name{
-                            font-size: 28rpx;
+                            font-size: 32rpx;
                             color:#333333;
                         }
                     }
@@ -299,7 +310,7 @@ export default {
             }
             .text{
                 padding: 28rpx 0;
-                font-size: 28rpx;
+                font-size: 32rpx;
                 color: #333333;
                 border-bottom: 1rpx solid #e2e3e5;
             }

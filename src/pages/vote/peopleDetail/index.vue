@@ -15,6 +15,7 @@
                     <p>
                         {{item.FullName}}
                         <span>{{item.BusinessUnitIdName}}</span>
+                        <span>{{item.ModifiedOn || ''}}</span>
                     </p>
                 </div>
                 <div class="r">

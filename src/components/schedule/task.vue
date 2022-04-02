@@ -4,33 +4,59 @@
             <div class="rowContent" v-for="(item,index) in list" :key="index">
                 <div class="rowT">
                     <div class="l">
-                        <p>{{item.CreatedByName}}</p>
+                        <p>{{item.OwningUserName}}</p>
                     </div>
                     <div class="r">
-                        <p>{{item.CreatedByName}}</p>
-                        <p>{{item.BusinessUnitIdName}}</p>
+                        <p>{{item.OwningUserName}}</p>
+                        <p>{{item.BusinessUnitIdName || ''}}</p>
                     </div>
                 </div>
                 <p class="title">
-                    {{item.CreatedByName}}
+                    {{item.Subject}}
                 </p>
                 <div class="cont">
-                    {{item.cont}}
+                    {{item.Description}}
                 </div>
                 <div class="more">
                     <p>
                         {{item.CreatedOn}}
                     </p>
-                    <p @click="getMore" v-if="isEdit">
+                    <p @click="getMore(item)" v-if="isEdit">
                         <i-icon type="more" color="#666666" size="20" />
                     </p>
                 </div>
             </div>
         </div>
+        <van-action-sheet
+            :show="isShow"
+            :round="false"
+            :actions="actions"
+            cancel-text="取消"
+            @cancel="onClose"
+            @close="onClose"
+            @select="onSelect"
+            z-index="99999"
+        />
+        <van-action-sheet
+            :show="moreShow"
+            :round="false"
+            :actions="moreActions"
+            cancel-text="取消"
+            @cancel="onCloseMore"
+            @close="onCloseMore"
+            @select="onSelectMore"
+            z-index="99999"
+        />
+        <div class="footer" @click="getAddTask">
+            <p>
+                添加任务
+            </p>
+        </div>
     </div>
 </template>
 <script>
 export default {
+    props:['name','Meetingid','current','detailInfo','isEdit'],
     data(){
         return {
             list:[
@@ -39,7 +65,105 @@ export default {
                     BusinessUnitIdName:'部门',
                     cont:"123"
                 }
-            ]
+            ],
+            sessionkey: "",
+            moreActions: [
+                {
+                    name: '新建任务',
+                }
+            ],
+            moreShow: false,
+            actions: [
+                {
+                    name: '修改',
+                },
+                {
+                    name: '删除'
+                }
+            ],
+            isShow:false,
+            descrip: "",
+            id: ""
+        }
+    },
+    onLoad(){
+        this.sessionkey = wx.getStorageSync('sessionkey');
+        this.getQuery();
+    },
+    methods:{
+        getQuery(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method: this.$api.meeting.taskList,
+                    SessionKey: this.sessionkey,
+                    RegardingObjectId: this.Meetingid
+                }
+            }).then(res=>{
+                this.list = res.listData;
+            })
+        },
+        getAddTask(){
+            this.moreShow = true;
+        },
+        onCloseMore(){
+            this.moreShow = false;
+        },
+        onSelectMore(e){
+            let name = e.mp.detail.name;
+            if(name=='新建任务'){
+                const url = '/pages/meeting/newSummary/main?name='+this.name+'&Meetingid='+this.Meetingid+'&current='+this.current;                
+                wx.navigateTo({url:url});
+            }
+        },
+        getMore(item){
+            this.id = item.ActivityId;
+            this.descrip = item.Description;
+            this.isShow = true;
+        },
+        onClose(){
+            this.isShow = false;
+        },
+        onSelect(e){
+            console.log(e);
+            let name = e.mp.detail.name;
+            if(name=='删除'){
+                this.getDelete();
+            }else if(name=='修改'){
+                const url = '/pages/meeting/newSummary/main?content='+this.descrip+'&current='+this.current+'&Meetingid='+this.Meetingid+'&ActivityId='+this.id;
+                wx.navigateTo({url:url});
+            }
+        },
+        // 删除任务
+        getDelete(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method:"entity.info.delete",
+                    SessionKey:this.sessionkey,
+                    ObjTypeCode:5005,
+                    RegardingObjectId:this.Meetingid,
+                    id: this.id
+                }
+            }).then(res=>{
+                let that = this;
+                if(res.status==1){
+                    message.toast({
+                        title:res.msg,
+                        delta: 0,
+                        success(){
+                            that.getQuery();
+                        }
+                    })
+                }else {
+                    wx.showToast({
+                        title:'删除失败',
+                        icon:"success",
+                        duration:2000
+                    })
+                }
+                
+            })
         }
     }
 }
@@ -50,7 +174,7 @@ export default {
         height: 100%;
         overflow: hidden;
         .contentWrap{
-            padding: 0 24rpx; 
+            padding: 0 24rpx 120rpx 24rpx; 
             .rowContent{
                 background: #fff;
                 border-radius: 23rpx;

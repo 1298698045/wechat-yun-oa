@@ -94,6 +94,8 @@ const api = {
         detail: "meeting.info.get", // 会议详情
         peoples: "meeting.peoples.getlist", // 获取会议参会人员列表
         tagSign: "meeting.audience.checkin.edit", // 标记签到
+        taskList: "project.task.search", // 任务
+        taskcreate: "project.task.edit" // 添加任务
     },
     // 会议室
     conference: {
@@ -236,6 +238,7 @@ const api = {
     // 新闻
     journalism:{
         unread: 'content.unread.search', // 新闻未读
+        newQuery: 'content.search'
     }
 }
 export default api;

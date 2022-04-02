@@ -33,11 +33,11 @@
         <div class="showclass" v-if="isShow">
           <div class="rows" v-for="(item,index) in list" :key="index" @click="getSelect(item)">
             <div class="name">
-              <p class="radius">{{item.name}}</p>
+              <p class="radius">{{item.name || ''}}</p>
             </div>
             <div class="cont">
-              <p>{{item.FullName}}</p>
-              <p>{{item.TelPhone}}</p>
+              <p>{{item.FullName || ''}}</p>
+              <p>{{item.TelPhone || ''}}</p>
             </div>
           </div>
         </div>
@@ -192,6 +192,7 @@ export default {
         }
     },
     onShow(){
+      debugger
         this.nameList =this.nameList.concat(this.selectListName);
         this.nameList = this.nameList.map(item=>({
             id:item.id,

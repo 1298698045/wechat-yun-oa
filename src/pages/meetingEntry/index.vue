@@ -10,7 +10,7 @@
                     </div>
                 </picker>
                 <div class="rBox">
-                    <scroll-view class="scroll-view-list" :scroll-left="scrollLeft" scroll-with-animation="true" @scrolltoupper="getScrolltoupper"	 @scrolltolower="getScrolltolower" scroll-x="true" style="width: 100%">
+                    <scroll-view class="scroll-view-list" :scroll-left="scrollLeft" @scroll="handleScroll" scroll-with-animation="true" @scrolltoupper="getScrolltoupper"	 @scrolltolower="getScrolltolower" scroll-x="true" style="width: 100%">
                         <view class="swiper-item" v-for="(item,index) in everyDay" :key="index" @click="getSwitchDay(item,index)" >
                             <div class="box">
                                 <div>
@@ -95,7 +95,8 @@ export default {
                 '已结束/取消/不参与的',
                 '我发出的'
             ],
-            statusIdx:0
+            statusIdx:0,
+            currenScroll: ""
         }
     },
     computed:{
@@ -118,13 +119,13 @@ export default {
         this.currentMonth = myDate.getMonth()+1;
         this.scrollLeft = this.day * 50;
         let date = new Date(), month = date.getMonth()+1;
-        this.getEveryDay(date, month);
+        this.getEveryDay(new Date(this.year), month);
         this.getQuery();
     },
     onShow(){
-        this.scrollLeft = this.day * 50;
-        let date = new Date(), month = date.getMonth()+1;
-        this.getEveryDay(date, month);
+        // this.scrollLeft = this.day * 50;
+        // let date = new Date(), month = date.getMonth()+1;
+        // this.getEveryDay(date, month);
         this.getQuery();
     },
     methods:{
@@ -136,7 +137,8 @@ export default {
             let dayArry = [];
             //获取月份的某一天
             let day = date.getDate();
-
+            month = date.getMonth() + 1;
+            console.log(day,this.day, month, '==================')
             for (let i = 1; i <= day; i++) {
                 date.setDate(i);   //如果只获取当前选择月份的每一天，则不需要date.setDate(i)只需dayArry.push(i)即可，其中date.setDate(i)是设置当前月份的每一天
                 // dayArry.push(i + ' ' + this.getWeekday(date.getDay()));   //选中月份的每一天和当天是星期几
@@ -147,17 +149,20 @@ export default {
                 })
             }
             this.everyDay = dayArry;
-            console.log(this.month,month);
             if(this.currentMonth==month){
                 let index = this.everyDay.findIndex((item)=>item.day===this.day);
                 console.log(index);
                 this.dayIdx = index;
                 this.scrollLeft = index * 50;
             }else {
+                this.scrollLeft = this.currenScroll;
                 this.dayIdx = 0;
                 this.scrollLeft = 0;
             }
             console.log(this.everyDay,this.scrollLeft,'day');
+        },
+        handleScroll(e){
+            this.currenScroll = e.mp.detail.scrollLeft;
         },
         getWeekday(day){
             return ["日", "一", "二", "三", "四", "五", "六"][day];
@@ -167,9 +172,9 @@ export default {
             let val = value.split('-');
             this.year = val[0];
             this.month = val[1].replace(/^0/, '');
+            this.day = 1;
             let date = new Date(this.year);
             this.getEveryDay(date, this.month);
-            this.day = 1;
             this.getQuery();
         },
         getSwitchDay(item,index){

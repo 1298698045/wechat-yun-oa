@@ -1,13 +1,29 @@
 <template>
     <div class="wrap">
-        <div class="banner padding">
-
-            <!-- <img class="img" :src="pathUrl" alt=""> -->
+        <!-- <div class="banner padding">
             <image :src="pathUrl" mode="scaleToFill" class="img"></image>
-            <!-- <img :src="pathUrl!=''?pathUrl:'https://wx.phxinfo.com.cn/img/wechat/04.banner.png'" alt=""> -->
             <span @click="getOpenPhoto">
                 更换封面
             </span>
+        </div> -->
+        <div class="banner">
+            <swiper :autoplay="true" interval="3000" :circular="true" :current="0" 	next-margin="20px" previous-margin="20px">
+                <swiper-item class="swiper_item">
+                    <div class="box">
+                        <image :src="pathUrl" mode="scaleToFill"></image>
+                    </div>
+                </swiper-item>
+                <swiper-item class="swiper_item">
+                    <div class="box">
+                        
+                    </div>
+                </swiper-item>
+                <swiper-item class="swiper_item">
+                    <div class="box">
+                        
+                    </div>
+                </swiper-item>
+            </swiper>
         </div>
         <!-- 管理员控制台 -->
         <!-- <div class="nav padding">
@@ -54,7 +70,7 @@
                 
             </div>
         </div>
-        <div>
+        <div class="content_wrap">
             <div class="content" v-for="(item,index) in list" :key="index">
                 <h3 class="padding" @click="item.items.length>4?getOpen(index):''">
                     <p>{{item.name}}</p>
@@ -357,12 +373,26 @@ export default {
 <style lang="scss">
     @import '../../../static/css/public.scss';
     .wrap{
-        background: #fff;
+        background: #f4f4f4;
         padding-bottom: 80px;
         .banner{
-            background: #fff;
+            // background: #fff;
             height: 272rpx;
             position: relative;
+            margin: 20rpx 0;
+            .swiper_item{
+                padding: 0 20rpx;
+                box-sizing: border-box;
+                .box{
+                    border-radius: 20rpx;
+                    height: 100% !important;
+                    background: #3399ff;
+                    overflow: hidden;
+                    image{
+                        border-radius: 20rpx;
+                    }
+                }
+            }
             .img{
                 width: 100%;
                 height: 100%;
@@ -430,7 +460,10 @@ export default {
             }
         }
         .center{
-            border-bottom: 1rpx solid #e2e2e2;
+            // border-bottom: 1rpx solid #e2e2e2;
+            background: #fff;
+            margin: 50rpx 20rpx 20rpx 20rpx;
+            border-radius: 20rpx;
             h3{
                 font-size: 28rpx;
                 font-weight: bold;
@@ -464,11 +497,17 @@ export default {
                 
             }
         }
+        .content_wrap{
+            margin: 20rpx;
+        }
         .content:last-child{
             border: none;
         }
         .content{
-            border-bottom: 1rpx solid #e2e2e2;
+            // border-bottom: 1rpx solid #e2e2e2;
+            border-radius: 20rpx;
+            background: #fff;
+            margin-bottom: 20rpx;
             h3{
                 display: flex;
                 justify-content: space-between;

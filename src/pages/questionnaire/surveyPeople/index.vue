@@ -14,8 +14,8 @@
                 </div>
                 <div class="c">
                     <p>
-                        {{item.FullName}}
-                        <span>{{item.ContactIdName}}</span>
+                        {{item.ContactIdName}} 
+                        <span>{{item.FinishedOn || item.CreatedOn}}</span>
                     </p>
                 </div>
                 <div class="r">

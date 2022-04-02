@@ -8,13 +8,13 @@
         <div class="center" v-for="(item,index) in list" :key="index" @click="getDetail(item)">
             <div class="content">
                 <div class="row">
-                    <div class="Avatar">{{item.newName||''}}</div>
+                    <div class="Avatar">{{item.newName || ''}}</div>
                     <div class="info_r">
                         <p class="name">
-                            {{item.CreatedByName||''}}
+                            {{item.CreatedByName || ''}}
                         </p>
                         <p class="text">
-                            {{item.DeptName || ''}}   {{item.CreatedOn}}
+                            {{item.DeptName || ''}}   {{item.time || ''}}
                         </p>
                     </div>
                 </div>
@@ -22,7 +22,7 @@
                 <div class="box">
                     <p class="time">
                         <i class="iconfont icon-shijian-copy"></i>
-                        {{item.EndDate}} 截止</p>
+                        {{item.endTime}} 截止</p>
                     <p class="num">
                         <i class="iconfont icon-canyuren"></i>
                         <span class="active">{{item.NumOfResponses}}</span>
@@ -32,6 +32,7 @@
                 </div>
             </div>
         </div>
+        <van-divider v-if="isMoreShow" contentPosition="center">没有更多了~</van-divider>
     </div>
 </template>
 <script>
@@ -43,7 +44,9 @@ export default {
             scope:0,
             pageNumber:1,
             pageSize:25,
-            list:[]
+            list:[],
+            isPage: false,
+            isMoreShow: false
         }
     },
     computed:{
@@ -52,11 +55,16 @@ export default {
         }
     },
     onLoad(){
+        // this.getQuery();
+    },
+    onShow(){
         this.getQuery();
     },
     methods:{
         handleChange(e){
             this.current = e.mp.detail.key;
+            this.pageNumber = 1;
+            this.isMoreShow = false;
             if(this.current=='tab1'){
                 this.scope = 0;
             }else if(this.current=='tab2'){
@@ -75,12 +83,28 @@ export default {
                     scope:this.scope,
                     pageSize:this.pageSize,
                     pageNumber:this.pageNumber
-
                 }
             }).then(res=>{
-                console.log(res);
-                this.list = res.listData;
+                if(this.list.length>0 &&res.listData==""){
+                    this.isMoreShow = true;
+                }
+                if(res.listData == "") {
+                    this.isPage = false
+                }else {
+                    this.isPage = true;
+                }
+                let result = [];
+                if(this.pageNumber==1){
+                    result = res.listData;
+                }else {
+                    result = this.list.concat(res.listData);
+                }
+                this.list = result;
                 this.list.map(item=>{
+                    const time = item.CreatedOn.replace(/T/g,' ');
+                    const endTime = item.EndDate.replace(/T/g,' ');
+                    this.$set(item,'time',time);
+                    this.$set(item,'endTime', endTime)
                     item.newName = splitName(item.CreatedByName);
                     return item;
                 })
@@ -94,6 +118,21 @@ export default {
                 const url = '/pages/questionnaire/preview/main?id='+item.SurveyId;
                 wx.navigateTo({url:url});
             }
+        }
+    },
+    // 下拉刷新
+    onPullDownRefresh() {
+        this.pageNumber = 1;
+        this.getQuery();
+        wx.stopPullDownRefresh();
+    },
+    /**
+     * 页面上拉触底事件的处理函数
+     */
+    onReachBottom() {
+        if(this.isPage){
+            this.pageNumber++;
+            this.getQuery();
         }
     }
 }

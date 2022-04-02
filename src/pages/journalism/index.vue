@@ -18,78 +18,78 @@
         </div>
         <div class="center">
             <div v-for="(item,index) in listData" :key="index"  @click="getDetail(item)">
-                <div class="content" v-if="item.coverDisplay==''">
-                    <p class="h1" :class="item.isRead=='true'?'active':''">{{item.title}}</p>
+                <div class="content" v-if="item.CoverDisplay==''">
+                    <p class="h1" :class="item.IsRead?'active':''">{{item.Title}}</p>
                     <div class="rowText">
-                        <!-- <span class="re" :class="item.isRead=='true'?'active':''">热点</span> -->
+                        <!-- <span class="re" :class="item.IsRead?'active':''">热点</span> -->
                         <span v-if="item.IsTop==true" class="isTop">置顶</span>
-                        <span :class="item.isRead=='true'?'active':''">{{item.deptName}}</span>
-                        <span :class="item.isRead=='true'?'active':''" v-if="item.ReadCount>0">{{item.ReadCount}}&nbsp;阅读</span>
-                        <span :class="item.isRead=='true'?'active':''" v-if="item.commentCount>0">{{item.commentCount}}&nbsp;评论</span>
-                        <span :class="item.isRead=='true'?'active':''">{{item.time}}</span>
+                        <span :class="item.IsRead?'active':''">{{item.BusinessUnit.DisplayName}}</span>
+                        <span :class="item.IsRead?'active':''" v-if="item.ReadCount>0">{{item.ReadCount}}&nbsp;阅读</span>
+                        <span :class="item.IsRead?'active':''" v-if="item.CommentCount>0">{{item.CommentCount}}&nbsp;评论</span>
+                        <span :class="item.IsRead?'active':''">{{item.time}}</span>
                     </div>
                 </div>
-                <div class="contRight" v-if="item.coverDisplay=='RightTitle'">
+                <div class="contRight" v-if="item.CoverDisplay=='RightTitle'">
                     <div class="text">
-                        <p class="h3" :class="item.isRead=='true'?'active':''">
-                            {{item.title}}
+                        <p class="h3" :class="item.IsRead?'active':''">
+                            {{item.Title}}
                         </p>
                         <div class="spans">
-                            <!-- <span :class="item.isRead=='true'?'active':''">热</span> -->
+                            <!-- <span :class="item.IsRead?'active':''">热</span> -->
                             <span v-if="item.IsTop==true" class="isTop">置顶</span>
-                            <span :class="item.isRead=='true'?'active':''">{{item.deptName}}</span>
-                            <span :class="item.isRead=='true'?'active':''" v-if="item.ReadCount>0">{{item.ReadCount}}&nbsp;阅读</span>
-                            <span :class="item.isRead=='true'?'active':''" v-if="item.commentCount>0">{{item.commentCount}}&nbsp;评论</span>
-                            <span :class="item.isRead=='true'?'active':''">{{item.time}}</span>
+                            <span :class="item.IsRead?'active':''">{{item.BusinessUnit.DisplayName}}</span>
+                            <span :class="item.IsRead?'active':''" v-if="item.ReadCount>0">{{item.ReadCount}}&nbsp;阅读</span>
+                            <span :class="item.IsRead?'active':''" v-if="item.CommentCount>0">{{item.CommentCount}}&nbsp;评论</span>
+                            <span :class="item.IsRead?'active':''">{{item.time}}</span>
                         </div>
                     </div>
-                    <div class="imgBox">
-                        <img :src="item.mainImg!='[]'?item.mainImg:''" alt="">
+                    <div class="imgBox" v-if="item.Images!=''">
+                        <img :src="item.Images[0].ThumbnailUrl" alt="">
                     </div>
                 </div>
-                <div class="contType" v-if="item.coverDisplay=='LeftTitle'">
+                <div class="contType" v-if="item.CoverDisplay=='LeftTitle'">
                     <div class="text">
-                        <h2>{{item.title}}</h2>
+                        <h2>{{item.Title}}</h2>
                         <!-- <h2>同志职务任免的通知</h2> -->
                         <p>
-                            <span>{{item.deptName}}</span>
+                            <span>{{item.BusinessUnit.DisplayName}}</span>
                             <span v-if="item.ReadCount>0">{{item.ReadCount}}&nbsp;阅读 </span>
-                            <span v-if="item.commentCount>0">{{item.commentCount}}&nbsp;评论 </span>
+                            <span v-if="item.CommentCount>0">{{item.CommentCount}}&nbsp;评论 </span>
                             <span>{{item.time}}</span>
                          </p>
                     </div>
                     <div class="imgs">
-                        <p v-if="item.mainImg!=''">
-                            <img :src="item.mainImg" alt="">
+                        <p v-if="item.Images!=''">
+                            <img :src="item.Images[0].ThumbnailUrl" alt="">
                         </p>
                     </div>
                 </div> 
-                <div class="manyImgs" v-if="item.coverDisplay=='BelowGrid'">
-                    <h3>{{item.title}}</h3>
+                <div class="manyImgs" v-if="item.CoverDisplay=='BelowGrid'">
+                    <h3>{{item.Title}}</h3>
                     <p>
                         <span v-if="item.IsTop==true" class="isTop">置顶</span>     
-                        <span>{{item.deptName}}</span>
+                        <span>{{item.BusinessUnit.DisplayName}}</span>
                         <span v-if="item.ReadCount>0">{{item.ReadCount}}&nbsp;阅读</span>  
-                        <span v-if="item.commentCount>0">{{item.commentCount}}&nbsp;评论</span>    
+                        <span v-if="item.CommentCount>0">{{item.CommentCount}}&nbsp;评论</span>    
                         <span>{{item.time}}</span>             
                     </p>
-                    <div class="box" v-if="item.mainImg!=''">
-                        <p>
-                            <img :src="item.mainImg" alt="">
+                    <div class="box" v-if="item.Images!=''">
+                        <p v-for="(v,idx) in item.Images" :key="idx">
+                            <img :src="v.ThumbnailUrl" alt="">
                         </p>
                     </div>
                 </div>
-                <div class="maxImgs" v-if="item.coverDisplay=='BelowTitleBigImg'">
-                    <h3>{{item.title}}</h3>
+                <div class="maxImgs" v-if="item.CoverDisplay=='BelowTitleBigImg'">
+                    <h3>{{item.Title}}</h3>
                     <p>
                         <span v-if="item.IsTop==true" class="isTop">置顶</span>  
-                        <span>{{item.deptName}}</span>
+                        <span>{{item.BusinessUnit.DisplayName}}</span>
                         <span v-if="item.ReadCount>0">{{item.ReadCount}}&nbsp;阅读</span> 
-                        <span v-if="item.commentCount>0">{{item.commentCount}}&nbsp;评论</span>
+                        <span v-if="item.CommentCount>0">{{item.CommentCount}}&nbsp;评论</span>
                         <span>{{item.time}}</span>                                   
                     </p>
-                    <div class="imgWrap" v-if="item.mainImg!=''">
-                        <img :src="item.mainImg" alt="">
+                    <div class="imgWrap" v-if="item.Images!=''">
+                        <img :src="item.Images[0].ThumbnailUrl" alt="">
                     </div>
                 </div>
             </div>
@@ -206,12 +206,12 @@ export default {
         this.pageNumber = 1;
         // this.getQuery();
         this.getMyTag().then(res=>{
-            if(this.current_name == '未读'){
+            // if(this.current_name == '未读'){
                 // 未读
-                this.getUnQuery()
-            }else {
+                // this.getUnQuery()
+            // }else {
                 this.getQuery();
-            }
+            // }
         });
     },
     onLoad(options){
@@ -279,7 +279,7 @@ export default {
             }).then(res=>{
                 console.log(res);
                 this.tagLists= res.rows;
-                this.tagLists.splice(0, 0, {ItemName:'未读'})
+                this.tagLists.splice(0, 0, {ItemName:'未读',ItemId: 0})
                 this.current_scroll = this.tagLists[0].ItemId;
                 this.current_name = this.tagLists[0].ItemName;
                 // this.tagLists.unshift({
@@ -293,17 +293,43 @@ export default {
                 url: this.$api.message.queryList,
                 data:{
                     method: this.$api.journalism.unread,
-                    SessionKey: this.sessionkey
+                    SessionKey: this.sessionkey,
+                    contentTypeCode:this.contentTypeCode
                 }
             }).then(res=>{
-                console.log(res);
+                let response = res.actions[0].returnValue;
+                let {Data, totalCount} = response;
+                this.total = totalCount;
+                if(this.pageNumber*this.pageSize<=this.total){
+                    this.isPage = true;
+                }else {
+                    this.isPage = false;
+                }
+                let result = [];
+                if(this.pageNumber==1){
+                    result = Data;
+                }else {
+                    result = this.listData.concat(Data);
+                }
+                this.listData = result;
+                this.listData.map(item=>{
+                    const time = getDate(item.CreatedOn.replace(/-/g,"/"));
+                    item.time = time;
+                    return time;
+                })
+                console.log('listData:', this.listData);
             })
         },
         getQuery(){
+            let method = this.$api.journalism.newQuery;
+            if(this.current_name == '未读'){
+                method = this.$api.journalism.unread;
+            }
             this.$httpWX.get({
                 url:this.$api.message.queryList,
                 data:{
-                    method:"news.getlist.search",
+                    // method:"news.getlist.search",
+                    method: method,
                     SessionKey:this.sessionkey,
                     Tag:this.current_name,
                     contentTypeCode:this.contentTypeCode,
@@ -312,26 +338,27 @@ export default {
                     search:this.keyValue
                 }
             }).then(res=>{
-                this.total = res.total;
+                let response = res.actions[0].returnValue;
+                let {Data, totalCount} = response;
+                this.total = totalCount;
                 if(this.pageNumber*this.pageSize<=this.total){
                     this.isPage = true;
                 }else {
                     this.isPage = false;
                 }
-                console.log(this.isPage);
                 let result = [];
                 if(this.pageNumber==1){
-                    result = res.listData;
+                    result = Data;
                 }else {
-                    result = this.listData.concat(res.listData);
+                    result = this.listData.concat(Data);
                 }
                 this.listData = result;
                 this.listData.map(item=>{
-                    const time = getDate(item.createdOn.replace(/-/g,"/"));
+                    const time = getDate(item.CreatedOn.replace(/-/g,"/"));
                     item.time = time;
                     return time;
                 })
-                console.log(this.listData);
+                console.log('listData:', this.listData);
             })
         },
         handleChangeScroll(e){
@@ -396,9 +423,9 @@ export default {
         },
         // 详情
         getDetail(item){
-            this.id = item.id;
-            this.updateId(item.id);
-            const url = "/pages/journalism/detail/main?id="+item.id;
+            this.id = item.ContentId;
+            this.updateId(item.ContentId);
+            const url = "/pages/journalism/detail/main?id="+item.ContentId;
             wx.navigateTo({url:url});
         },
         getCheckName(index){

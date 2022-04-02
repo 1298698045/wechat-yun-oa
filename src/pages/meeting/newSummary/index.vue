@@ -9,7 +9,7 @@
             </p>
             <p class="cont">
                 <textarea :auto-height="true"
-                maxlength="100000" v-model="MeetingSummary" name="" id="" cols="100" rows="10" placeholder="输入会议内容"></textarea>
+                maxlength="100000" v-model="MeetingSummary" name="" id="" cols="100" rows="10" :placeholder="current=='tab2'?'输入任务内容':'输入会议内容'"></textarea>
             </p>
         </div>
         <div class="enclosure">
@@ -79,13 +79,16 @@ export default {
     },
     onLoad(options){
         Object.assign(this.$data,this.$options.data());
+        console.log('123213', options)
         this.MeetingSummary = options.content;
         let title = '';
         this.current = options.current;
         if(options.current=='tab3'){
             title = '新建纪要';
-        }else {
+        }else if(options.current=='tab4'){
             title = '新建议题';
+        }else {
+            title = '新建任务'
         }
         wx.setNavigationBarTitle({
             title: title
@@ -95,6 +98,9 @@ export default {
         this.name = options.name;
         this.Meetingid = options.Meetingid;
         this.id = options.itemId;
+        if(options.ActivityId){
+            this.id = options.ActivityId;
+        }
     },
     methods:{
         // 组织人
@@ -131,7 +137,7 @@ export default {
                         });
                     }
                 })
-            }else {
+            }else if(this.current == 'tab4'){
                 if(this.id){
                     this.$httpWX.get({
                         url:this.$api.message.queryList,
@@ -184,12 +190,40 @@ export default {
                         },1000)
                     })
                 }
+            }else {
+                // 新建任务
+                this.$httpWX.get({
+                    url:this.$api.message.queryList,
+                    data:{
+                        method: this.$api.meeting.taskcreate,
+                        SessionKey: this.sessionkey,
+                        RegardingObjectId:this.Meetingid,
+                        description:this.MeetingSummary,
+                        name:this.name,
+                        id: this.id
+                    }
+                }).then(res=>{
+                    console.log(res);
+                    if(res.status==1){
+                        wx.showToast({
+                            title:res.msg,
+                            icon:"success",
+                            duration:2000
+                        })
+                    }
+                    setTimeout(()=>{
+                        wx.navigateBack({
+                            delta: 1
+                        })
+                    },1000)
+                })
             }
         }
     }
 }
 </script>
 <style lang="scss">
+@import '../../../../static/css/schedule.css';
     .wrap{
         width: 100%;
         height: 100%;

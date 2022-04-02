@@ -56,17 +56,17 @@
             <wxParse :content="content" v-if="content!=''" />
             <!-- <p>{{content}}</p> -->
         </div>
-        <div class="content" :class="{'active':isModelmes}">
+        <div class="content" :class="{'active':isModelmes,'lenActive':enclosure.length>3}">
             <div class="box" v-for="(item,index) in enclosure" :key="index" @click="getFiles(item)">
                 <div>
                     <p>
                         <img v-if="item.FileExtension=='.png'||item.FileExtension=='.jpg'||item.FileExtension=='.webp'" :src="item.DownloadLinkUrl" alt="">
-                        <img v-if="item.FileExtension=='.rar'" :src="photoUrl+'rar.png'" alt="">
-                        <img v-if="item.FileExtension=='.txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
-                        <img v-if="item.FileExtension=='.pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
-                        <img v-if="item.FileExtension=='.ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
-                        <img v-if="item.FileExtension=='.word'" :src="photoUrl+'word.png'" alt="">
-                        <img v-if="item.FileExtension.indexOf('xls')!=-1" :src="photoUrl+'xls.png'" alt="">
+                        <img v-else-if="item.FileExtension=='.rar'" :src="photoUrl+'rar.png'" alt="">
+                        <img v-else-if="item.FileExtension=='.txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+                        <img v-else-if="item.FileExtension=='.pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+                        <img v-else-if="item.FileExtension=='.ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
+                        <img v-else-if="item.FileExtension=='.word' || item.FileExtension=='.doc' || item.fileExtension=='.docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+                        <img v-else-if="item.FileExtension.indexOf('xls')!=-1" :src="photoUrl+'xls.png'" alt="">
                     </p>
                 </div>
                 <div>
@@ -614,6 +614,10 @@ export default {
         }
         .content.active{
             bottom: 80px;
+        }
+        .content.lenActive{
+            height: 450rpx;
+            overflow: auto;
         }
         .content{
             width: 100%;

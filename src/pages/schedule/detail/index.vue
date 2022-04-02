@@ -92,7 +92,13 @@
             <div class="enclosure">
                 <div class="rows" v-for="(item,index) in listFile" :key="index">
                     <p>
-                        <img :src="item.link" alt="">
+                        <img v-if="item.fileExtension=='.jpg'||item.fileExtension=='.png'||item.fileExtension=='jpg'||item.fileExtension=='png'" :src="item.link" alt="">
+                        <img v-else-if="item.fileExtension=='.xls' || item.fileExtension=='.xlsx'||item.fileExtension=='xls' || item.fileExtension=='xlsx'" :src="photoUrl+'xls.png'" alt="">
+                        <img v-else-if="item.fileExtension=='.doc' || item.fileExtension=='.word' || item.fileExtension=='.docx'||item.fileExtension=='doc' || item.fileExtension=='word' || item.fileExtension=='docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+                        <img v-else-if="item.fileExtension=='.rar'||item.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
+                        <img v-else-if="item.fileExtension=='.txt'||item.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+                        <img v-else-if="item.fileExtension=='.pdf'||item.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+                        <img v-else-if="item.fileExtension=='.ppt'||item.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
                     </p>
                     <p>{{item.name}}</p>
                     <p @click="getDelFiles(item)">
@@ -248,6 +254,9 @@ export default {
         },
         isModelmes(){
             return wx.getStorageSync('isModelmes');
+        },
+        photoUrl(){
+            return this.$api.photo.url;
         }
     },
     onUnload(){

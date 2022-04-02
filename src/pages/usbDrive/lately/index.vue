@@ -1,21 +1,22 @@
 <template>
     <div class="wrap">
         <div class="container">
-            <div class="content" v-for="(item,index) in list" :key="index">
-                <div class="img" @click="getOpen(item)">
+            <div class="content" v-for="(item,index) in list" :key="index" @click="getOpen(item)">
+                <div class="img">
                     <p>
                         <img v-if="item.fileExtension=='jpg'||item.fileExtension=='png'" :src="item.link" alt="">
-                        <img v-if="item.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
-                        <img v-if="item.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
-                        <img v-if="item.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
-                        <img v-if="item.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
-                        <img v-if="item.fileExtension=='word'" :src="photoUrl+'word.png'" alt="">
+                        <img v-else-if="item.fileExtension=='xls' || item.fileExtension=='xlsx'" :src="photoUrl+'xls.png'" alt="">
+                        <img v-else-if="item.fileExtension=='doc' || item.fileExtension=='word' || item.fileExtension=='docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+                        <img v-else-if="item.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
+                        <img v-else-if="item.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+                        <img v-else-if="item.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+                        <img v-else-if="item.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
                     </p>
                 </div>
                 <div class="cont">
                     <div>
-                        <p class="title overflow">{{item.name}}.{{item.fileExtension}}</p>
-                        <p class="text">我的文件/新技术、新项目中期工作报告.docx</p>
+                        <p class="title overflow">{{item.name}}</p>
+                        <p class="text">{{item.name}}.{{item.fileExtension}}</p>
                     </div>
                     <p class="icon" @click.stop="getOperation(item)">
                         <i class="iconfont icon-gengduo"></i>
@@ -47,6 +48,7 @@
 </template>
 <script>
 import {mapState,mapMutations} from 'vuex';
+import openFiles from '@/utils/openFiles';
 export default {
     data(){
         return {
@@ -154,19 +156,8 @@ export default {
             this.show = false;
         },
         getOpen(item){
-            wx.downloadFile({
-            // 示例 url，并非真实存在
-            url: 'http://example.com/somefile.pdf',
-            success: function (res) {
-                const filePath = res.tempFilePath
-                    wx.openDocument({
-                        filePath: filePath,
-                        success: function (res) {
-                            console.log('打开文档成功')
-                        }
-                    })
-                }
-            })
+            const openImgs = JSON.stringify([item.link]);
+            openFiles(item,openImgs);
         }
     }
 }

@@ -3,16 +3,18 @@
         <div class="center">
             <div class="header">
                 <div class="rowBtn">
-                    <p class="save" @click="getSendOut('0','save')">保存</p>
-                    <p class="send" :class="{'active':nameList!=''}"  @click="getSendOut('1')">发送</p>
+                    <p class="save" :class="{'active':nameList!=''}" @click="nameList!=''&&getSendOut('0','save')">保存</p>
+                    <p class="send" :class="{'active':nameList!=''}"  @click="nameList!=''&&getSendOut('1')">发送</p>
                 </div>
                 <div class="boxWrap" @click="getaddShow">
                     <div class="flex">
                         <div class="cont">
                             <span>收件人：</span>
                             <span class="spans" v-if="nameList!=''" v-for="(item,index) in nameList" :key="index">{{item.FullName}}</span>
-                            <i class="iconfont icon-quxiao2"  v-if="nameList!=''" @click="getDeleteName"></i>
-                            <input type="text" :class="{'active':nameList!=''}" :value="name" :auto-focus="isFocus"  @input="changeName">
+                            <span style="display:inline-block;margin-top: 10rpx;" v-if="nameList!=''" @click="getDeleteName">
+                                <i class="iconfont icon-quxiao2"></i>
+                            </span>
+                            <input type="text" style="margin-top: 10rpx;" :class="{'active':nameList!=''}" :value="name" :auto-focus="isFocus"  @input="changeName">
                         </div>
                     </div>
                     <div class="icon_box">
@@ -38,7 +40,9 @@
                         <div class="cont">
                             <span>抄送人：</span>
                             <span class="spans" v-if="nameListCC!=''" v-for="(item,index) in nameListCC" :key="index">{{item.FullName}}</span>
-                            <i class="iconfont icon-quxiao2"  v-if="nameListCC!=''" @click.stop="getDeleteNameCC"></i>
+                            <span style="display:inline-block;margin-top: 10rpx;" v-if="nameListCC!=''" @click.stop="getDeleteNameCC">
+                                <i class="iconfont icon-quxiao2"></i>
+                            </span>
                             <input type="text" :class="{'active':nameListCC!=''}" :value="nameCC" @input="changeCC">
                         </div>
                     </div>
@@ -81,16 +85,17 @@
                 <div class="swiper-item" v-for="(item,index) in fileList" :key="index">
                     <p class="imgs" @click="getPreviewImg(item,index)">
                         <img v-if="item.fileExtension=='jpg'||item.fileExtension=='png'" :src="item.link" alt="">
-                            <img v-if="item.fileExtension=='rar'" :src="pathUrl+'/img/wechat/rar.png'" alt="">
-                            <img v-if="item.fileExtension=='txt'" :src="pathUrl+'/img/wechat/02.3.1.Txt.png'" alt="">
-                            <img v-if="item.fileExtension=='pdf'" :src="pathUrl+'/img/wechat/02.3.1.Pdf.png'" alt="">
-                            <img v-if="item.fileExtension=='ppt'" :src="pathUrl+'/img/wechat/02.3.1.PPT.png'" alt="">
-                            <img v-if="item.fileExtension=='word'" :src="pathUrl+'/img/wechat/word.png'" alt="">
-                            <!-- <img :src="item.link" alt=""> -->
+                        <img v-else-if="item.fileExtension=='xls' || item.fileExtension=='xlsx'" :src="photoUrl+'xls.png'" alt="">
+                        <img v-else-if="item.fileExtension=='doc' || item.fileExtension=='word' || item.fileExtension=='docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+                        <img v-else-if="item.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
+                        <img v-else-if="item.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+                        <img v-else-if="item.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+                        <img v-else-if="item.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
+                        <!-- <img :src="item.link" alt=""> -->
                         <i class="iconfont icon-quxiao2" @click="getDeleteFile(item,index)"></i>
                     </p>
-                    <p class="text">023904.jpg</p>
-                    <p class="minText">6.42M</p>
+                    <p class="text">{{item.name}}</p>
+                    <!-- <p class="minText">6.42M</p> -->
                 </div>
             </scroll-view>
             </div>
@@ -116,7 +121,7 @@
             @cancel="onClose"
         >
             <div class="sheetWrap">
-                <p  @click="getUpan">优盘</p>
+                <p  @click="getUpan">文件管理</p>
                 <p @click="getphotograph">拍照</p>
                 <p @click="getPhoto">从手机相册选择</p>
             </div>
@@ -126,6 +131,7 @@
 <script>
 import {mapState,mapMutations,mapGetters} from 'vuex';
 import { message } from '@/utils/message';
+import openFiles from '@/utils/openFiles';
 export default {
     data(){
         return {
@@ -148,7 +154,8 @@ export default {
             tempCC:[],
             addShow:true,
             addTwoShow:false,
-            sheetShow:false
+            sheetShow:false,
+            isRefresh: true // 是否刷新，为了控制打开图片以及其他附件之后重新刷新问题
         }
     },
     computed:{
@@ -201,30 +208,34 @@ export default {
             })
             return temp;
         },
-        pathUrl(){
-            return this.$api.pathUrl
+        photoUrl(){
+            return this.$api.photo.url;
         }
     },
     onShow(){
         // console.log(this.filterList,'filterList');
         // console.log(this.selectListName,'selectListName');
-        this.nameList =this.nameList.concat(this.selectListName);
-        console.log(this.nameList,'namelist');
-        this.nameList = this.nameList.map(item=>({
-            id:item.id,
-            FullName:item.FullName
-        }))
-        this.nameList = this.unique(this.nameList);
-        this.fileList = this.fileList.concat(this.selectFiles);
-        this.nameListCC = this.nameListCC.concat(this.selectListNameCC).map(item=>({
-            id:item.id,
-            FullName:item.FullName
-        }))
-        this.nameListCC = this.unique(this.nameListCC);
-        if(this.fileList!=''){
-            this.getSendOut('0').then(res=>{
-                this.getUploadFile(this.EmailId);
-            });
+        if(this.isRefresh){
+            this.nameList =this.nameList.concat(this.selectListName);
+            console.log(this.nameList,'namelist');
+            this.nameList = this.nameList.map(item=>({
+                id:item.id,
+                FullName:item.FullName
+            }))
+            this.nameList = this.unique(this.nameList);
+            this.fileList = this.fileList.concat(this.selectFiles);
+            this.nameListCC = this.nameListCC.concat(this.selectListNameCC).map(item=>({
+                id:item.id,
+                FullName:item.FullName
+            }))
+            this.nameListCC = this.unique(this.nameListCC);
+            console.log('filelist:', this.fileList)
+            if(this.fileList!=''){
+                this.getSendOut('0').then(res=>{
+                    this.getUploadFile(this.EmailId);
+                });
+            }
+            this.isRefresh = true;
         }
     },
     onLoad(){
@@ -255,14 +266,17 @@ export default {
         },
         // 预览图片
         getPreviewImg(item,index){
-            console.log(this.filesImgs,'123123')
-            wx.previewImage({
-                urls:this.filesImgs,
-                current:item.link,
-                success:res=>{
-                    console.log(res,'success');
-                }
-            })
+            // console.log(this.filesImgs,'123123')
+            // wx.previewImage({
+            //     urls:this.filesImgs,
+            //     current:item.link,
+            //     success:res=>{
+            //         console.log(res,'success');
+            //     }
+            // })
+            this.isRefresh = false;
+            const openImgs = JSON.stringify(this.filesImgs);
+            openFiles(item,openImgs);
         },
         sendDraft(){
             this.$httpWX.get({
@@ -585,6 +599,9 @@ export default {
                     border-bottom: 1rpx solid #e2e3e5;
                     .save{
                         font-size: 34rpx;
+                        color: #999999;
+                    }
+                    .save.avtive{
                         color: #3399ff;
                     }
                     .send{
@@ -757,6 +774,10 @@ export default {
                             font-size: 10px;
                             color: #333;
                             text-align: center;
+                            width: 100%;
+                            text-overflow: ellipsis;
+                            overflow: hidden;
+                            white-space: nowrap;
                         }
                         .minText{
                             font-size: 8px;

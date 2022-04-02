@@ -117,6 +117,7 @@
                     </div>
                 </div>
             </div>
+            <van-divider v-if="isMoreShow" contentPosition="center">没有更多了~</van-divider>
         </div>
         <van-action-sheet
             :show="show"
@@ -277,7 +278,8 @@ export default {
             scope:'all',
             type:'',
             WorklogId:"",
-            status:''
+            status:'',
+            isMoreShow: false
         }
     },
     computed:{
@@ -408,6 +410,9 @@ export default {
                     status:this.status
                 }
             }).then(res=>{
+                if(this.list.length>0&&res.listData==""){
+                    this.isMoreShow = true;
+                }
                 if(res.listData==""){
                     this.isPage = false;
                 }else {
@@ -417,7 +422,7 @@ export default {
                 if(this.pageNumber==1){
                     result = res.listData;
                 }else {
-                    result = this.listData.concat(res.listData);
+                    result = this.list.concat(res.listData);
                 }
                 this.list = result;
                 this.list.map(item=>{
@@ -501,6 +506,7 @@ export default {
     },
     onPullDownRefresh() {
         this.pageNumber = 1;
+        this.isMoreShow = false;
         this.getQuery();
         wx.stopPullDownRefresh();
     },

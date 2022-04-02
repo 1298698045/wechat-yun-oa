@@ -398,7 +398,7 @@ export default {
         wx.removeStorageSync('forward');
     },
     onShow(){
-        this.ToActivityId = wx.getStorageSync('ToActivityId');
+        this.ToActivityId = wx.getStorageSync('ToActivityId') || this.ToActivityId;
         const pages = getCurrentPages();
         const currPage = pages[pages.length-1];
         // console.log(currPage,'currPage')

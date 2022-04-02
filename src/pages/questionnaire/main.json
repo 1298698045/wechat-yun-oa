@@ -1,5 +1,6 @@
 {
     "navigationBarTitleText": "问卷",
+    "enablePullDownRefresh": true,
     "usingComponents": {
         "van-search": "/static/vant/search/index",
         "i-notice-bar": "/static/view/notice-bar/index",
@@ -18,6 +19,7 @@
         "van-radio-group": "/static/vant/radio-group/index",
         "van-radio": "/static/vant/radio/index",
         "van-action-sheet": "/static/vant/action-sheet/index",
-        "van-icon": "/static/vant/icon/index"
+        "van-icon": "/static/vant/icon/index",
+        "van-divider": "/static/vant/divider/index"
     }
 }

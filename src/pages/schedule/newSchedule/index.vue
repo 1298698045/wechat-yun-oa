@@ -259,7 +259,13 @@
       <div class="enclosure">
         <div class="rows" v-for="(item, index) in selectFiles" :key="index">
           <p>
-            <img :src="item.link" alt="" />
+            <img v-if="item.fileExtension=='jpg'||item.fileExtension=='png'" :src="item.link" alt="">
+            <img v-else-if="item.fileExtension=='xls' || item.fileExtension=='xlsx'" :src="photoUrl+'xls.png'" alt="">
+            <img v-else-if="item.fileExtension=='doc' || item.fileExtension=='word' || item.fileExtension=='docx'" :src="photoUrl+'02.3.1.Word.png'" alt="">
+            <img v-else-if="item.fileExtension=='rar'" :src="photoUrl+'rar.png'" alt="">
+            <img v-else-if="item.fileExtension=='txt'" :src="photoUrl+'02.3.1.Txt.png'" alt="">
+            <img v-else-if="item.fileExtension=='pdf'" :src="photoUrl+'02.3.1.Pdf.png'" alt="">
+            <img v-else-if="item.fileExtension=='ppt'" :src="photoUrl+'02.3.1.PPT.png'" alt="">
           </p>
           <p>{{ item.name }}</p>
           <p @click="getDelFiles(item)">
@@ -410,6 +416,9 @@ export default {
     };
   },
   computed: {
+    photoUrl(){
+        return this.$api.photo.url;
+    },
     repeatStr() {
       let str = "";
       if (this.recurrenceType != "无") {
@@ -1196,7 +1205,7 @@ export default {
               id: id,
               owningUser: this.organizer.id,
               // meetingMgrId:this.designee.id,
-              RoomId: this.conference.id,
+              RoomId: this.conference.id || '',
             },
           }).then((res) => {
             const id = res.data[0].ValueId;

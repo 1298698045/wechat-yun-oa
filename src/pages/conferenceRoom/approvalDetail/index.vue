@@ -69,7 +69,7 @@
                     参会人数
                 </p>
                 <p class="cont">
-                    32
+                    {{info.peopleQty || ''}}
                 </p>
             </div>
         </div>

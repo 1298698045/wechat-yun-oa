@@ -2,8 +2,12 @@
     <div class="wrap">
         <HeadRow :info="info" />
         <div class="center">
-            <div class="block" v-for="(item,index) in list" :key="index">
-                <div class="title">{{index+1}}. {{item.Name}}</div>
+            <div class="block" :id="'d'+(index+1)" v-for="(item,index) in list" :key="index">
+                <div class="title">{{index+1}}. {{item.Name}}
+                    <span v-if="item.not" :animation="animationData">
+                        这道题未回答
+                    </span>
+                </div>
                 <div class="content" v-if="item.QuestionType==1">
                     <van-radio-group :value="item.value" @change="(e)=>{onChangeRadio(e,item)}">
                         <van-radio v-for="(v,i) in item.Options" :key="i" :name="v.AnswerOptionNumber" custom-class="radio">{{i+1}}.{{v.Name}}</van-radio>
@@ -15,10 +19,10 @@
                     </van-checkbox-group>
                 </div>
                 <div class="content" v-else-if="item.QuestionType==5">
-                    <input class="inp" v-model="item.value" type="text" :placeholder="''">
+                    <input class="inp" @input="(e)=>{handleInput(e,item)}" v-model="item.value" type="text" :placeholder="''">
                 </div>
                 <div class="content" v-else-if="item.QuestionType==52">
-                    <textarea class="textarea" v-model="item.value" name="" id="" cols="30" rows="10"></textarea>
+                    <textarea class="textarea"  @input="(e)=>{handleTextarea(e,item)}" v-model="item.value" name="" id="" cols="30" rows="10"></textarea>
                 </div>
             </div>
         </div>
@@ -48,7 +52,9 @@ export default {
             id:"",
             info:{},
             list:[],
-            detail:{}
+            detail:{},
+            animationData: {},
+            animation: ""
         }
     },
     computed:{
@@ -90,6 +96,7 @@ export default {
                 this.detail = res.Survey;
                 this.list = res.Survey.Questions;
                 this.list.forEach(item=>{
+                    this.$set(item,'not',false)
                     item.Options.forEach(v=>{
                         this.$set(v,'checked',false)
                     })
@@ -111,6 +118,7 @@ export default {
             let index = item.Options.findIndex(one=>one.AnswerOptionNumber==value);
             item.Options[index].checked = !item.Options[index].checked;
             if(item.Options[index].checked){
+                item.not = false;
                 item.value = e.mp.detail;
                 item.Options.forEach((v,i)=>{
                     this.$set(v,'checked',false);
@@ -125,16 +133,54 @@ export default {
         handleCheck(e,item){
             console.log(e);
             item.value = e.mp.detail;
+            if(item.value.length>0){
+                item.not = false;
+            }
+        },
+        handleInput(e, item){
+            item.value = e.mp.detail.value;
+            if(item.value!=''){
+                item.not =  false;
+            }
+        },
+        handleTextarea(e, item){
+            item.value = e.mp.detail.value;
+            if(item.value!=''){
+                item.not =  false;
+            }
         },
         getSubmit(statusCode){
             try{
                 this.list.forEach(item=>{
+                    console.log(item)
                     if(item.value==''){
-                        wx.showToast({
-                            title:`请填写${item.Name}`,
-                            icon:"none",
-                            duration:2000
+                        this.animationData = {};
+                        item.not = true;
+                        wx.createSelectorQuery().select('#d'+item.SortNumber).boundingClientRect(function (rect) {
+                            console.log(rect,'======')
+                            // 使页面滚动到底部
+                            wx.pageScrollTo({
+                                scrollTop: rect.top - 20
+                            })
+                        }).exec();
+                        var animation = wx.createAnimation({
+                            duration: 400,
+                            timingFunction: 'linear',
                         })
+                        this.animation = animation
+                        animation.translate(10).step();
+                        this.animationData = animation.export()
+
+                        setTimeout(function() {
+                            animation.translate(0).step();
+                            this.animationData = animation.export()
+                        }.bind(this), 500)
+                        
+                        // wx.showToast({
+                        //     title:`请填写${item.Name}`,
+                        //     icon:"none",
+                        //     duration:2000
+                        // })
                         throw '';
                     }
                 })
@@ -180,7 +226,7 @@ export default {
                 }).then(res=>{
                     if(res.status===1){
                         message.toast({
-                            title:res.msg,
+                            title:"提交成功！",
                             delta:1
                         })
                     }
@@ -211,6 +257,15 @@ export default {
                     font-size: 33rpx;
                     font-weight: bold;
                     padding-bottom: 19rpx;
+                    span{
+                        font-size: 20rpx;
+                        color: #fff;
+                        display: inline-block;
+                        padding: 5rpx 10rpx;
+                        border-radius: 5rpx;
+                        margin-left: 10rpx;
+                        background: red;
+                    }
                 }
                 .content{
                     background: #fff;

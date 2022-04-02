@@ -42,7 +42,9 @@
                             <p class="progress">
                                 <span :style="{width:v.PercentOfResponse+'%',background:colorList[i]}"></span>
                             </p>
-                            
+                            <p style="padding-top:10rpx;">
+                                {{v.PercentOfResponse}} / {{Survey.NumOfInvitationsSent}}
+                            </p>
                         </van-radio>
                     </van-radio-group>
                 </div>

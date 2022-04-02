@@ -71,10 +71,10 @@ export default {
             },
             openid:state=>{
                 return state.loginUser.openid
-            },
-            sessionkey:state=>{
-                return state.loginUser.sessionkey
             }
+            // sessionkey:state=>{
+            //     return state.loginUser.sessionkey
+            // }
         })
     },
     onShow(){
