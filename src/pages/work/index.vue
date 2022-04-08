@@ -8,19 +8,9 @@
         </div> -->
         <div class="banner">
             <swiper :autoplay="true" interval="3000" :circular="true" :current="0" 	next-margin="20px" previous-margin="20px">
-                <swiper-item class="swiper_item">
+                <swiper-item class="swiper_item" v-for="(item,index) in banners" :key="index">
                     <div class="box">
-                        <image :src="pathUrl" mode="scaleToFill"></image>
-                    </div>
-                </swiper-item>
-                <swiper-item class="swiper_item">
-                    <div class="box">
-                        
-                    </div>
-                </swiper-item>
-                <swiper-item class="swiper_item">
-                    <div class="box">
-                        
+                        <image :src="pathUrl+item.ImageUrl" mode="scaleToFill"></image>
                     </div>
                 </swiper-item>
             </swiper>
@@ -115,25 +105,26 @@ export default {
             ],
             list:[],
             show:false,
-            pathUrl:"",
             sessionkey:"",
             organizationName:"",
             imgUrls:this.$api.photo.url,
             selectNavIndex:2,
             needButton:false,
             handButton:'',
-            btnText:''
+            btnText:'',
+            banners: []
         }
     },
     onLoad(){
         let sessionkey = wx.getStorageSync('sessionkey');
         this.sessionkey = sessionkey;
         this.organizationName = wx.getStorageSync('organizationName');
-        this.pathUrl = this.$api.pathUrl+'/img/banner/work_banner.png?'+ new Date().getTime();
+        // this.pathUrl = this.$api.pathUrl+'/img/banner/work_banner.png?'+ new Date().getTime();
         wx.setNavigationBarTitle({
             title: this.organizationName
         })
         // this.getBanner();
+        this.queryBannerList();
         this.getLatelyModule();
         this.getQuery();
     },
@@ -148,7 +139,10 @@ export default {
             sessionkey:state=>{
                 return state.loginUser.sessionkey
             }
-        })
+        }),
+        pathUrl(){
+            return this.$api.pathUrl;
+        }
     },
     methods:{
         // 组织架构
@@ -211,6 +205,17 @@ export default {
                 })
                 console.log(this.list,'list');
                 // this.list[0].showContent = true;
+            })
+        },
+        queryBannerList(){
+            this.$httpWX.get({
+                url: this.$api.message.queryList,
+                data: {
+                    method: this.$api.work.banners,
+                    SessionKey: this.sessionkey
+                }
+            }).then(res=>{
+                this.banners = res;
             })
         },
         getOpenDetail(index){
@@ -337,6 +342,9 @@ export default {
             }else if(item.id==3002000){
                 const url = '/pages/human/main';
                 wx.navigateTo({url:url});
+            }else if(item.id=="105") {
+                const url = '/pages/task/main';
+                wx.navigateTo({url:url});
             }
         },
         getOpenPhoto(){
@@ -386,9 +394,10 @@ export default {
                 .box{
                     border-radius: 20rpx;
                     height: 100% !important;
-                    background: #3399ff;
+                    // background: #3399ff;
                     overflow: hidden;
                     image{
+                        width: 100%;
                         border-radius: 20rpx;
                     }
                 }

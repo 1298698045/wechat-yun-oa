@@ -275,6 +275,14 @@
                 "personnelEntry/main",
                 "employeeRoster/detail/main"
             ]
+        },
+        {
+            "root":"pages/task",
+            "pages":[
+                "main",
+                "create_task/main",
+                "detail_task/main"
+            ]
         }
     ],
     "permission": {

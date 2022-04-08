@@ -79,7 +79,8 @@ const api = {
         banner: "app.banner.get",
         latelyModule: "app.recentmodule.getlist",
         upLatelyModule: "app.module.userecord",
-        modulesList: "app.modules.getlist"
+        modulesList: "app.modules.getlist",
+        banners: "app.banners.getlist"
     },
     // 上传
     upload: {
@@ -238,7 +239,17 @@ const api = {
     // 新闻
     journalism:{
         unread: 'content.unread.search', // 新闻未读
-        newQuery: 'content.search'
+        newQuery: 'content.search',
+        recommend: 'content.recommend.search', // 推荐
+    },
+    // 任务
+    task: {
+        list: "",
+        formLayout: "GlobalIssueCreateModalLoad",
+        create: "",
+        detail: "",
+        project: "LookupProjects", // 项目
+        users: "entity.lookup", // 用户
     }
 }
 export default api;

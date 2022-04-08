@@ -324,6 +324,8 @@ export default {
             let method = this.$api.journalism.newQuery;
             if(this.current_name == '未读'){
                 method = this.$api.journalism.unread;
+            }else if(this.current_name == '推荐'){
+                method = this.$api.journalism.recommend;
             }
             this.$httpWX.get({
                 url:this.$api.message.queryList,
