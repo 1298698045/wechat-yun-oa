@@ -28,6 +28,7 @@
     "fs": "0.0.1-security",
     "less": "^3.11.2",
     "less-loader": "^4.1.0",
+    "moment": "^2.29.2",
     "mpvue": "^2.0.0",
     "mpvue-calendar": "^2.3.7",
     "mpvue-wxparse": "^0.6.5",

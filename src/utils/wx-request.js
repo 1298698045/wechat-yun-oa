@@ -34,14 +34,17 @@ function request(url, method, data, header = {}, loadingOption = { loading: true
     } else {
         message.startLoading(loadingOption.v);
     }
+    if(JSON.stringify(header) == '{}'){
+        header = {
+            'content-type': 'application/x-www-form-urlencoded' // 默认值
+        }
+    }
     return new Promise((resolve, reject) => {
         wx.request({
             url: host + url, // 仅为示例，并非真实的接口地址
             method: method,
             data: data,
-            header: {
-                'content-type': 'application/x-www-form-urlencoded' // 默认值
-            },
+            header: header,
             success: function (res) {
                 // wx.hideLoading()
                 message.endLoading();
@@ -72,11 +75,11 @@ function request(url, method, data, header = {}, loadingOption = { loading: true
 }
 
 function get(obj) {
-    return request(obj.url, 'GET', obj.data, {}, obj.loadingOption)
+    return request(obj.url, 'GET', obj.data, obj.header, {}, obj.loadingOption)
 }
 
 function post(obj) {
-    return request(obj.url, 'POST', obj.data)
+    return request(obj.url, 'POST', obj.data, obj.header)
 }
 
 export default {

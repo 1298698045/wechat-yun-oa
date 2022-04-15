@@ -1,5 +1,9 @@
 <template>
     <div class="wrapper">
+        <div class="header">
+            <p class="cancel" @click="getBack">取消</p>
+            <p class="submit" @click="handleComplete">完成</p>
+        </div>
         <div class="container">
             <div class="form">
                 <div v-for="(item,index) in listData" :key="index">
@@ -7,6 +11,7 @@
                         <picker :value="projectIdx" range-key="name" :range="projectList" @change="function(val){changeProject(val,item)}">
                             <div class="row">
                                 <div class="l_label">
+                                    <span class="required" v-if="item.fieldConfig.isRequired">*</span>
                                     {{item.name}}
                                 </div>
                                 <div class="c_input">
@@ -20,13 +25,14 @@
                     </div>
                     <div class="cell" v-if="item.type=='text'">
                         <div class="richText">
-                            <textarea placeholder="请输入任务标题" @input="(e)=>{handleTextarea(e,item)}" v-model="item.value"  maxlength="200"></textarea>
+                            <textarea :placeholder="'请输入任务'+item.name" @input="(e)=>{handleTextarea(e,item)}" v-model="item.value"  maxlength="200"></textarea>
                         </div>
                     </div>
                     <div class="cell" v-if="item.type=='issuetype'">
                         <picker :value="item.idx" range-key="name" :range="item.issueTypes.nodes" @change="(e)=>{handlePickerType(e,item)}">
                             <div class="row">
                                 <div class="l_label">
+                                    <span class="required" v-if="item.fieldConfig.isRequired">*</span>
                                     {{item.name}}
                                 </div>
                                 <div class="c_input">
@@ -38,13 +44,14 @@
                             </div>
                         </picker>
                     </div>
-                    <div class="cell" v-if="item.type=='user'" @click="queryUsers(item)">
+                    <div class="cell" v-if="item.type=='user'" @click="queryUsers(item,index)">
                         <div class="row">
                             <div class="l_label">
+                                <span class="required" v-if="item.fieldConfig.isRequired">*</span>
                                 {{item.name}}
                             </div>
-                            <div class="c_input" @click="getOpenModal">
-                                <input type="text" placeholder="请选择" :disabled="true" :value="item.user.name" class="inp">
+                            <div class="c_input">
+                                <input type="text" placeholder="请选择" :disabled="true" :value="item.value.Name" class="inp">
                             </div>
                             <div class="r_icon">
                                 <van-icon name="arrow" color="#999" />
@@ -52,10 +59,25 @@
                         </div>
                     </div>
                     <div class="cell" v-if="item.type=='date'">
-                        <picker class="picker" mode="multiSelector" :value="item.multiIndex"  @change="((val)=>{bindMultiPickerChange(val,item)})"
+                        <!-- <picker class="picker" mode="multiSelector" :value="item.multiIndex"  @change="((val)=>{bindMultiPickerChange(val,item)})"
                         :range="newMultiArrayList">
                             <div class="row">
                                 <div class="l_label">
+                                    <span class="required" v-if="item.fieldConfig.isRequired">*</span>
+                                    {{item.name}}
+                                </div>
+                                <div class="c_input">
+                                    <input type="text" placeholder="请选择" :disabled="true" :value="item.value" class="inp">
+                                </div>
+                                <div class="r_icon">
+                                    <van-icon name="arrow" color="#999" />
+                                </div>
+                            </div>
+                        </picker> -->
+                        <picker class="picker" mode="date" :value="item.value"  @change="(e)=>{pickerStartTime(e,item)}">
+                            <div class="row">
+                                <div class="l_label">
+                                    <span class="required" v-if="item.fieldConfig.isRequired">*</span>
                                     {{item.name}}
                                 </div>
                                 <div class="c_input">
@@ -70,6 +92,7 @@
                     <div class="cell" v-if="item.type=='description'">
                         <div class="row">
                             <div class="l_label">
+                                <span class="required" v-if="item.fieldConfig.isRequired">*</span>
                                 {{item.name}}
                             </div>
                             <div class="c_input">
@@ -83,6 +106,7 @@
                     <div class="cell" v-if="item.type=='priority'">
                         <div class="row">
                             <div class="l_label">
+                                <span class="required" v-if="item.fieldConfig.isRequired">*</span>
                                 {{item.name}}
                             </div>
                             <div class="c_input" @click="handleOpenPriority(item,index)">
@@ -93,14 +117,33 @@
                             </div>
                         </div>
                     </div>
+                    <div class="upload" v-if="item.type=='attachment'">
+                        <div class="files">
+                            <div class="file" v-for="(v,idx) in files" :key="idx"  @click="handlePreviewFile(v)" >
+                                <div class="l_img">
+                                    <img :src="v.path" alt="">
+                                </div>
+                                <p class="name">{{v.path}}</p>
+                                <p class="size">{{v.new_size}}</p>
+                            </div>
+                        </div>
+                        <div class="row" @click="handleOpenFile(item,index)">
+                            <div class="left">
+                                <van-icon name="star-o" />
+                            </div>
+                            <div class="cen">
+                                添加附件
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
+        <!-- <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div class="btn">
                 <van-button type="info" block @click="handleComplete">完成</van-button>
             </div>
-        </div>
+        </div> -->
         <van-popup
             :show="isShow"
             position="bottom"
@@ -154,10 +197,30 @@
                 </div>
             </div>
         </van-popup>
+        <van-action-sheet
+            @select="handleSelectFile"
+            :show="isFileSheet"
+            :actions="fileActions"
+            cancel-text="取消"
+            close-on-click-action
+            @close="closeFileSheet"
+            @cancel="closeFileSheet"
+        />
+        <van-action-sheet
+            @select="handleSelectFileMore"
+            :show="isFileMore"
+            :actions="fileMoreActions"
+            cancel-text="取消"
+            close-on-click-action
+            @close="closeFileMore"
+            @cancel="closeFileMore"
+        />
     </div>
 </template>
 <script>
 import {newMultiArray} from '@/utils/multiArray';
+import {message} from '@/utils/message.js';
+import getOpenFiles from '@/utils/openFiles';
 export default {
     data() {
         return {
@@ -179,7 +242,7 @@ export default {
             color: ['#999','#3399ff','orange','red'],
             isShow:false,
             lksrch: "",
-            popupIdx: "",
+            popupIdx: -1,
             listData: [],
             projectList: [],
             projectIdx: 0,
@@ -188,10 +251,37 @@ export default {
             params:{
                 recordRep:{
                     objTypeCode: 4200,
-                    fields:{}
+                    fields:{
+                        ActivityTypeCode: 4212
+                    }
                 },
             },
-            recordLevel: ""
+            recordLevel: "",
+            userIdx: '',
+            files: [],
+            fileActions: [
+                {
+                    name: '上传图片'
+                },
+                {
+                    name: '上传会话文件'
+                }
+            ],
+            isFileSheet:false,
+            tempFiles: [],
+            tempFilePaths: [],
+            fileIndex: '',
+            id: '',
+            fileDetail:{},
+            isFileMore: false,
+            fileMoreActions:[
+                {
+                    name: '预览'
+                },
+                {
+                    name: '删除'
+                }
+            ],  
         }
     },
     computed:{
@@ -209,12 +299,16 @@ export default {
         }
     },
     onLoad(){
-        this.queryProject();
-        this.queryLayout();
+        Object.assign(this.$options.data(),this.data);
+        this.files = [];
+        this.queryProject().then(res=>{
+            this.queryLayout();
+        });
     },
     methods:{
-        queryProject(){
-            this.$httpWX.get({
+       async queryProject(){
+           let response
+           await this.$httpWX.get({
                 url:this.$api.message.queryList,
                 data:{
                     method: this.$api.task.project,
@@ -223,7 +317,9 @@ export default {
                 }
             }).then(res=>{
                 this.projectList = res.data.allProjects.nodes;
+                response = res;
             })
+            return response;
         },
         // 项目
         changeProject(val,item){
@@ -236,6 +332,7 @@ export default {
             console.log(this.params,'params')
         },
         handleTextarea(e,item){
+            item.value = e.mp.detail.value;
             this.params.recordRep.fields[item.fieldId] = item.value;
         },
         // 类型
@@ -247,7 +344,8 @@ export default {
         bindPickerChange(e,item){
 
         },
-        queryUsers(item){
+        queryUsers(item,index){
+            this.userIdx = index;
             this.$httpWX.get({
                 url:this.$api.message.queryList,
                 data:{
@@ -257,6 +355,7 @@ export default {
                 }
             }).then(res=>{
                 this.userList = res.listData;
+                this.isShow = true;
             })
         },
         queryLayout(){
@@ -271,14 +370,37 @@ export default {
                 this.listData = res.data.issueCreateFields.fields.nodes;
                 this.listData.forEach(item=>{
                     this.$set(item,'value','');
-                    if(item.type=='issuetype'){
+                    if(item.type==='project'){
+                        this.projectIdx = this.projectList.findIndex(v=>v.id===item.project.id);
+                        this.params.recordRep.fields[item.fieldId] = {
+                            Id: this.projectList[this.projectIdx].id,
+                            Name: this.projectList[this.projectIdx].name
+                        }
+                        item.value = {
+                            Id: this.projectList[this.projectIdx].id,
+                            Name: this.projectList[this.projectIdx].name
+                        }
+                    }
+                    if(item.type==='issuetype'){
                         this.$set(item,'idx',0)
+                        if(item.issueType.id){
+                            item.idx = item.issueTypes.nodes.findIndex(v=>v.id===item.issueType.id);
+                            this.params.recordRep.fields[item.fieldId] = item.issueType.id;
+                            item.value = item.issueType.id;
+                        }
                     }
                     if(item.type=='user' && item.fieldId=='CreatedBy'){
                         item.value = {
-                            name: item.user.name,
-                            id: item.user.id
+                            Name: item.user.name,
+                            Id: item.user.accountId
                         }
+                        this.params.recordRep.fields[item.fieldId] = item.value;
+                    }
+                    // 优先级
+                    if(item.type=='priority'){
+                        var idx = item.priorities.nodes.findIndex(v=>v.id==item.priority.id);
+                        item.value = item.priority.name;
+                        this.params.recordRep.fields[item.fieldId] = item.priority.id;
                     }
                 })
             })
@@ -287,6 +409,11 @@ export default {
             console.log(v,item)
             item.multiIndex = v.mp.detail.value;
             item.value = this.getCurrentTime(item.multiIndex);
+            this.params.recordRep.fields[item.fieldId] = item.value;
+        },
+        pickerStartTime(e,item){
+            console.log(e,item)
+            item.value = e.mp.detail.value;
             this.params.recordRep.fields[item.fieldId] = item.value;
         },
         getCurrentTime(index){
@@ -325,6 +452,15 @@ export default {
         // 选择人
         getPopupSel(item,index){
             this.popupIdx = index;
+            this.listData[this.userIdx].value = {
+                Id: item.ID,
+                Name: item.Name
+            }
+            this.params.recordRep.fields[this.listData[this.userIdx].fieldId] = {
+                Id: item.ID,
+                Name: item.Name
+            };
+            this.popupIdx = -1;
             this.isShow = false;
         },
         onClosePopup(){
@@ -342,22 +478,199 @@ export default {
         },
         // 完成
         handleComplete(){
-
+            console.log(this.params)
+            const params = {
+                params: this.params
+            }
+            this.listData.forEach(item=>{
+                if(item.fieldConfig.isRequired && item.type!=='attachment'){
+                    if(item.value==''){
+                        message.toast({
+                            title: '请填写'+item.name
+                        })
+                        throw new Error('请填写'+item.name);
+                    }
+                }
+            })
+            this.$httpWX.post({
+                url: this.$api.message.queryList,
+                data:{
+                    method: this.$api.task.create,
+                    SessionKey: this.sessionkey,
+                    message: JSON.stringify(params)
+                }
+            }).then(res=>{
+                console.log('res',res);
+                if(res.status*1===1){
+                    let id = res.recordRep.id;
+                    if(this.files.length>0){
+                        this.uploadFile(id);
+                    }else {
+                        message.toast({
+                            title: '创建成功',
+                            delta: 1
+                        })
+                    }
+                }
+            })
+        },
+        handleOpenFile(item,index){
+            this.fileIndex = index;
+            this.isFileSheet = true;
+        },
+        closeFileSheet(){
+            this.isFileSheet = false;
+        },
+        // 上传文件
+        handleSelectFile(e){
+            console.log(e)
+            let name = e.mp.detail.name;
+            if(name=='上传图片'){
+                this.uploadPhoto();
+            }else {
+                this.chooseMessageFile();
+            }
+        },
+        uploadPhoto(){
+            var that = this;
+            wx.chooseImage({
+                count: 1,
+                sizeType: ['original', 'compressed'],
+                sourceType: ['album', 'camera'],
+                success (res) {
+                    console.log(res);
+                    const tempFilePaths = res.tempFilePaths;
+                    const tempFiles = res.tempFiles;
+                    tempFiles.map(item=>{
+                        console.log(item, that)
+                        var new_size = that.fileSize(item.size);
+                        item.new_size = new_size;
+                        return item;
+                    })
+                    that.files = tempFiles;
+                    that.listData[that.fileIndex].value = tempFilePaths;
+                    that.tempFilePaths = tempFilePaths;
+                }
+            })
+        },
+        chooseMessageFile(){
+            var that = this;
+            wx.chooseMessageFile({
+                count:2,
+                type: 'file',
+                // extension: ['.xlsx', '.xls', '.XLSX', '.XLS', 'xlsx', 'xls', 'XLSX', 'XLS'],
+                success:res=>{
+                    console.log(res,'message');
+                    const tempFiles = res.tempFiles;
+                    that.files = that.files.concat(tempFiles);
+                }
+            })
+        },
+        fileSize(val){
+            if (!val) return "";
+            if (val < 102.4) {
+                return val + " B";
+            }
+            let num = val / 1024;
+            if (num > 1024) {
+                num = num / 1024;
+                return num.toFixed(2) + "MB";
+            } else {
+                return num.toFixed(2) + "KB";
+            }
+        },
+        uploadFile(id){
+            var that = this;
+            var len = 0;
+            for(var i in that.files){
+                len++
+                wx.uploadFile({
+                    url: that.$api.pathUrl+'/rest?method='+that.$api.task.upload+'&SessionKey='+that.sessionkey+'&pid='+id+'&ObjTypeCode='+4200,
+                    filePath: that.files[i].path,
+                    name: 'file',
+                    formData: {
+                        'file': that.files[i].path
+                    },
+                    success (res){
+                        console.log(res,'附件上传')
+                        if(len==tempFilePaths.length){
+                            const data = JSON.parse(res.data)
+                            if(data.actions[0].state=='SUCCESS'){
+                                message.toast({
+                                    title: '创建成功',
+                                    delta: 1
+                                })
+                            }
+                        }
+                        that.isFileSheet = false;
+                    }
+                })
+            }
+        },
+        handlePreviewFile(item,index){
+            this.fileIndex = index;
+            this.fileDetail = item;
+            this.isFileMore = true;
+        },
+        // 查看/删除文件
+        handleSelectFileMore(e){
+            let name = e.mp.detail.name;
+            if(name=='预览'){
+                const openImgs = JSON.stringify([this.fileDetail.path || this.fileDetail.link]);
+                this.fileDetail.fileExtension = this.fileDetail.fileExtension || 'png';
+                getOpenFiles(this.fileDetail,openImgs);
+                this.isFileMore = false;
+            }else if(name=='删除'){
+                this.deleteFile();
+            }
+        },
+        closeFileMore(){
+            this.isFileMore = false;
+        },
+        deleteFile(){
+            this.files.splice(this.fileIndex,1);
+            this.tempFilePaths.splice(this.fileIndex,1);
+            console.log(this.files, this.tempFilePaths);
+        },
+        getBack(){
+            wx.navigateBack({
+                delta: 1,
+            });
         }
     }
 }
 </script>
 <style lang="scss">
-    page{
-        background: #fff;
-    }
+    // page{
+    //     background: #fff;
+    // }
     .wrapper{
+        .header {
+            display: flex;
+            justify-content: space-between;
+            background: #fff;
+            padding: 32rpx 33rpx;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            z-index: 99999;
+            .cancel {
+                font-size: 34rpx;
+                color: #999999;
+            }
+            .submit {
+                font-size: 34rpx;
+                color: #3399ff;
+            }
+        }
         .container{
+            margin-top: 135rpx;
             .form{
                 .cell{
                     background: #fff;
                     border-bottom: 1rpx solid #e2e3e5;
                     padding: 0 20rpx;
+                    margin: 20rpx 0;
                     .row{
                         padding: 20rpx 0;
                         display: flex;
@@ -365,6 +678,9 @@ export default {
                         .l_label{
                             width: 130rpx;
                             color: #666;
+                            .required{
+                                color: red;
+                            }
                         }
                         .c_input{
                             flex: 1;
@@ -384,6 +700,54 @@ export default {
                             width: 100%;
                             height: 200rpx;
                             min-height: 200rpx;
+                        }
+                    }
+                }
+                .upload{
+                    margin: 20rpx 0;
+                    padding-left: 30rpx;
+                    background: #fff;
+                    .files{
+                        .file{
+                            display: flex;
+                            align-items: center;
+                            padding: 15rpx 0;
+                            border-bottom: 1rpx solid #e2e3e5;
+                            .l_img{
+                                width: 80rpx;
+                                height: 120rpx;
+                                img{
+                                    width: 100%;
+                                    height: 100%;
+                                    object-fit: cover;
+                                }
+                            }
+                            .name{
+                                flex: 1;
+                                margin-left: 20rpx;
+                                font-size: 28rpx;
+                                color: #333;
+                                overflow: hidden;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                            }
+                            .size{
+                                font-size: 28rpx;
+                                color: #666;
+                                padding:0 20rpx;
+                            }
+                        }
+                    }
+                    .row{
+                        padding: 20rpx 0;
+                        box-sizing: border-box;
+                        display: flex;
+                        justify-content: space-between;
+                        .cen{
+                            flex: 1;
+                            font-size: 32rpx;
+                            color: #3399ff;
+                            padding: 0 20rpx;
                         }
                     }
                 }
@@ -458,6 +822,7 @@ export default {
             background: #fff;
             border-top: 1rpx solid #e2e3e5;
             box-shadow: 0 3rpx 10rpx 0 rgba(0,0,0,.1);
+            z-index: 10;
             .btn{
                 padding: 20rpx;
             }

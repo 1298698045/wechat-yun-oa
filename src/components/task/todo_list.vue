@@ -1,29 +1,40 @@
 <template>
   <div class="todoList">
+    <i-tabs :current="current" @change="handleChangeTab">
+        <i-tab key="tab1" title="待办"></i-tab>
+        <i-tab key="tab2" title="已完成"></i-tab>
+    </i-tabs>    
     <div class="todolist_bd">
-      <div class="box">
-        <div class="left">
-          <checkbox></checkbox>
+      <div class="box" v-for="(item,index) in listData" :key="index" @click="handleRoute(item)">
+        <div class="left" @click.stop>
+          <img :src="imgUrl+item.IssueType.iconUrl" alt="">
+          <!-- <van-checkbox v-model="item.checked" shape="square" @change="(e)=>{changeCheckbox(e,item)}">
+          </van-checkbox> -->
         </div>
         <div class="right">
-          <p class="name">测试</p>
+          <p class="name">
+            <span class="title">
+              {{item.Subject.textValue}}
+            </span>
+            <span class="status"> 
+              {{item.StateCode.name}}
+            </span>
+          </p>
           <div class="desc">
             <p class="time">
               <van-icon name="completed" />
-              2022-01-02 - 2022-02-02
+              <!-- {{item.startTime || ''}}
+              <span v-if="item.startTime && item.endTime">~</span> -->
+              {{item.endTime || '暂无截止时间'}}
             </p>
-            <p class="project">
-              项目：空白项目
+            <p class="level" v-if="item.PriorityCode && item.PriorityCode.name">
+              {{item.PriorityCode.name}}
+              <img :src="imgUrl+item.PriorityCode.iconUrl" alt="">
             </p>
           </div>
-        </div>
-      </div>
-      <div class="box">
-        <div class="left">
-          <checkbox></checkbox>
-        </div>
-        <div class="right">
-          <p class="name">测试</p>
+          <p class="project_name">
+            项目：{{item.RegardingObjectId.lookupValue.displayName || ''}}
+          </p>
         </div>
       </div>
     </div>
@@ -37,17 +48,162 @@
   </div>
 </template>
 <script>
+var moment = require('moment');
 export default {
   name: "todoList",
   props: ['isModelmes'],
   data() {
-    return {};
+    return {
+      listData: [],
+      pageNumber: 1,
+      pageSize: 10,
+      isPage: false,
+      current: 'tab1',
+      tag: 'neq'
+    };
+  },
+  computed:{
+    sessionkey(){
+      return wx.getStorageSync('sessionkey');
+    },
+    userId(){
+      return wx.getStorageSync('userId');
+    },
+    year(){
+      return new Date().getFullYear();
+    },
+    imgUrl(){
+      return "https://wx.phxinfo.com.cn/static/img";
+    }
+  },
+  onLoad(){
+    this.getQuery(this.tag);
+  },
+  onShow(){
+    
   },
   methods:{
+    handleChangeTab(e){
+      this.current = e.mp.detail.key;
+      if(this.current=='tab1'){
+        this.tag = 'neq';
+        this.getQuery(this.tag);
+      }else{
+        this.tag = 'eq';
+        this.getQuery(this.tag)
+      }
+    },
+      getQuery(str){
+        var filterQuery ='OwningUser\teq-userid'
+        filterQuery+='\n';
+        if(str=='eq'){
+          filterQuery += 'StatusCategoryId\teq\t3'
+        }else {
+          filterQuery+='StateCode\t'+str+'\t'+10050
+        }
+        let data = '\r\n--XXX';
+        data += '\r\nContent-Disposition: form-data; name="filterQuery"'+
+                '\r\n'+
+                '\r\n'+filterQuery+
+                '\r\n--XXX' 
+        data+=
+					'\r\nContent-Disposition: form-data; name="method"'+
+					'\r\n'+
+					'\r\n'+this.$api.task.list+
+					'\r\n--XXX';
+        data+=
+					'\r\nContent-Disposition: form-data; name="SessionKey"'+
+					'\r\n'+
+					'\r\n'+this.sessionkey+
+					'\r\n--XXX';
+        data+=
+					'\r\nContent-Disposition: form-data; name="pageSize"'+
+					'\r\n'+
+					'\r\n'+this.pageSize+
+					'\r\n--XXX';
+        data+=
+					'\r\nContent-Disposition: form-data; name="pageNumber"'+
+					'\r\n'+
+					'\r\n'+this.pageNumber+
+					'\r\n--XXX';
+        data+=
+					'\r\nContent-Disposition: form-data; name="objectTypeCode"'+
+					'\r\n'+
+					'\r\n'+4200+
+					'\r\n--XXX';
+				data += '--';
+        this.$httpWX.post({
+          url: this.$api.message.queryList,
+          header: {
+            'content-type': 'multipart/form-data; boundary=XXX'
+          },
+          data: data,
+        }).then(res=>{
+          let total = res.data.totalCount;
+          if(this.pageNumber*this.pageSize < total){
+            this.isPage = true;
+          }else {
+            this.isPage = false;
+          }
+          let result = [];
+          if(this.pageNumber === 1){
+            result = res.data.issues.nodes;
+          }else {
+            result = this.listData.concat(res.data.issues.nodes);
+          }
+          this.listData = result;
+          this.listData.forEach(item=>{
+            this.$set(item,'checked',false)
+            // if(item.ScheduledStart.dateTime){
+            //   let startYear = moment(item.ScheduledStart.dateTime).format('YYYY');
+            //   var startTime = moment(item.ScheduledStart.dateTime).format('YYYY-MM-DD');
+            //   if(startYear == this.year){
+            //     console.log('item.ScheduledStart.dateTime',item.ScheduledStart.dateTime)
+            //     startTime = moment(item.ScheduledStart.dateTime).format('MM-DD');
+            //   }
+            //   this.$set(item,'startTime',startTime);
+            // }
+            if(item.ScheduledEnd.dateTime){
+              let endYear = moment(item.ScheduledEnd.dateTime).format('YYYY');
+              var endTime = moment(item.ScheduledEnd.dateTime).format('YYYYMMDD');
+              if(endYear == this.year){
+                endTime = moment(item.ScheduledEnd.dateTime).format('MM-DD');
+                this.$set(item,'endTime',endTime);
+              }
+            }
+          })
+        })
+      },
+      changeCheckbox(e,item){
+        console.log(e,item);
+        var checkbox = e.mp.detail;
+        item.checked = checkbox;
+      },
       handleAddTask(){
           wx.navigateTo({
-              url: '/pages/task/create_task/main'
+            url: '/pages/task/create_task/main'
           })
+      },
+      handleRoute(item){
+        wx.navigateTo({
+          url: '/pages/task/detail_task/main?id='+item.id
+        })
+      }
+  },
+  // 下拉刷新
+  onPullDownRefresh() {
+      // this.current_scroll = '推荐';
+      this.pageNumber = 1;
+      this.getQuery(this.tag);
+      wx.stopPullDownRefresh();
+  },
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom() {
+      if(this.isPage){
+          this.pageNumber++;
+          this.getQuery(this.tag);
       }
   }
 };
@@ -106,23 +262,51 @@ export default {
           margin-top: 20rpx;
           display: flex;
           .left{
-
+            width: 50rpx;
+            height: 50rpx;
+            img{
+              width: 100%;
+              height: 100%;
+            }
           }
           .right{
             padding-left: 20rpx;
+            flex: 1;
             .name{
               font-size: 32rpx;
               color: #333;
               font-weight: bold;
+              display: flex;
+              justify-content: space-between;
+              .title{
+                width: 80%;
+              }
+              .status{
+                color: #333;
+                font-weight: initial;
+                font-size: 28rpx;
+              }
             }
             .desc{
               padding-top: 15rpx;
               display: flex;
+              justify-content: space-between;
               font-size: 24rpx;
               color: #666666;
-              .project{
-                padding-left: 15rpx;
+              .level{
+                margin-left: 15rpx;
+                img{
+                  width: 30rpx;
+                  height: 30rpx;
+                  object-fit: cover;
+                  margin-left: 10rpx;
+                  vertical-align: middle;
+                }
               }
+            }
+            .project_name{
+              font-size: 24rpx;
+              color: #666666;
             }
           }
         }
