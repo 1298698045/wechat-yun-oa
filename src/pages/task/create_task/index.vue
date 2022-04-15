@@ -593,7 +593,7 @@ export default {
                     },
                     success (res){
                         console.log(res,'附件上传')
-                        if(len==tempFilePaths.length){
+                        if(len==that.files.length){
                             const data = JSON.parse(res.data)
                             if(data.actions[0].state=='SUCCESS'){
                                 message.toast({
