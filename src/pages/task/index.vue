@@ -1,18 +1,28 @@
 <template>
     <div class="wrapper">
         <todoList ref="todoList" v-if="current=='tab1'" :isModelmes="isModelmes" />
+        <calendarTask v-if="current=='tab2'" />
         <div class="project" v-if="current=='tab3'">
-            <div class="cell" v-for="(item,index) in projectList" :key="index">
+            <div class="cell" v-for="(item,index) in projectList" :key="index" @click="handleDetail(item)">
                 <div class="l_img">
                     <img :src="pathUrl+item.AvatarUrl" alt="">
                 </div>
                 <div class="name">
                     {{item.Name}}
                 </div>
-                <div class="more">
+                <div class="more" @click.stop="handleProjectMore(item)">
                     <van-icon name="ellipsis" />
                 </div>
             </div>
+            <van-action-sheet
+                @select="handleSelect"
+                :show="isProject"
+                :actions="actions"
+                cancel-text="取消"
+                close-on-click-action
+                @close="onCancelSheet"
+                @cancel="onCancelSheet"
+            />
         </div>
         <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div>
@@ -27,24 +37,33 @@
 </template>
 <script>
 import todoList from '@/components/task/todo_list.vue';
+import calendarTask from '@/components/task/calendar_task.vue';
 export default {
     components:{
-        todoList
+        todoList,
+        calendarTask
     },
     data() {
         return {
             current:"tab1",
-            projectList: []
+            projectList: [],
+            projectId: '',
+            isProject: false,
+            actions: [
+                { name: '删除' }
+            ]
         }
     },
     onLoad(){
-        Object.assign(this.$options.data(),this.data);
+        Object.assign(this.$data,this.$options.data());
     },
     onShow(){
-        this.$refs.todoList.pageNumber = 1;
-        this.$refs.todoList.current = 'tab1';
-        this.$refs.todoList.tag = 'neq'
-        this.$refs.todoList.getQuery('neq');
+        if(this.$refs.todoList){
+            this.$refs.todoList.pageNumber = 1;
+            this.$refs.todoList.current = 'tab1';
+            this.$refs.todoList.tag = 'neq'
+            this.$refs.todoList.getQuery('neq');
+        }
     },
     computed:{
         isModelmes(){
@@ -77,22 +96,58 @@ export default {
             }).then(res=>{
                 this.projectList = res.rows;
             })
+        },
+        handleProjectMore(item){
+            this.projectId = item.ProjectId;
+            this.isProject = true;
+        },
+        onCancelSheet(){
+            this.isProject = false;
+        },
+        handleSelect(e){
+            const name = e.mp.detail.name;
+            if(name=='删除'){
+                this.deleteProject();
+            }
+        },
+        deleteProject(){
+            this.$httpWX.get({
+                url: this.$api.message.queryList,
+                data:{
+                    method: this.$api.task.delete,
+                    SessionKey: this.sessionkey,
+                    objTypeCode: 20290,
+                    id: this.projectId
+                }
+            }).then(res=>{
+                console.log(res);
+                this.getProject();
+            })
+        },
+        handleDetail(item){
+            wx.navigateTo({
+                url:'/pages/task/panel_task/main?projectId='+item.ProjectId
+            })
         }
     }
 }
 </script>
 <style lang="scss">
+@import url('../../../static/css/task.css');
     .wrapper{
         padding-bottom: 160rpx;
         .project{
             margin: 30rpx 0;
-            background: #fff;
             padding-left: 20rpx;
+            padding: 0 20rpx;
             .cell{
                 display: flex;
                 align-items: center;
                 padding: 20rpx 20rpx 20rpx;
                 border-bottom: 1rpx solid #e2e3e5;
+                background: #fff;
+                margin-bottom: 20rpx;
+                border-radius: 15rpx;
                 .l_img{
                     width: 40rpx;
                     height: 40rpx;
@@ -115,5 +170,6 @@ export default {
         position: fixed;
         bottom: 0;
         background: #fff;
+        z-index: 10;
     }
 </style>

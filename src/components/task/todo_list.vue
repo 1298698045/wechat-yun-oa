@@ -3,6 +3,7 @@
     <i-tabs :current="current" @change="handleChangeTab">
         <i-tab key="tab1" title="待办"></i-tab>
         <i-tab key="tab2" title="已完成"></i-tab>
+        <i-tab key="tab3" title="我创建的"></i-tab>
     </i-tabs>    
     <div class="todolist_bd">
       <div class="box" v-for="(item,index) in listData" :key="index" @click="handleRoute(item)">
@@ -21,8 +22,8 @@
             </span>
           </p>
           <div class="desc">
-            <p class="time">
-              <van-icon name="completed" />
+            <p class="time" :class="{'active':currentTimer>item.timer && item.endTime}">
+              <i class="iconfont icon-jiezhi"></i>
               <!-- {{item.startTime || ''}}
               <span v-if="item.startTime && item.endTime">~</span> -->
               {{item.endTime || '暂无截止时间'}}
@@ -33,6 +34,7 @@
             </p>
           </div>
           <p class="project_name">
+            <i class="iconfont icon-fenzu"></i>
             项目：{{item.RegardingObjectId.lookupValue.displayName || ''}}
           </p>
         </div>
@@ -74,32 +76,45 @@ export default {
     },
     imgUrl(){
       return "https://wx.phxinfo.com.cn/static/img";
+    },
+    currentTimer(){
+      return new Date().getTime();
     }
   },
   onLoad(){
-    this.getQuery(this.tag);
+    console.log(this.currentTimer,'currentTimer')
+    this.getQuery();
   },
   onShow(){
     
   },
   methods:{
+    getTimer(str){
+      return new Date(str).getTime();
+    },
     handleChangeTab(e){
       this.current = e.mp.detail.key;
       if(this.current=='tab1'){
         this.tag = 'neq';
-        this.getQuery(this.tag);
-      }else{
+        this.getQuery();
+      }else if(this.current == 'tab2'){
         this.tag = 'eq';
-        this.getQuery(this.tag)
+        this.getQuery()
+      }else if(this.current == 'tab3'){
+        this.tag = '';
+        this.getQuery()
       }
     },
-      getQuery(str){
-        var filterQuery ='OwningUser\teq-userid'
+      getQuery(){
+        var filterQuery = 'OwningUser\teq-userid'
+        if(this.current == 'tab3'){
+          filterQuery = 'CreatedBy\teq-userid'
+        }
         filterQuery+='\n';
-        if(str=='eq'){
+        if(this.tag=='eq'){
           filterQuery += 'StatusCategoryId\teq\t3'
-        }else {
-          filterQuery+='StateCode\t'+str+'\t'+10050
+        }else if(this.tag == 'neq'){
+          filterQuery+='StateCode\t'+this.tag+'\t'+10050
         }
         let data = '\r\n--XXX';
         data += '\r\nContent-Disposition: form-data; name="filterQuery"'+
@@ -170,6 +185,7 @@ export default {
                 endTime = moment(item.ScheduledEnd.dateTime).format('MM-DD');
                 this.$set(item,'endTime',endTime);
               }
+              this.$set(item,'timer',this.getTimer(item.ScheduledEnd.dateTime))
             }
           })
         })
@@ -186,7 +202,7 @@ export default {
       },
       handleRoute(item){
         wx.navigateTo({
-          url: '/pages/task/detail_task/main?id='+item.id
+          url: '/pages/task/detail_task/main?id='+item.id + '&projectId='+item.RegardingObjectId.lookupValue.value
         })
       }
   },
@@ -194,7 +210,7 @@ export default {
   onPullDownRefresh() {
       // this.current_scroll = '推荐';
       this.pageNumber = 1;
-      this.getQuery(this.tag);
+      this.getQuery();
       wx.stopPullDownRefresh();
   },
   /**
@@ -203,7 +219,7 @@ export default {
   onReachBottom() {
       if(this.isPage){
           this.pageNumber++;
-          this.getQuery(this.tag);
+          this.getQuery();
       }
   }
 };
@@ -288,11 +304,21 @@ export default {
               }
             }
             .desc{
-              padding-top: 15rpx;
+              padding: 15rpx 0;
               display: flex;
               justify-content: space-between;
               font-size: 24rpx;
               color: #666666;
+              .time{
+                display: flex;
+                align-items: center;
+                i{
+                  padding-right: 15rpx;
+                }
+              }
+              .time.active{
+                color: red;
+              }
               .level{
                 margin-left: 15rpx;
                 img{
@@ -307,6 +333,11 @@ export default {
             .project_name{
               font-size: 24rpx;
               color: #666666;
+              display: flex;
+              align-items: center;
+              i{
+                padding-right: 15rpx;
+              }
             }
           }
         }

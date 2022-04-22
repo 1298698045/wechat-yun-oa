@@ -281,7 +281,8 @@
             "pages":[
                 "main",
                 "create_task/main",
-                "detail_task/main"
+                "detail_task/main",
+                "panel_task/main"
             ]
         }
     ],

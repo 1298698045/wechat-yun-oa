@@ -14,7 +14,7 @@
                     <picker :value="StateCodeIdx" range-key="name" :range="statusList" @change="pickerStatus">
                         <div class="row">
                             <div class="left">
-                                <van-icon name="star-o" />
+                                <i class="iconfont icon-zhuangtai"></i>
                             </div>
                             <div class="cen" >
                                 状态：{{detail.StateCode && detail.StateCode.name || ''}}
@@ -26,7 +26,7 @@
                     </picker>
                     <div class="row" @click="queryUsers">
                         <div class="left">
-                            <van-icon name="star-o" />
+                            <i class="iconfont icon-canyuren"></i>
                         </div>
                         <div class="cen">
                             {{detail.CreatedBy && detail.CreatedBy.Name || '设置执行者'}}
@@ -38,7 +38,7 @@
                     <picker class="picker" mode="date" :value="detail.ScheduledStart"  @change="pickerStartTime">
                         <div class="row">
                             <div class="left">
-                                <van-icon name="star-o" />
+                                <i class="iconfont icon-kaishi1"></i>
                             </div>
                             <div class="cen" >
                                 {{detail.ScheduledStart || ''}} 开始
@@ -51,7 +51,7 @@
                     <picker class="picker" mode="date" :value="detail.ScheduledEnd"  @change="pickerEndTime">
                         <div class="row">
                             <div class="left">
-                                <van-icon name="star-o" />
+                                <i class="iconfont icon-jiezhi"></i>
                             </div>
                             <div class="cen">
                                 {{detail.ScheduledEnd || ''}} 截止
@@ -61,20 +61,22 @@
                             </div>
                         </div>
                     </picker>
-                    <div class="row">
-                        <div class="left">
-                            <van-icon name="star-o" />
+                    <picker :value="projectIdx" range-key="Name" :range="projectList" @change="pickerProject">
+                        <div class="row">
+                            <div class="left" v-if="projectList[projectIdx]">
+                                <img :src="pathUrl+projectList[projectIdx].AvatarUrl" alt="">
+                            </div>
+                            <div class="cen">
+                                {{projectList[projectIdx] && projectList[projectIdx].Name}} · {{detail.StateCode && detail.StateCode.name || ''}}
+                            </div>
+                            <div class="right">
+                                <van-icon name="arrow" />
+                            </div>
                         </div>
-                        <div class="cen">
-                            空白项目 · 默认分组 · 待处理
-                        </div>
-                        <div class="right">
-                            <van-icon name="arrow" />
-                        </div>
-                    </div>
+                    </picker>
                     <div class="row" @click="handleOpenDesc">
                         <div class="left">
-                            <van-icon name="star-o" />
+                            <i class="iconfont icon-beizhu"></i>
                         </div>
                         <div class="cen">
                             <rich-text type="text" :nodes="detail.Description"></rich-text>
@@ -84,8 +86,8 @@
                         </div>
                     </div>
                     <div class="row" @click="handleOpenLevel">
-                        <div class="left">
-                            <van-icon name="star-o" />
+                        <div class="left" v-if="detail.PriorityCode">
+                            <img :src="imgUrl+detail.PriorityCode.iconUrl" alt="">
                         </div>
                         <div class="cen">
                             {{detail.PriorityCode && detail.PriorityCode.name || ''}}
@@ -94,15 +96,28 @@
                             <van-icon name="arrow" />
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="left">
-                            <van-icon name="star-o" />
+                    <div class="children_task">
+                        <div class="row child" v-for="(item,index) in childTaskList" :key="index" @click="handleDetail(item)">
+                            <div class="left">
+                                <i class="iconfont icon-zirenwu"></i>
+                            </div>
+                            <div class="cen">
+                                {{item.Subject || ''}} {{item.OwningUser.displayName || '未指派'}}
+                            </div>
+                            <div class="right" @click="handleMore('childTask',item)">
+                                <van-icon name="ellipsis" />
+                            </div>
                         </div>
-                        <div class="cen">
-                            添加子任务
-                        </div>
-                        <div class="right">
-                            <van-icon name="arrow" color="#fff" />
+                        <div class="row" @click="handleAddChildTask">
+                            <div class="left">
+                                <i class="iconfont icon-zirenwu"></i>
+                            </div>
+                            <div class="cen" style="color:#3399ff">
+                                添加子任务
+                            </div>
+                            <div class="right">
+                                <van-icon name="arrow" color="#fff" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -121,7 +136,7 @@
             </div>
             <div class="row" @click="handleOpenFile">
                 <div class="left">
-                    <van-icon name="star-o" />
+                    <i class="iconfont icon-tianjiafujian"></i>
                 </div>
                 <div class="cen">
                     添加附件
@@ -136,7 +151,7 @@
             <div class="history" v-if="current=='tab1'">
                 <div class="cell">
                     <div class="icon">
-                        <van-icon name="star-o" />
+                        <i class="iconfont icon-canyuren"></i>
                     </div>
                     <div class="right_info">
                         <p class="name">
@@ -194,7 +209,7 @@
                     <van-icon name="share"  color="#3399ff" size="20" />
                     分享
                 </button>
-                <p class="btn" @click="handleMore">
+                <p class="btn" @click="handleMore('task')">
                     <van-icon name="ellipsis" color="#3399ff" size="20" />
                     更多
                 </p>
@@ -367,6 +382,12 @@ export default {
             ],
             fileDetail: {}, // 预览的文件
             CommentType: 2,
+            projectId: '',
+            childTaskList: [],
+            tag: 'task',
+            childrenId: '',
+            projectIdx: '',
+            projectList:[]
         }
     },
     computed:{
@@ -384,21 +405,42 @@ export default {
         },
         newMultiArrayList(){
             return newMultiArray();
+        },
+        pathUrl(){
+            return "https://wx.phxinfo.com.cn";
         }
     },
     onLoad(options){
+        Object.assign(this.$data,this.$options.data());
         this.id = options.id;
         this.params.recordRep.id = this.id;
+        this.projectId = options.projectId;
         this.height = wx.getSystemInfoSync().windowHeight;
-        this.getDetail();
-        this.getFilesList();
-        this.queryCommentList();
+        // this.getDetail().then(res=>{
+        //     this.getChildTaskList();
+        // });
+        // this.getFilesList();
+        // this.queryCommentList();
     },
     onShow(){
+        const pages = getCurrentPages();
+        const currPage = pages[pages.length-1]
+        if(currPage.options.id != undefined){
+            this.id = currPage.options.id;
+        }else {
+            currPage.id = this.id;
+        }
         wx.onKeyboardHeightChange(res => { //监听键盘高度变化
             console.log(res.height,'res');
             this.keyboardHeight = res.height;
         })
+        this.getDetail().then(res=>{
+            this.getChildTaskList();
+        });
+        this.getProjectList();
+        this.getFilesList();
+        this.queryCommentList();
+
     },
     watch:{
         detail:{
@@ -410,8 +452,29 @@ export default {
         }
     },
     methods:{
-        getDetail(){
-          this.$httpWX.get({
+        getProjectList(){
+            this.$httpWX.get({
+                url:this.$api.message.queryList,
+                data:{
+                    method: this.$api.task.projectAll,
+                    SessionKey: this.sessionkey
+                }
+            }).then(res=>{
+                this.projectList = res.rows;
+                this.projectIdx = this.projectList.findIndex(item=>item.ProjectId==this.projectId);
+            })
+        },
+        pickerProject(e){
+            this.projectIdx = e.mp.detail.value;
+            this.projectId = this.projectList[this.projectIdx].ProjectId;
+            this.getSaveData('RegardingObjectId',{
+                Id: this.projectId,
+                Name: this.projectList[this.projectIdx].Name
+            })
+        },
+       async getDetail(){
+        let response
+         await this.$httpWX.get({
               url:this.$api.message.queryList,
               data:{
                   method: this.$api.task.detail,
@@ -430,7 +493,8 @@ export default {
                 }else if(item.key=='PriorityCode'){
                     this.detail[item.key] = {
                         name:item.content.name,
-                        id:item.content.id
+                        id:item.content.id,
+                        iconUrl: item.content.iconUrl
                     };
                     this.levels = item.priorities.nodes;
                 }else if(item.key=='RegardingObjectId'){
@@ -454,7 +518,46 @@ export default {
                     this.desc = item.content;
                 }
               })
+              response = res;
           })
+          return response;
+        },
+        getChildTaskList(){
+            var filterQuery = "\nStatusCategoryId\tneq\t3"
+            let params = {
+                actions: [
+                    {
+                        params: {
+                            projectId: this.RegardingObjectId,
+                            parent: this.id,
+                            filterQuery: filterQuery,
+                            sort: '',
+                            order: ''
+                        }
+                    }
+                ]
+            }
+            this.$httpWX.get({
+                url: this.$api.message.queryList,
+                data:{
+                    method:this.$api.task.childrenTask,
+                    SessionKey: this.sessionkey,
+                    message: JSON.stringify(params)
+                }
+            }).then(res=>{
+                console.log('123123213', res.data.list.nodes);
+                this.childTaskList = res.data.list.nodes;
+                this.childTaskList.forEach(item=>{
+                    item.fields.forEach(v=>{
+                        if(v.fieldKey=='Subject'){
+                            this.$set(item,v.fieldKey,v.textValue)
+                        }else if(v.fieldKey=='OwningUser'){
+                            this.$set(item,v.fieldKey,v.userValue)
+                        }
+                    })
+                })
+                console.log(this.childTaskList,'childrenTask')
+            })
         },
         handleChangeTab(e){
             this.current = e.mp.detail.key;
@@ -509,7 +612,8 @@ export default {
                 data:{
                     method: this.$api.task.users,
                     SessionKey: this.sessionkey,
-                    Lktp: 8
+                    Lktp: 8,
+                    projectId: this.RegardingObjectId
                 }
             }).then(res=>{
                 this.userList = res.listData;
@@ -636,8 +740,16 @@ export default {
                 })
             })
         },
-        handleMore(){
+        handleMore(tag,item = {}){
+            this.tag = tag;
+            this.childrenId = item.id;
             this.isSheet = true;
+        },
+        handleDetail(item){
+            this.childrenId = item.id;
+            wx.navigateTo({
+                url:'/pages/task/detail_task/main?id='+item.id
+            })
         },
         handleSelect(e){
             console.log(e);
@@ -684,6 +796,9 @@ export default {
                 this.isFileMore = false;
                 this.getFilesList();
             })
+        },
+        onClosePopup(){
+            this.isShow =  false;
         },
         closeFileMore(){
             this.isFileMore = false;
@@ -805,23 +920,46 @@ export default {
             this.isFileSheet = false;
         },
         deleteTask(){
+            let id = this.id;
+            if(this.tag == 'childTask'){
+                id = this.childrenId;
+            }
             this.$httpWX.get({
                 url:this.$api.message.queryList,
                 data:{
                     method: this.$api.task.delete,
                     SessionKey: this.sessionkey,
                     objTypeCode: 4200,
-                    id: this.id
+                    id: id
                 }
             }).then(res=>{
-                console.log(res);
                 this.isSheet = false;
                 if(res.actions[0].state=='SUCCESS'){
-                    message.toast({
-                        title: '删除成功',
-                        delta: 1
-                    })
+                    if(this.tag=='task'){
+                        message.toast({
+                            title: '删除成功',
+                            delta: 1
+                        })
+                    }else if(this.tag=='childTask'){
+                        message.toast({
+                            title: '删除成功',
+                            delta: 0,
+                            success:res=>{
+                                setTimeout(()=>{
+                                    this.getDetail().then(res=>{
+                                        this.getChildTaskList();    
+                                    })
+                                },500)
+                            }
+                        })
+                    }
                 }
+            })
+        },
+        // 添加子任务
+        handleAddChildTask(){
+            wx.navigateTo({
+                url: '/pages/task/create_task/main?id='+this.id
             })
         }
     },
@@ -835,21 +973,23 @@ export default {
         // })
         return {
             title: '分享给好友',
-            path: 'pages/task/detail_task/main?id='+this.id
+            path: 'pages/task/detail_task/main?id='+this.id+'&projectId='+this.projectId
         }
     }
 }
 </script>
 <style lang="scss">
+@import url('../../../../static/css/task.css');
     .wrapper{
         padding-bottom: 100px;
     }
     .bd{
-        background: #fff;
+        // background: #fff;
         .header{
             padding: 20rpx 30rpx;
             display: flex;
             align-items: center;
+            background: #fff;
             .IssueType{
                 width: 40rpx;
                 height: 40rpx;
@@ -872,6 +1012,13 @@ export default {
                     display: flex;
                     justify-content: space-between;
                     // align-items: center;
+                    background: #fff;
+                    .left{
+                        img{
+                            width: 40rpx;
+                            height: 40rpx;
+                        }
+                    }
                     .cen{
                         flex: 1;
                         font-size: 28rpx;
@@ -879,6 +1026,12 @@ export default {
                         padding: 0 20rpx;
                     }
                 }
+                .child{
+                    border-bottom: 1rpx solid #e2e3e5;
+                }
+            }
+            .children_task{
+                margin-top: 20rpx;
             }
         }
     }

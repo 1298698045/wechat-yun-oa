@@ -249,13 +249,17 @@ const api = {
         create: "entity.saverecord",
         detail: "IssueDataGet",
         project: "LookupProjects", // 项目
-        users: "entity.lookup", // 用户
+        // users: "entity.lookup", // 用户
+        users: "ProjectMemberLoad",
         sendComment: "entity.saverecord", // 评论
         commentList: "project.comment.getlist", // 评论列表
         delete: "entity.delete",
         upload: "file.attachment.upload", // 上传文件
         deleteFile: "file.attachment.delete",
-        projectAll: "project.mine.search"
+        projectAll: "project.mine.search",
+        childrenTask: "BusinessListViewItems", // 子任务列表
+        calendarTask: "BusinessCalendarViewPaginatedItems", // 日历列表
+        panelList: "project.task.getlist", // 面板列表
     }
 }
 export default api;

@@ -12,6 +12,7 @@
                             <div class="row">
                                 <div class="l_label">
                                     <span class="required" v-if="item.fieldConfig.isRequired">*</span>
+                                    <i class="iconfont icon-fenzu"></i>
                                     {{item.name}}
                                 </div>
                                 <div class="c_input">
@@ -33,6 +34,7 @@
                             <div class="row">
                                 <div class="l_label">
                                     <span class="required" v-if="item.fieldConfig.isRequired">*</span>
+                                    <img :src="imgUrl+item.issueTypes.nodes[item.idx].iconUrl" alt="">
                                     {{item.name}}
                                 </div>
                                 <div class="c_input">
@@ -48,6 +50,7 @@
                         <div class="row">
                             <div class="l_label">
                                 <span class="required" v-if="item.fieldConfig.isRequired">*</span>
+                                <i class="iconfont icon-canyuren"></i>
                                 {{item.name}}
                             </div>
                             <div class="c_input">
@@ -78,6 +81,8 @@
                             <div class="row">
                                 <div class="l_label">
                                     <span class="required" v-if="item.fieldConfig.isRequired">*</span>
+                                    <i class="iconfont icon-kaishi1" v-if="item.fieldId=='ScheduledStart'"></i>
+                                    <i class="iconfont icon-jiezhi" v-else></i>
                                     {{item.name}}
                                 </div>
                                 <div class="c_input">
@@ -90,9 +95,10 @@
                         </picker>
                     </div>
                     <div class="cell" v-if="item.type=='description'">
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="l_label">
                                 <span class="required" v-if="item.fieldConfig.isRequired">*</span>
+                                <i class="iconfont icon-beizhu"></i>
                                 {{item.name}}
                             </div>
                             <div class="c_input">
@@ -101,12 +107,16 @@
                             <div class="r_icon">
                                 <van-icon name="arrow" color="#fff" />
                             </div>
+                        </div> -->
+                        <div class="richText">
+                            <textarea :placeholder="'请输入'+item.name" @input="(e)=>{handleTextarea(e,item)}" v-model="item.value"  maxlength="200"></textarea>
                         </div>
                     </div>
                     <div class="cell" v-if="item.type=='priority'">
                         <div class="row">
                             <div class="l_label">
                                 <span class="required" v-if="item.fieldConfig.isRequired">*</span>
+                                <img :src="imgUrl+item.priorities.nodes[item.idx].iconUrl" alt="">
                                 {{item.name}}
                             </div>
                             <div class="c_input" @click="handleOpenPriority(item,index)">
@@ -129,7 +139,7 @@
                         </div>
                         <div class="row" @click="handleOpenFile(item,index)">
                             <div class="left">
-                                <van-icon name="star-o" />
+                                <i class="iconfont icon-tianjiafujian"></i>
                             </div>
                             <div class="cen">
                                 添加附件
@@ -252,7 +262,10 @@ export default {
                 recordRep:{
                     objTypeCode: 4200,
                     fields:{
-                        ActivityTypeCode: 4212
+                        ActivityTypeCode: 4212,
+                        ListId: {
+                            Id: ''
+                        }
                     }
                 },
             },
@@ -281,7 +294,9 @@ export default {
                 {
                     name: '删除'
                 }
-            ],  
+            ],
+            id: '',
+            projectId: "ee35bacd-8991-439d-9038-5db96744234e"
         }
     },
     computed:{
@@ -298,8 +313,19 @@ export default {
             return "https://wx.phxinfo.com.cn/static/img";
         }
     },
-    onLoad(){
-        Object.assign(this.$options.data(),this.data);
+    onLoad(options){
+        Object.assign(this.$data,this.$options.data());
+        if(options.id){
+            this.id = options.id;
+            this.params.recordRep.fields['ParentActivityId'] = {
+                Id: options.id
+            }
+        }
+        if(options.projectId){
+            this.projectId = options.projectId;
+            this.params.recordRep.fields.ListId.Id = options.ListId;
+        }
+        console.log(this.params,'params')
         this.files = [];
         this.queryProject().then(res=>{
             this.queryLayout();
@@ -329,6 +355,7 @@ export default {
                 Id: this.projectList[this.projectIdx].id,
                 Name: this.projectList[this.projectIdx].name
             };
+            this.projectId = this.projectList[this.projectIdx].id;
             console.log(this.params,'params')
         },
         handleTextarea(e,item){
@@ -351,7 +378,8 @@ export default {
                 data:{
                     method: this.$api.task.users,
                     SessionKey: this.sessionkey,
-                    Lktp: 8
+                    Lktp: 8,
+                    projectId: this.projectId
                 }
             }).then(res=>{
                 this.userList = res.listData;
@@ -364,7 +392,7 @@ export default {
                 data:{
                     method: this.$api.task.formLayout,
                     SessionKey: this.sessionkey,
-                    projectId: "ee35bacd-8991-439d-9038-5db96744234e"
+                    projectId: this.projectId
                 }
             }).then(res=>{
                 this.listData = res.data.issueCreateFields.fields.nodes;
@@ -380,10 +408,15 @@ export default {
                             Id: this.projectList[this.projectIdx].id,
                             Name: this.projectList[this.projectIdx].name
                         }
+                        this.projectId = this.projectList[this.projectIdx].id;
                     }
                     if(item.type==='issuetype'){
                         this.$set(item,'idx',0)
-                        if(item.issueType.id){
+                        if(this.id!=''){
+                            item.idx = item.issueTypes.nodes.findIndex(v=>v.id==='10010');
+                            this.params.recordRep.fields[item.type] = '10010';
+                            item.value = '10010';
+                        }else if(item.issueType.id){
                             item.idx = item.issueTypes.nodes.findIndex(v=>v.id===item.issueType.id);
                             this.params.recordRep.fields[item.fieldId] = item.issueType.id;
                             item.value = item.issueType.id;
@@ -399,6 +432,7 @@ export default {
                     // 优先级
                     if(item.type=='priority'){
                         var idx = item.priorities.nodes.findIndex(v=>v.id==item.priority.id);
+                        item.idx = idx;
                         item.value = item.priority.name;
                         this.params.recordRep.fields[item.fieldId] = item.priority.id;
                     }
@@ -439,6 +473,7 @@ export default {
             this.levelIdx = index;
             this.listData[this.recordLevel].value = item.name;
             this.params.recordRep.fields[this.listData[this.recordLevel].fieldId] = item.id;
+            this.listData[this.recordLevel].idx = this.listData[this.recordLevel].priorities.nodes.findIndex(v=>v.id==item.id)
             this.isPriority = false;
         },
         handleOpenPriority(item,index){
@@ -641,6 +676,7 @@ export default {
 }
 </script>
 <style lang="scss">
+@import url('../../../../static/css/task.css');
     // page{
     //     background: #fff;
     // }
@@ -676,10 +712,21 @@ export default {
                         display: flex;
                         align-items: center;
                         .l_label{
-                            width: 130rpx;
+                            width: 168rpx;
                             color: #666;
+                            display: flex;
+                            align-items: center;
+                            img{
+                                width: 40rpx;
+                                height: 40rpx;
+                                margin-right:  5rpx;
+                            }
                             .required{
                                 color: red;
+                                padding-right: 5rpx;
+                            }
+                            i{
+                                margin-right: 8rpx;
                             }
                         }
                         .c_input{
@@ -743,6 +790,7 @@ export default {
                         box-sizing: border-box;
                         display: flex;
                         justify-content: space-between;
+                        align-items: center;
                         .cen{
                             flex: 1;
                             font-size: 32rpx;
