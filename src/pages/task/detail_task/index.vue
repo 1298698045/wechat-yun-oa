@@ -17,7 +17,7 @@
                                 <i class="iconfont icon-zhuangtai"></i>
                             </div>
                             <div class="cen" >
-                                状态：{{detail.StateCode && detail.StateCode.name || ''}}
+                                状态： <span class="status" :class="statusStyle[statusId-1]">{{detail.StateCode && detail.StateCode.name || ''}}</span> 
                             </div>
                             <div class="right">
                                 <van-icon name="arrow" />
@@ -218,7 +218,7 @@
         <van-popup
             :show="isShow"
             position="bottom"
-            custom-style="width:100%;height: 80vh;"
+            custom-style="width:100%;height: 80vh;background:#f4f4f4;"
             z-index="99999"
             @close="onClosePopup"
         >
@@ -387,7 +387,16 @@ export default {
             tag: 'task',
             childrenId: '',
             projectIdx: '',
-            projectList:[]
+            projectList:[],
+            statusStyle: [
+                'status1style',
+                'status2style',
+                'status3style',
+                'status4style',
+                'status5style',
+                'status6style'
+            ],
+            statusId: ''
         }
     },
     computed:{
@@ -506,6 +515,7 @@ export default {
                     };
                     this.statusList = item.statuss.nodes;
                     this.StateCodeIdx = item.statuss.nodes.findIndex(v=>v.statusId==item.content.id)
+                    this.statusId = this.statusList[this.StateCodeIdx].statusCategoryId || '';
                 }else if(item.key=='IssueType'){
                     this.detail[item.key] = {
                         iconUrl: this.imgUrl+item.content.iconUrl,
@@ -523,14 +533,14 @@ export default {
           return response;
         },
         getChildTaskList(){
-            var filterQuery = "\nStatusCategoryId\tneq\t3"
+            // var filterQuery = "\nStatusCategoryId\tneq\t3"
             let params = {
                 actions: [
                     {
                         params: {
                             projectId: this.RegardingObjectId,
                             parent: this.id,
-                            filterQuery: filterQuery,
+                            // filterQuery: filterQuery,
                             sort: '',
                             order: ''
                         }
@@ -575,7 +585,8 @@ export default {
                     {
                         params: {
                             filterQuery: filterQuery,
-                            regardingObjectId: this.RegardingObjectId,
+                            type:this.CommentType,
+                            regardingObjectId: this.id,
                             sort: "up",
                             entityType: "10C",
                             pageNumber: this.pageNumber,
@@ -691,7 +702,7 @@ export default {
                         fields: {
                             Body: this.comment,
                             RegardingObjectId: {
-                                Id: this.RegardingObjectId
+                                Id: this.id
                             },
                             CommentType: 1,
                             RegardingObjectTypeCode: 4212
@@ -733,7 +744,12 @@ export default {
                     if(res.status*1===1){
                         message.toast({
                             title: '修改成功',
-                            delta: 0
+                            delta: 0,
+                            success:res=>{
+                                setTimeout(()=>{
+                                    this.getDetail();
+                                },500)
+                            }
                         })
                     }
                     resolve(res)
@@ -959,7 +975,7 @@ export default {
         // 添加子任务
         handleAddChildTask(){
             wx.navigateTo({
-                url: '/pages/task/create_task/main?id='+this.id
+                url: '/pages/task/create_task/main?id='+this.id+'&projectId='+this.projectId
             })
         }
     },
@@ -1006,6 +1022,9 @@ export default {
         }
         .center{
             .form{
+                .row:first-child{
+                    align-items: center;
+                }
                 .row{
                     padding: 20rpx 30rpx;
                     box-sizing: border-box;
@@ -1024,6 +1043,17 @@ export default {
                         font-size: 28rpx;
                         color: #333;
                         padding: 0 20rpx;
+                        .status{
+                            display: inline-block;
+                            color: #333;
+                            font-weight: initial;
+                            font-size: 28rpx;
+                            width: 100rpx;
+                            text-align: center;
+                            height: 50rpx;
+                            line-height: 50rpx;
+                            border-radius: 5rpx;
+                        }
                     }
                 }
                 .child{
@@ -1302,12 +1332,15 @@ export default {
         }
         // 选择人
         .uls{
+            margin-top: 20rpx;
             li{
                 padding: 33rpx ;
                 color: #333333;
                 font-size: 28rpx;
                 display: flex;
                 justify-content: space-between;
+                background: #fff;
+                margin-bottom: 10rpx;
             }
         }
     }

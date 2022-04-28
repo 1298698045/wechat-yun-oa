@@ -80,3 +80,81 @@
 .icon-zhuangtai:before {
   content: "\e617";
 }
+
+
+.status1style {
+  color: #42526E !important;
+  background-color: #dfe1e6 !important;
+}
+.status1hoverstyle {
+  color: #42526E !important;
+  background-color: #a5adba !important;
+}
+.status2style {
+  color: #0747A6 !important;
+  background-color: #deebff !important;
+}
+.status2hoverstyle {
+  color: #fff !important;
+  background-color: #0052cc !important;
+}
+.status3style {
+  color: #006644 !important;
+  background-color: #e3fcef !important;
+}
+.status3hoverstyle {
+  color: #fff !important;
+  background-color: #00875a !important;
+}
+.statusCategoryId1 {
+  color: #42526E !important;
+  background-color: #dfe1e6 !important;
+}
+.statusCategoryId1 .el-dropdown-link {
+  color: #42526E !important;
+  background-color: #dfe1e6 !important;
+}
+.statusCategoryId1.hover:hover {
+  color: #42526E !important;
+  background-color: #a5adba !important;
+}
+.statusCategoryId1.hover:hover .el-dropdown-link {
+  color: #42526E !important;
+  background-color: #a5adba !important;
+}
+.statusCategoryId2 {
+  color: #0747A6 !important;
+  background-color: #deebff !important;
+}
+.statusCategoryId2 .el-dropdown-link {
+  color: #0747A6 !important;
+  background-color: #deebff !important;
+}
+.statusCategoryId2.hover:hover,
+.statusCategoryId2.deep {
+  color: #fff !important;
+  background-color: #0052cc !important;
+}
+.statusCategoryId2.hover:hover .el-dropdown-link,
+.statusCategoryId2.deep .el-dropdown-link {
+  color: #fff !important;
+  background-color: #0052cc !important;
+}
+.statusCategoryId3 {
+  color: #006644 !important;
+  background-color: #e3fcef !important;
+}
+.statusCategoryId3 .el-dropdown-link {
+  color: #006644 !important;
+  background-color: #e3fcef !important;
+}
+.statusCategoryId3.hover:hover,
+.statusCategoryId3.deep {
+  color: #fff !important;
+  background-color: #00875a !important;
+}
+.statusCategoryId3.hover:hover .el-dropdown-link,
+.statusCategoryId3.deep .el-dropdown-link {
+  color: #fff !important;
+  background-color: #00875a !important;
+}

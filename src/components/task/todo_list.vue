@@ -17,7 +17,7 @@
             <span class="title">
               {{item.Subject.textValue}}
             </span>
-            <span class="status"> 
+            <span class="status" :class="statusStyle[item.StateCode.statusCategoryId-1]">
               {{item.StateCode.name}}
             </span>
           </p>
@@ -61,7 +61,15 @@ export default {
       pageSize: 10,
       isPage: false,
       current: 'tab1',
-      tag: 'neq'
+      tag: 'neq',
+      statusStyle: [
+        'status1style',
+        'status2style',
+        'status3style',
+        'status4style',
+        'status5style',
+        'status6style'
+      ]
     };
   },
   computed:{
@@ -90,7 +98,7 @@ export default {
   },
   methods:{
     getTimer(str){
-      return new Date(str).getTime();
+      return new Date(str.replace(/-/g,'/')).getTime();
     },
     handleChangeTab(e){
       this.current = e.mp.detail.key;
@@ -301,6 +309,11 @@ export default {
                 color: #333;
                 font-weight: initial;
                 font-size: 28rpx;
+                width: 100rpx;
+                text-align: center;
+                height: 50rpx;
+                line-height: 50rpx;
+                border-radius: 5rpx;
               }
             }
             .desc{

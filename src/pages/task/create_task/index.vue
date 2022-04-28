@@ -16,7 +16,7 @@
                                     {{item.name}}
                                 </div>
                                 <div class="c_input">
-                                    <input type="text" :disabled="true" :value="projectList[projectIdx].name" class="inp">
+                                    <input type="text" :disabled="true" :value="projectList[projectIdx] && projectList[projectIdx].name" class="inp">
                                 </div>
                                 <div class="r_icon">
                                     <van-icon name="arrow" color="#999" />
@@ -34,11 +34,11 @@
                             <div class="row">
                                 <div class="l_label">
                                     <span class="required" v-if="item.fieldConfig.isRequired">*</span>
-                                    <img :src="imgUrl+item.issueTypes.nodes[item.idx].iconUrl" alt="">
+                                    <img v-if="item.issueTypes.nodes[item.idx]" :src="imgUrl+item.issueTypes.nodes[item.idx].iconUrl" alt="">
                                     {{item.name}}
                                 </div>
                                 <div class="c_input">
-                                    <input type="text" :disabled="true" :value="item.issueTypes.nodes[item.idx].name" class="inp">
+                                    <input type="text" :disabled="true" :value="item.issueTypes.nodes[item.idx] && item.issueTypes.nodes[item.idx].name" class="inp">
                                 </div>
                                 <div class="r_icon">
                                     <van-icon name="arrow" color="#999" />
@@ -54,7 +54,7 @@
                                 {{item.name}}
                             </div>
                             <div class="c_input">
-                                <input type="text" placeholder="请选择" :disabled="true" :value="item.value.Name" class="inp">
+                                <input type="text" placeholder="请选择" :disabled="true" :value="item.value && item.value.Name" class="inp">
                             </div>
                             <div class="r_icon">
                                 <van-icon name="arrow" color="#999" />
@@ -116,7 +116,7 @@
                         <div class="row">
                             <div class="l_label">
                                 <span class="required" v-if="item.fieldConfig.isRequired">*</span>
-                                <img :src="imgUrl+item.priorities.nodes[item.idx].iconUrl" alt="">
+                                <img v-if="item.priorities.nodes[item.idx]" :src="imgUrl+item.priorities.nodes[item.idx].iconUrl" alt="">
                                 {{item.name}}
                             </div>
                             <div class="c_input" @click="handleOpenPriority(item,index)">
@@ -157,7 +157,7 @@
         <van-popup
             :show="isShow"
             position="bottom"
-            custom-style="width:100%;height: 80vh;"
+            custom-style="width:100%;height: 80vh;background:#f4f4f4;"
             z-index="99999"
             @close="onClosePopup"
         >
@@ -321,15 +321,22 @@ export default {
                 Id: options.id
             }
         }
-        if(options.projectId){
-            this.projectId = options.projectId;
-            this.params.recordRep.fields.ListId.Id = options.ListId;
-        }
+        
         console.log(this.params,'params')
         this.files = [];
         this.queryProject().then(res=>{
-            this.queryLayout();
-        });
+            this.queryLayout().then(()=>{
+                if(options.projectId){
+                    console.log(options.projectId)
+                    this.projectIdx = this.projectList.findIndex(v=>v.id===options.projectId);
+                    this.projectId = options.projectId;
+                    this.params.recordRep.fields.ListId.Id = options.ListId;
+                    this.params.recordRep.fields.RegardingObjectId = {
+                        Id: options.projectId
+                    };
+                }
+            });
+        })
     },
     methods:{
        async queryProject(){
@@ -366,7 +373,9 @@ export default {
         handlePickerType(e,item){
             console.log(e,item)
             item.idx = e.mp.detail.value;
+            this.$set(item,'idx',e.mp.detail.value)
             this.params.recordRep.fields[item.fieldId] = item.issueTypes.nodes[item.idx].id;
+            console.log('this.params.recordRep.fields[item.fieldId]',this.params.recordRep.fields[item.fieldId])
         },
         bindPickerChange(e,item){
 
@@ -387,7 +396,7 @@ export default {
             })
         },
         queryLayout(){
-            this.$httpWX.get({
+           return   this.$httpWX.get({
                 url:this.$api.message.queryList,
                 data:{
                     method: this.$api.task.formLayout,
@@ -399,16 +408,18 @@ export default {
                 this.listData.forEach(item=>{
                     this.$set(item,'value','');
                     if(item.type==='project'){
-                        this.projectIdx = this.projectList.findIndex(v=>v.id===item.project.id);
-                        this.params.recordRep.fields[item.fieldId] = {
-                            Id: this.projectList[this.projectIdx].id,
-                            Name: this.projectList[this.projectIdx].name
+                        this.projectIdx = this.projectList.findIndex(v=>v.id===item.project.id) || '';
+                        if(this.projectIdx!=''){
+                            this.params.recordRep.fields[item.fieldId] = {
+                                Id: this.projectList[this.projectIdx].id,
+                                Name: this.projectList[this.projectIdx].name
+                            }
+                            item.value = {
+                                Id: this.projectList[this.projectIdx].id,
+                                Name: this.projectList[this.projectIdx].name
+                            }
+                            this.projectId = this.projectList[this.projectIdx].id;
                         }
-                        item.value = {
-                            Id: this.projectList[this.projectIdx].id,
-                            Name: this.projectList[this.projectIdx].name
-                        }
-                        this.projectId = this.projectList[this.projectIdx].id;
                     }
                     if(item.type==='issuetype'){
                         this.$set(item,'idx',0)
@@ -854,12 +865,15 @@ export default {
             }
             // 选择人
             .uls{
+                margin-top: 20rpx;
                 li{
                     padding: 33rpx ;
                     color: #333333;
                     font-size: 28rpx;
                     display: flex;
                     justify-content: space-between;
+                    background: #fff;
+                    margin-bottom: 10rpx;
                 }
             }
         }

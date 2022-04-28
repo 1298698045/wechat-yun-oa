@@ -27,9 +27,9 @@
                 </div>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='L'||item.type=='DT'||item.type=='LT'">
-                <picker :disabled="item.readonly" @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.id]">
+                <picker :disabled="item.readonly" @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.entityApiName].picklistFieldValues[item.id].values">
                     <van-field
-                        :value="currenData[item.id][item.index]?currenData[item.id][item.index].label:''"
+                        :value="currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index]&&currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].label"
                         input-class="inp"
                         custom-style="font-size:34rpx;color:#333333"
                         :required="item.required||item.require||false"
@@ -153,59 +153,76 @@
             </div>
             <div class="parentWrap" v-if="item.type=='RelatedList'">
                 <h3>{{item.label}}</h3>
-                <div class="rowBox" v-for="(v,i) in item.fields" :key="i">
-                    <van-cell-group v-if="v.type=='S'||v.type=='E'||v.type=='N'||v.type=='H'" custom-class="cell">
-                        <van-field
-                            :value="v.value"
-                            custom-style="font-size:34rpx;color:#333333"
-                            :required="v.required||false"
-                            :label="v.label"
-                            :placeholder="v.helpText"
-                            input-align="right"
-                            @change="function(val){changeInput(val,v)}"
-                        />
-                    </van-cell-group>
-                    <!-- <van-cell-group custom-class="cell" v-if="v.type=='L'||v.type=='DT'||v.type=='LT'">
-                        <picker @change="(val)=>{bindPickerChange(val,v)}" :value="v.index" range-key="label" :range="currenData[v.id]">
-                            <van-field
-                                :value="currenData[v.id][v.index]?currenData[v.id][v.index].label:''"
-                                input-class="inp"
-                                custom-style="font-size:34rpx;color:#333333"
-                                :required="v.require||false"
-                                disabled
-                                :label="v.label"
-                                :placeholder="v.helpText"
-                                input-align="right"
-                                right-icon="arrow"
-                            />
-                            </picker>
-                    </van-cell-group> -->
-                    <van-cell-group custom-class="cell" v-if="v.type=='D'">
-                        <picker :disabled="item.readonly" mode="date" :value="v.value" @change="function(val){bindDateChange(val,v)}">
+                <div class="box" v-for="(self,idx) in item[item.id]" :key="idx">
+                    <div class="title">
+                        <span>
+                            {{item.label}} ({{idx+1}})
+                        </span>
+                        <span class="del" v-if="idx!=0" @click="handleDelChild(item[item.id],self,idx)">
+                            删除
+                        </span>
+                    </div>
+                    <div class="rowBox" v-for="(v,i) in self" :key="i">
+                        <van-cell-group v-if="v.type=='S'||v.type=='E'||v.type=='N'||v.type=='H'" custom-class="cell">
                             <van-field
                                 :value="v.value"
-                                title-width="110px"
-                                input-class="inp"
                                 custom-style="font-size:34rpx;color:#333333"
                                 :required="v.required||false"
-                                disabled
                                 :label="v.label"
-                                input-align="right"
-                                right-icon="arrow"
                                 :placeholder="v.helpText"
+                                input-align="right"
+                                @change="function(e){changeInputChild(e,v,item[item.id])}"
                             />
-                        </picker>
-                    </van-cell-group>
-                    <van-cell-group custom-class="cell" v-if="v.type=='O'">
-                        <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value" @click="!item.readonly?getOpenModal(v,i):''" />
-                    </van-cell-group>
-                    <div class="row" v-if="v.type=='UC'">
-                        <p class="title">
-                            {{item.required||item.require?'*':''}}
-                            <span>{{v.label}}</span></p>
-                        <textarea :disabled="item.readonly" v-model="v.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="v.helpText"></textarea>
+                        </van-cell-group>
+                        <van-cell-group custom-class="cell" v-if="v.type=='L'||v.type=='DT'||v.type=='LT'">
+                            <picker @change="(val)=>{bindPickerChange(val,v)}" :value="v.index" range-key="label" :range="currenData[v.entityApiName].picklistFieldValues[v.id].values">
+                                <van-field
+                                    :value="currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index] && currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index].label"
+                                    input-class="inp"
+                                    custom-style="font-size:34rpx;color:#333333"
+                                    :required="v.require||false"
+                                    disabled
+                                    :label="v.label"
+                                    :placeholder="v.helpText"
+                                    input-align="right"
+                                    right-icon="arrow"
+                                />
+                                </picker>
+                        </van-cell-group>
+                        <van-cell-group custom-class="cell" v-if="v.type=='D'">
+                            <picker :disabled="item.readonly" mode="date" :value="v.value" @change="function(val){bindDateChange(val,v)}">
+                                <van-field
+                                    :value="v.value"
+                                    title-width="110px"
+                                    input-class="inp"
+                                    custom-style="font-size:34rpx;color:#333333"
+                                    :required="v.required||false"
+                                    disabled
+                                    :label="v.label"
+                                    input-align="right"
+                                    right-icon="arrow"
+                                    :placeholder="v.helpText"
+                                />
+                            </picker>
+                        </van-cell-group>
+                        <van-cell-group custom-class="cell" v-if="v.type=='U'||v.type=='O'||v.type=='Y_MD'||v.type=='Y'">
+                            <!-- value:list[index][item.id][idx][i].value -->
+                            <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value" @click="!item.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
+                        </van-cell-group>
+                        <div class="row" v-if="v.type=='UC'">
+                            <p class="title">
+                                {{item.required||item.require?'*':''}}
+                                <span>{{v.label}}</span></p>
+                            <textarea :disabled="item.readonly" v-model="v.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="v.helpText"></textarea>
+                        </div>
                     </div>
                 </div>
+                <p class="add_child" @click="handleAddChild(item)">
+                    <span class="icon">
+                        <van-icon name="plus" />
+                    </span>
+                    增加{{item.label}}
+                </p>
             </div>
         </div>
         <!-- <div class="row">
@@ -250,7 +267,7 @@
             <div class="popupWrap">
                 <van-search :value="lksrch" placeholder="请输入搜索关键词" @change="handleChange" />
                 <ul class="uls">
-                    <li @click="getPopupSel(item,index)" v-for="(item,index) in list[searchIdx]?list[searchIdx].temp:''" :key="index">
+                    <li @click="getPopupSel(item,index)" v-for="(item,index) in departList" :key="index">
                         <p>{{item.Name}}</p>
                         <p v-if="popupIdx==index">
                             <i-icon type="right" />
@@ -380,7 +397,11 @@ export default {
             Balance:"", // 假期余额
             startTime:"",
             endTime:"",
-            HasMatched:false
+            HasMatched:false,
+            departList: [],
+            childIdx: '',
+            childForIdx: '',
+            rowI: ''
         }
     },
     computed:{
@@ -483,6 +504,30 @@ export default {
     },
     methods:{
         ...mapMutations(['getClear']),
+        // 增加子表
+        handleAddChild(item){
+            console.log(item,'item')
+            item.fields.forEach(item=>{
+                this.$set(item,'value','')
+            })
+            var list = JSON.parse(JSON.stringify(item.fields))
+            console.log('list-list',list)
+            item[item.id].push({
+                ...list
+            })
+            console.log(item[item.id],'item[item.id]')
+        },
+        // 删除子表
+        handleDelChild(list,item,index){
+            list.splice(index,1);
+        },
+        // 子表input赋值
+        changeInputChild(e,item,list){
+            console.log(e);
+            console.log('item',item)
+            item.value = e.mp.detail;
+            console.log(list,'====')
+        },
         changeText(e,v,i){
             console.log(e,v);
             this.list[i].value = e.mp.detail.value;
@@ -546,8 +591,9 @@ export default {
                     RuleLogId:this.RuleLogId
                 }
             }).then(res=>{
-                this.list = res.actions[0].returnValue.fields;
-                this.currenData = res.actions[0].returnValue.masterRecord.picklistValuesMap;
+                this.list = res.actions[0].returnValue.layoutItems;
+                // this.currenData = res.actions[0].returnValue.masterRecord.picklistValuesMap;
+                this.currenData = res.actions[0].returnValue.layoutPicklists;
                 this.record = res.actions[0].returnValue.masterRecord.record;
                 this.list.forEach(item=>{
                     this.$set(item,'value','');
@@ -578,7 +624,15 @@ export default {
                             item.value = this.record[obj];
                         }
                     }
+                    if(item.type=='RelatedList'){
+                        var list = JSON.parse(JSON.stringify(item.fields))
+                        for(var i=0;i<list.length;i++){
+                            this.$set(list[i],'value','')
+                        }
+                        this.$set(item,item.id,[{...list}]);
+                    }
                 })
+                console.log('list:', this.list)
             })
         },
         getIndex(startTime){
@@ -614,14 +668,21 @@ export default {
             let { index } = e.mp.currentTarget.dataset;
         },
         noop() {},
-        getOpenModal(item,index){
+        getOpenModal(item,index,idx,v,i,list=[]){
+            if(list.length>0){
+                console.log(item,index,idx,v,i,list)
+                this.childIdx = idx;
+                this.childForIdx = idx;
+                this.rowI = i;
+            }
             this.lksrch = '';
             this.popupIdx = -1;
             this.searchId = item.id;
             this.searchIdx = index;
             this.sObjectType = item.sObjectType;
             this.getLookup().then(res=>{
-                item.temp = res.listData;
+                // item.temp = res.listData;
+                this.departList = res.listData;
                 // console.log(item.temp,'00000')
                 // console.log(this.list[index]);
                 this.isShow = true;
@@ -653,12 +714,19 @@ export default {
             this.isShow = false;
         },
         getPopupSel(item,index){
-            console.log(item,this.searchId);
+            console.log(item,this.searchId,this.childIdx);
             this.popupIdx = index;
-            this.record[this.searchId] = item;
+            if(this.childIdx>=0){
+                // debugger
+                this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].value = item.Name;
+                console.log('this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].value',this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].value)
+                console.log(this.list,'list:::::::::')
+            }else {
+                this.record[this.searchId] = item;
+                this.list[this.searchIdx].value = item.Name;
+                this.params.parentRecord.fields[this.searchId] = {Id:item.ID};
+            }
             this.isShow = false;
-            this.list[this.searchIdx].value = item.Name;
-            this.params.parentRecord.fields[this.searchId] = {Id:item.ID};
         },
         changeSwitch(e,item){
             console.log(e,item);
@@ -777,6 +845,9 @@ export default {
                 data.actions.push({
                     params:this.params
                 });
+                console.log('list:', this.list)
+                console.log('data:', data)
+                return false
                 this.$httpWX.post({
                     url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
                     data:{
@@ -798,10 +869,12 @@ export default {
         bindPickerChange(val,item){
             console.log(val,item);
             item.index = val.mp.detail.value;
-            console.log(this.currenData[item.id][item.index].label);
-            item.value = this.currenData[item.id][item.index].value;
+            console.log(this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].label);
+            item.value = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
+            this.$set(item,'value',this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value)
+            console.log(this.list,'list')
             // item.value = val.mp.detail.value;
-            this.record[item.id] = this.currenData[item.id][item.index].value;
+            this.record[item.id] = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
             this.params.parentRecord.fields[item.id] = item.value;
             let EntityType = wx.getStorageSync('EntityType');
             if(EntityType==30022){
@@ -1021,10 +1094,37 @@ export default {
             height: auto;
             background: #fff;
             margin: 30rpx 0;
-            padding: 30rpx 0;
+            // padding: 30rpx 0;
             h3{
                 font-weight: bold;
                 text-align: center;
+                padding: 20rpx 0
+            }
+            .add_child{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: #3399ff;
+                line-height: 80rpx;
+                .icon{
+                    padding-right: 20rpx;
+                }
+            }
+            .box{
+                .title{
+                    padding: 20rpx 30rpx;
+                    box-sizing: border-box;
+                    background: #f4f4f4;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    .del{
+                        color: #3399ff;
+                    }
+                }
+            }
+            .cell{
+                margin-top: 0;
             }
         }
         .value-class {

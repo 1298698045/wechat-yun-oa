@@ -27,9 +27,9 @@
         <div class="footer" :class="{'bottomActive':isModelmes,'footImt':!isModelmes}">
             <div>
                 <i-tab-bar :current="current" color="#049bfb" @change="handleChangeBar">
-                    <i-tab-bar-item key="tab1" :img="imgUrl+'04.2.1.Clock_1.png'" :current-img="imgUrl+'04.2.1.Clock_2.png'" title="待办"></i-tab-bar-item>
-                    <i-tab-bar-item key="tab2" :img="imgUrl+'04.2.1.Statistics_1.png'" :current-img="imgUrl+'04.2.1.Statistics_2.png'" title="日历"></i-tab-bar-item>
-                    <i-tab-bar-item key="tab3" :img="imgUrl+'04.2.1.Apply_1.png'" :current-img="imgUrl+'04.2.1.Apply_2.png'" title="项目"></i-tab-bar-item>
+                    <i-tab-bar-item key="tab1" :img="imgUrl+'schedule.png'" :current-img="imgUrl+'schedule_active.png'" title="待办"></i-tab-bar-item>
+                    <i-tab-bar-item key="tab2" :img="imgUrl+'calendar.png'" :current-img="imgUrl+'calendar_active.png'" title="日历"></i-tab-bar-item>
+                    <i-tab-bar-item key="tab3" :img="imgUrl+'project.png'" :current-img="imgUrl+'project_active.png'" title="项目"></i-tab-bar-item>
                 </i-tab-bar>
             </div>
         </div>

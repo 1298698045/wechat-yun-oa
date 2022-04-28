@@ -78,6 +78,15 @@
                         <span><i-icon type="enter" size="20" color="#cccccc" /></span>
                     </p>
                 </div>
+                <div class="box" @click="distinguishOCR">
+                    <p>
+                        <i class="iconfont icon-youpan" style="color:#3399ff;"></i>
+                    </p>
+                    <p class="division">
+                        ocr识别
+                        <span><i-icon type="enter" size="20" color="#cccccc" /></span>
+                    </p>
+                </div>
             </div>
             <div class="row" @click="getRouterSet">
                 <p>
@@ -147,6 +156,9 @@ export default {
         this.getAvatar();
     },
     methods:{
+        distinguishOCR(){
+            
+        },
         changeSwiper(e){
             console.log(e);
             let current = e.mp.detail.current;

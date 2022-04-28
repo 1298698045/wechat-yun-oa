@@ -1,8 +1,32 @@
 <template>
     <div class="calendar">
         <div class="header">
+            <swiper class="date_swiper" @change="changeSwiper" :autoplay="false" interval="3000" :circular="false" :current="current">
+                <swiper-item class="date_item"></swiper-item>
+                <swiper-item class="date_item">
+                    <div class="box_date">
+                        <div class="item" v-for="(val,key,index) in list" :key="index">
+                            <p class="week">{{val.week}}</p>
+                            <p class="day">{{val.day}}</p>
+                        </div>
+                    </div>
+                </swiper-item>
+                <swiper-item class="date_item"></swiper-item>
+            </swiper>
         </div>
-        <div class="banner">
+        <div class="center">
+            <div class="container">
+                <div class="content_item"  v-for="(val,key,index) in list" :key="index">
+                    <div class="row" v-for="(self,idx) in val.children" :key="idx" @click="handleDetail(self)">
+                        <span class="name">
+                            {{self.Subject}}
+                        </span>
+                        <!-- <img :src="imgUrl+self.PriorityCode.iconUrl" alt=""> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="banner">
             <swiper class="swiper" @change="changeSwiper" :autoplay="false" interval="3000" :circular="false" :current="current" next-margin="20px" previous-margin="20px">
                 <swiper-item class="swiper_item" v-for="(item,i) in banners" :key="i">
                     <div class="box" v-for="(val,key,index) in list" :key="index">
@@ -25,10 +49,11 @@
                     </div>
                 </swiper-item>
             </swiper>
-        </div>
+        </div> -->
     </div>
 </template>
 <script>
+var moment = require('moment');
 export default {
     name: "calendarTask",
     data(){
@@ -186,18 +211,25 @@ export default {
             let currDate = this.formDate(currenTime);
             let nextDate = this.formDate(nextTime);
             let prevDate = this.formDate(prevTime);
+            var weekday = ['周日','周一','周二','周三','周四','周五','周六']
             // console.log(prevDate, currDate, nextDate)
             return {
                 [prevDate]:{
                     time: prevDate,
+                    week: weekday[new Date(prevDate).getDay()],
+                    day: new Date(prevDate).getDate(),
                     children:[]
                 },
                 [currDate]:{
                     time: currDate,
+                    week: weekday[new Date(currDate).getDay()],
+                    day: new Date(currDate).getDate(),
                     children:[]
                 },
                 [nextDate]:{
                     time: nextDate,
+                    week: weekday[new Date(nextDate).getDay()],
+                    day: new Date(nextDate).getDate(),
                     children:[]
                 }
             }
@@ -235,6 +267,78 @@ export default {
 </script>
 <style lang="scss">
 .calendar{
+    .header{
+        background: #fff;
+        box-shadow: 0 2rpx 10rpx 0 rgba(0,0,0,.1);
+        border-bottom: 1rpx solid #e2e3e5;
+        .date_swiper{
+            height: 120rpx;
+            .date_item{
+                .box_date{
+                    display: flex;
+                    padding: 20rpx 0;
+                    .item{
+                        flex: 1;
+                        text-align: center;
+                        color: #333;
+                        .week{
+                            font-size: 24rpx;
+                        }
+                        .day{
+                            width: 50rpx;
+                            height: 50rpx;
+                            line-height: 50rpx;
+                            font-weight: bold;
+                            text-align: center;
+                            border-radius: 50%;
+                            margin: 0 auto;
+                        }
+                    }
+                    .item:nth-child(2) .day{
+                        background: #3399ff;
+                        color: #fff;
+                        
+                    }
+                }
+            }
+        }
+    }
+    .center{
+        margin-top: 20rpx;
+        .container{
+            display: flex;
+            .content_item{
+                flex: 1;
+                // border-right: 1rpx solid #e2e3e5;
+                .row{
+                    flex: 1;
+                    padding: 20rpx ;
+                    // border-bottom: 1rpx solid #e2e3e5;
+                    // border-right: 1rpx solid #e2e3e5;
+                    font-size: 24rpx;
+                    color: #333;
+                    background: #fff;
+                    box-sizing: border-box;
+                    margin: 10rpx 5rpx;
+                    border-radius: 5rpx;
+                    box-shadow: 0 2rpx 10rpx 0 rgba(0,0,0,0.1);
+                    .name{
+                        width: 100%;
+                        height: 68rpx;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                    }
+                    img{
+                        width: 40rpx;
+                        height: 40rpx;
+                    }
+                }
+            }
+        }
+    }
     .banner{
         // height: 500rpx;
         position: relative;
