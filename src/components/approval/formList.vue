@@ -15,7 +15,7 @@
                 />
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='L'||item.type=='DT'||item.type=='LT'">
-                <picker :disabled="disabled" @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.entityApiName].picklistFieldValues[item.id].values">
+                <picker :disabled="false" @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.entityApiName].picklistFieldValues[item.id].values">
                     <van-field
                         :value="currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index]&&currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].label"
                         input-class="inp"
@@ -29,7 +29,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='D'">
-                <picker :disabled="disabled" mode="date" :value="item.value" @change="function(val){bindDateChange(val,item)}">
+                <picker :disabled="false" mode="date" :value="item.value" @change="function(val){bindDateChange(val,item)}">
                     <van-field
                         :value="item.value"
                         title-width="110px"
@@ -497,9 +497,6 @@ export default {
                                    this.$set(k[l],'index',rowIdx)
                                 }else if(k[l].type=='U'||k[l].type=='O'){
                                     this.$set(k[l],'value',value.Name)
-                                }else if(k[l].id=='Name'){
-                                    let name = entitieitem.fields.Memo;
-                                    this.$set(k[l],'value',name)
                                 }else{
                                   this.$set(k[l],'value',value)
                                 }
@@ -617,16 +614,18 @@ export default {
         },
         bindPickerChange(val,item){
             item.index = val.mp.detail.value;
-            console.log(this.currenData[item.id][item.index].label);
-            item.value = this.currenData[item.id][item.index].value;
-            this.record[item.id] = this.currenData[item.id][item.index].value;
+            item.value = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
+            this.$set(item,'value',this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value)
+            this.record[item.id] = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
             this.params.parentRecord.fields[item.id] = item.value;
+            console.log(item,'item',this.list)
         },
         bindDateChange(v,item){
             console.log(v,item);
             item.value = v.mp.detail.value;
             this.record[item.id] = item.value;
             this.params.parentRecord.fields[item.id] = item.value;
+            console.log(this.list,'=========')
         },
         bindMultiPickerChange(v,item){
             item.multiIndex = v.mp.detail.value;

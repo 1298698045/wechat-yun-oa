@@ -171,11 +171,11 @@
                                 :label="v.label"
                                 :placeholder="v.helpText"
                                 input-align="right"
-                                @change="function(e){changeInputChild(e,v,item[item.id])}"
+                                @change="function(e){changeInput(e,v,item[item.id],idx,item)}"
                             />
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='L'||v.type=='DT'||v.type=='LT'">
-                            <picker @change="(val)=>{bindPickerChange(val,v)}" :value="v.index" range-key="label" :range="currenData[v.entityApiName].picklistFieldValues[v.id].values">
+                            <picker @change="(e)=>{bindPickerChange(e,v,item[item.id],idx,item)}" :value="v.index" range-key="label" :range="currenData[v.entityApiName].picklistFieldValues[v.id].values">
                                 <van-field
                                     :value="currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index] && currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index].label"
                                     input-class="inp"
@@ -207,7 +207,7 @@
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='U'||v.type=='O'||v.type=='Y_MD'||v.type=='Y'">
                             <!-- value:list[index][item.id][idx][i].value -->
-                            <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value" @click="!item.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
+                            <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value" @click="!v.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
                         </van-cell-group>
                         <div class="row" v-if="v.type=='UC'">
                             <p class="title">
@@ -385,8 +385,14 @@ export default {
                 processId:"",
                 parentRecord:{
                     id:"",
+                    apiName: "",
+                    objTypeCode: "",
                     fields:{}
                 },
+                // 子表
+                relatedRecords:[],
+                // 删除子表
+                deleteRecords:[]
             },
             testLists:[],
             fromActivityId:"",
@@ -517,6 +523,12 @@ export default {
             })
             console.log(item[item.id],'item[item.id]')
         },
+        addForm(item){
+            item.fields.forEach(v=>{
+                this.$set(v,'value','');
+            })
+            this.$set(item,item.id,[[item.fields]])
+        },
         // 删除子表
         handleDelChild(list,item,index){
             list.splice(index,1);
@@ -595,6 +607,8 @@ export default {
                 // this.currenData = res.actions[0].returnValue.masterRecord.picklistValuesMap;
                 this.currenData = res.actions[0].returnValue.layoutPicklists;
                 this.record = res.actions[0].returnValue.masterRecord.record;
+                this.params.parentRecord.apiName = res.actions[0].returnValue.masterRecord.entityApiName;
+                this.params.parentRecord.objTypeCode =  res.actions[0].returnValue.masterRecord.objectTypeCode;
                 this.list.forEach(item=>{
                     this.$set(item,'value','');
                     this.$set(item,'index','');
@@ -610,8 +624,13 @@ export default {
                         var obj = item.id;
                         // console.log(obj,this.record[obj],' this.record[item.type]')
                         if(this.record[obj] instanceof Object){
-                            item.value = this.record[obj].Name;
-                            this.params.parentRecord.fields[item.id] = {Id:this.record[obj].Id};
+                            if(item.type=='DT'){
+                                item.value = this.record[obj].value
+                                this.params.parentRecord.fields[item.id] = this.record[obj].value;
+                            }else {
+                                item.value = this.record[obj].Name;
+                                this.params.parentRecord.fields[item.id] = {Id:this.record[obj].Id};
+                            }
                         }
                         // if(obj=='UserId'){
                         //     item.value = this.record[obj].Name;
@@ -651,12 +670,31 @@ export default {
             const arr = [yIdx,mIdx,dIdx,hIdx,minIdx];
             return arr;
         },
-        changeInput(val,item){
-            console.log(val,item);
-            item.value =  val.mp.detail;
-            this.record[item.id] = item.value;
-            this.params.parentRecord.fields[item.id]= item.value;
-            // console.log(this.record)
+        changeInput(e,item,list=[],idx='',parentItme={}){
+            console.log(e,item,list,idx,parentItme);
+            item.value = e.mp.detail;
+            // 子表input赋值
+            if(list.length>0){
+                this.params.relatedRecords[idx] = {
+                    id: "",
+                    apiName: parentItme.entityApiName,
+                    objTypeCode: parentItme.sObjectType,
+                    fields: {}
+                }
+                // console.log(1,parentItme,list[idx])
+                for(let j in list[idx]){
+                    // console.log('j',list[idx][j].id)
+                    // console.log(this.params.relatedRecords[idx])
+                    // if(list[idx][j].id == item.id){
+                    this.params.relatedRecords[idx].fields[list[idx][j].id] = list[idx][j].value;
+                    // }
+                }
+            }else {
+                this.record[item.id] = item.value;
+                this.params.parentRecord.fields[item.id]= item.value;
+            }
+            console.log('params',this.params)
+            console.log('list=',list)
         },
         onChangeGroup(e){
             console.log(e,'123123123');
@@ -668,18 +706,20 @@ export default {
             let { index } = e.mp.currentTarget.dataset;
         },
         noop() {},
-        getOpenModal(item,index,idx,v,i,list=[]){
+        // 主子表情况下 item/index: 父级 childItem/i：当前
+
+        getOpenModal(item,index,idx,childItem,i,list=[]){
+            this.sObjectType = item.sObjectType;
             if(list.length>0){
-                console.log(item,index,idx,v,i,list)
-                this.childIdx = idx;
+                console.log(item,index,idx,childItem,list)
                 this.childForIdx = idx;
                 this.rowI = i;
+                this.sObjectType = childItem.sObjectType;
             }
             this.lksrch = '';
             this.popupIdx = -1;
             this.searchId = item.id;
             this.searchIdx = index;
-            this.sObjectType = item.sObjectType;
             this.getLookup().then(res=>{
                 // item.temp = res.listData;
                 this.departList = res.listData;
@@ -714,18 +754,51 @@ export default {
             this.isShow = false;
         },
         getPopupSel(item,index){
-            console.log(item,this.searchId,this.childIdx);
+            // console.log(item,this.searchId,this.childForIdx);
             this.popupIdx = index;
-            if(this.childIdx>=0){
+            if(this.childForIdx!==""&&this.childForIdx>=0){
+                var parentItme = this.list[this.searchIdx];
+                var list = this.list[this.searchIdx][this.searchId][this.childForIdx];
+                console.log('list',list,'===')
+                debugger
+                if(!this.params.relatedRecords[this.childForIdx]){
+                    this.params.relatedRecords[this.childForIdx] = {
+                        id: "",
+                        apiName: parentItme.entityApiName,
+                        objTypeCode: parentItme.sObjectType,
+                        fields: {}
+                    }
+                }
+                
                 // debugger
                 this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].value = item.Name;
-                console.log('this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].value',this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].value)
+                this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].valueId = item.Id;
+                // for(let j in list){
+                    // debugger
+                    this.params.relatedRecords[this.childForIdx].fields[ this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].id] = {
+                        Id: item.ID
+                    }
+                    // if(list[j]==list.id){
+                        // this.$set(this.params.relatedRecords[this.childForIdx].fields,[list[j].id],{
+                        //     Id: item.ID
+                        // })
+                    // }
+                    // this.params.relatedRecords[this.childForIdx].fields[list[this.childForIdx][this.rowI].id] = {
+                    //     Id: item.ID
+                    // }
+                // }
+                console.log('params=',this.params)
                 console.log(this.list,'list:::::::::')
+                
             }else {
                 this.record[this.searchId] = item;
                 this.list[this.searchIdx].value = item.Name;
                 this.params.parentRecord.fields[this.searchId] = {Id:item.ID};
             }
+            this.childForIdx = "";
+            this.searchId = "";
+            this.childForIdx = "";
+            this.rowI = "";
             this.isShow = false;
         },
         changeSwitch(e,item){
@@ -847,7 +920,6 @@ export default {
                 });
                 console.log('list:', this.list)
                 console.log('data:', data)
-                return false
                 this.$httpWX.post({
                     url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
                     data:{
@@ -866,16 +938,27 @@ export default {
         onCloseAgree(){
             this.agreeShow = false;
         },
-        bindPickerChange(val,item){
-            console.log(val,item);
-            item.index = val.mp.detail.value;
-            console.log(this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].label);
+        bindPickerChange(e,item,list=[],idx='',parentItme={}){
+            // console.log(e,item,list,idx,parentItme);
+            item.index = e.mp.detail.value;
             item.value = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
             this.$set(item,'value',this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value)
-            console.log(this.list,'list')
-            // item.value = val.mp.detail.value;
-            this.record[item.id] = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
-            this.params.parentRecord.fields[item.id] = item.value;
+            if(list.length>0){
+                this.params.relatedRecords[idx] = {
+                    id: "",
+                    apiName: parentItme.entityApiName,
+                    objTypeCode: parentItme.sObjectType,
+                    fields: {}
+                }
+                for(let j in list[idx]){
+                    this.params.relatedRecords[idx].fields[list[idx][j].id] = list[idx][j].value;
+                }
+            }else { 
+                this.record[item.id] = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
+                this.params.parentRecord.fields[item.id] = item.value;
+            }
+            console.log('params',this.params)
+            console.log('list=',list)
             let EntityType = wx.getStorageSync('EntityType');
             if(EntityType==30022){
                 this.leaveType = item.value;
