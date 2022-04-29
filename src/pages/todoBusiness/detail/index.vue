@@ -13,7 +13,7 @@
             <p>查看TA的历史记录</p>
             <p><i-icon type="enter" size="20" color="#cccccc" /></p>
         </div> -->
-        <FormList ref="refChild" v-if="current=='tab1'" :current="statusCurrent" :ProcessId="processId" :ProcessInstanceId="processInstanceId" :RuleLogId="RuleLogId" />
+        <FormList ref="refChild" v-if="current=='tab1'" :current="statusCurrent" :ProcessId="processId" :ProcessInstanceId="processInstanceId" :RuleLogId="RuleLogId" :stateCode="stateCode" />
         <!-- 表单 -->
         <!-- <div class="center margin padding"  v-if="current=='tab1'">
            <div class="steps">

@@ -170,11 +170,11 @@
                         <span>
                             {{item.label}} ({{idx+1}})
                         </span>
-                        <!-- <span class="del" v-if="idx!=0" @click="handleDelChild(item[item.id],self,idx)">
+                        <span class="del" @click="handleDelChild(item[item.id],self,idx,item)">
                             删除
-                        </span> -->
+                        </span>
                     </div>
-                    <div class="rowBox" v-for="(v,i) in self" :key="i">
+                    <div class="rowBox" v-for="(v,i) in self.arr" :key="i">
                         <van-cell-group v-if="v.type=='S'||v.type=='E'||v.type=='N'||v.type=='H'" custom-class="cell">
                             <van-field
                                 :value="v.value"
@@ -187,7 +187,7 @@
                             />
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='L'||v.type=='DT'||v.type=='LT'">
-                            <picker @change="(val)=>{bindPickerChange(val,v)}" :value="v.index" range-key="label" :range="currenData[v.entityApiName].picklistFieldValues[v.id].values">
+                            <picker @change="(val)=>{bindPickerChange(val,v,item[item.id])}" :value="v.index" range-key="label" :range="currenData[v.entityApiName].picklistFieldValues[v.id].values">
                                 <van-field
                                     :value="currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index] && currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index].label"
                                     input-class="inp"
@@ -202,7 +202,7 @@
                                 </picker>
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='D'">
-                            <picker :disabled="item.readonly" mode="date" :value="v.value" @change="function(val){bindDateChange(val,v)}">
+                            <picker :disabled="item.readonly" mode="date" :value="v.value" @change="function(val){bindDateChange(val,v,item[item.id])}">
                                 <van-field
                                     :value="v.value"
                                     title-width="110px"
@@ -219,7 +219,7 @@
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='U'||v.type=='O'||v.type=='Y_MD'||v.type=='Y'">
                             <!-- value:list[index][item.id][idx][i].value -->
-                            <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value" @click="!item.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
+                            <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value.Name" @click="!item.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
                         </van-cell-group>
                         <div class="row" v-if="v.type=='UC'">
                             <p class="title">
@@ -229,14 +229,15 @@
                         </div>
                     </div>
                 </div>
-                <!-- <p class="add_child" @click="handleAddChild(item)">
+                <p class="add_child" @click="handleAddChild(item)">
                     <span class="icon">
                         <van-icon name="plus" />
                     </span>
                     增加{{item.label}}
-                </p> -->
+                </p>
             </div>
         </div>
+        <button class="saveButton" @click="getSubmitComplete" v-if="stateCode==0">保存</button>
         <van-popup
             :show="isShow"
             position="bottom"
@@ -265,7 +266,7 @@ import {newMultiArray} from '@/utils/multiArray';
 import { mockData,dataList,serachList,testList } from '@/utils/mock';
 export default {
     name:"FormList",
-    props:['ProcessId','ProcessInstanceId','RuleLogId','current'],
+    props:['ProcessId','ProcessInstanceId','RuleLogId','current','stateCode'],
     data(){
         return {
             title:"通用请示报告",
@@ -294,8 +295,15 @@ export default {
             params:{
                 processId:"",
                 parentRecord:{
+                    id:"",
+                    apiName: "",
+                    objTypeCode: "",
                     fields:{}
                 },
+                // 子表
+                relatedRecords:[],
+                // 删除子表
+                deleteRecords:[]
             },
             testLists:[],
             disabled:true,
@@ -336,9 +344,29 @@ export default {
         })
     },
     methods:{
-        handl(){
-            console.log('handl')
-            return 1;
+        handleAddChild(item){
+            console.log(item,'item')
+            item.fields.forEach(item=>{
+                this.$set(item,'value','')
+            })
+            var list = JSON.parse(JSON.stringify(item.fields))
+            console.log('list-list',list)
+            item[item.id].push({
+                arr:{...list}
+            })
+            console.log(item[item.id],'item[item.id]')
+        },
+        // 删除子表
+        handleDelChild(list,item,index,parentItem){
+            console.log(list,item,index,parentItem)
+            if(item.entitieId){
+                this.params.deleteRecords.push({
+                    id: item.entitieId,
+                    objTypeCode: item.entitieObjectTypeCode
+                })
+            }
+            list.splice(index,1);
+            console.log(this.params.deleteRecords,'已删除的子表')
         },
         changeTextArea(e,item){
             item.value = e.mp.detail.value;
@@ -351,6 +379,55 @@ export default {
                 item.value = this.option1[index].text;
                 this.fields[item.id] = item.value;
             }
+        },
+        // 完成
+        getSubmitComplete(){
+            this.params.relatedRecords = [];
+            this.list.forEach(item=>{
+                if(item.type=='RelatedList'){
+                    item[item.id].forEach(v=>{
+                        this.params.relatedRecords.push({
+                            id: v.entitieId || '',
+                            apiName: item.entityApiName || '',
+                            objTypeCode: item.entitieObjectTypeCode || '',
+                            arr: Object.values(v.arr) || ''
+                        })
+                    })
+                }
+            })
+            let result = [];
+            this.params.relatedRecords.forEach((self,index)=>{
+                console.log('self', self)
+                result.push({id:self.id,apiName:self.apiName,objTypeCode:self.objTypeCode,fields:{}})
+                self.arr.forEach(item=>{
+                    if(item.type=='U' || item.type=='O'){
+                        result[index].fields[item.id] = {
+                            Id: item.value.Id
+                        };
+                    }else {
+                        result[index].fields[item.id] = item.value;
+                    }
+                })
+            })
+            this.params.relatedRecords = result;
+            console.log('params:',this.params)
+            console.log('list',this.list)
+            const obj = {
+                actions:[
+                    {
+                        params:this.params
+                    }
+                ]
+            }
+            this.$httpWX.post({
+              url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
+                data:{
+                    SessionKey:this.sessionkey,
+                    message:JSON.stringify(obj)
+                }
+            }).then(res=>{
+                console.log('编辑保存',res)
+            })
         },
         // 同意保存表单
         getSaverecord(){
@@ -421,17 +498,29 @@ export default {
                 this.currenData = res.actions[0].returnValue.layoutPicklists;
                 this.record = res.actions[0].returnValue.masterRecord.record;
                 this.relatedListRecords = res.actions[0].returnValue.relatedListRecords;
+                this.params.parentRecord.apiName = res.actions[0].returnValue.masterRecord.entityApiName;
+                this.params.parentRecord.objTypeCode =  res.actions[0].returnValue.masterRecord.objectTypeCode;
+                // 编辑id
+                this.params.parentRecord.id = res.actions[0].returnValue.masterRecord.record.ValueId;
                 this.list.forEach(item=>{
                     if( this.record[item.name] instanceof Object){
                         console.log(item.name,'name')
                         item.value = this.record[item.name].Name;
                         this.fields[item.id] = this.record[item.name].Name;
+                        if(this.record[item.name].value){
+                            this.params.parentRecord.fields[item.id] = this.record[item.name].value;
+                        }else {
+                            this.params.parentRecord.fields[item.id] = '';
+                        }
                         if(item.type=='UCS'||item.type=='UC'){
                             // item.value = this.record[item.id].comments!=''?this.record[item.id].comments[0].Comment:'';
                             // this.fields[item.id] = this.record[item.id].comments!=''?this.record[item.id].comments[0].Comment:'';
                             item.item = this.record[item.id].comments;
                         }else if(item.type=='U'||item.type=='O'){
                             this.fields[item.id] = {
+                                Id: this.record[item.name].Id
+                            }
+                            this.params.parentRecord.fields[item.id] = {
                                 Id: this.record[item.name].Id
                             }
                         }else if(item.type=='L'||item.type=='DT'||item.type=='LT'){
@@ -451,10 +540,12 @@ export default {
                     }else if(item.type == 'MC'){
                         item.result = this.record[item.name].split(',');
                         this.fields[item.id] = this.record[item.name];
-                    }
-                    else {
-                        item.value = this.record[item.name];
-                        this.fields[item.id] = this.record[item.name];
+                    } else {
+                        if(item.type!='RelatedList'){
+                            item.value = this.record[item.name];
+                            this.fields[item.id] = this.record[item.name];
+                            this.params.parentRecord.fields[item.id] = this.record[item.name]
+                        }
                     }
                     // 包含子表的
                     if(item.type=='RelatedList'){
@@ -478,17 +569,20 @@ export default {
                             var childLength = this.relatedListRecords[item.entityApiName].entities.length;
                             for(let j = 0; j < childLength; j++){
                                 var list = JSON.parse(JSON.stringify(list))
-                                result.push({...list})
+                                result.push({arr:{...list}})
                             }
                             this.$set(item,item.id,result);
                         }
-                        item[item.id].forEach((k,kindex)=>{
+                        item[item.id].forEach((p,kindex)=>{
+                            let k = p.arr;
                             for(let l in k) {
                                 console.log(k[l],'===')
                                 const entitieitem = this.relatedListRecords[item.entityApiName].entities[kindex]
                                 const value = entitieitem.fields[k[l].id]
-                                   console.log(entitieitem,'entitieitem')
-                                
+                                const entitieId = entitieitem.id;
+                                console.log(entitieitem,'entitieitem')
+                                this.$set(item[item.id][kindex],'entitieId',entitieId)
+                                this.$set(item[item.id][kindex],'entitieObjectTypeCode',this.relatedListRecords[item.entityApiName].objectTypeCode)
                                 if(k[l].type=='DT'){
                                     // debugger
                                    let rowIdx = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values.findIndex(a=>a.value==value.value);
@@ -496,7 +590,7 @@ export default {
                                    this.$set(k[l],'value',val)
                                    this.$set(k[l],'index',rowIdx)
                                 }else if(k[l].type=='U'||k[l].type=='O'){
-                                    this.$set(k[l],'value',value.Name)
+                                    this.$set(k[l],'value',value)
                                 }else{
                                   this.$set(k[l],'value',value)
                                 }
@@ -522,20 +616,23 @@ export default {
                     }
                 })
                 console.log('this.list:', this.list)
+                console.log('this.params:', this.params)
             })
         },
         getOpenModal(item,index,idx,v,i,list=[]){
+            this.sObjectType = item.sObjectType;
             if(list.length>0){
                 console.log(item,index,idx,v,i,list)
                 this.childIdx = idx;
                 this.childForIdx = idx;
                 this.rowI = i;
+                this.sObjectType = v.sObjectType;
             }
             this.lksrch = '';
             this.popupIdx = -1;
             this.searchId = item.id;
             this.searchIdx = index;
-            this.sObjectType = item.sObjectType;
+            
             this.getLookup().then(res=>{
                 // item.temp = res.listData;
                 this.departList = res.listData;
@@ -569,7 +666,10 @@ export default {
         getPopupSel(item,index){
             this.popupIdx = index;
             if(this.childIdx>=0){
-                this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].value = item.Name;
+                this.list[this.searchIdx][this.searchId][this.childForIdx].arr[this.rowI].value = {
+                    Id: item.ID,
+                    Name: item.Name
+                };
             }else {
                 this.record[this.searchId] = item;
                 this.list[this.searchIdx].value = item.Name;
@@ -612,20 +712,27 @@ export default {
             item.value = e.mp.detail;
             this.params.parentRecord.fields[item.id] = e.mp.detail;
         },
-        bindPickerChange(val,item){
+        bindPickerChange(val,item,list=[]){
             item.index = val.mp.detail.value;
             item.value = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
             this.$set(item,'value',this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value)
-            this.record[item.id] = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
-            this.params.parentRecord.fields[item.id] = item.value;
+            if(list.length>0){
+
+            }else {
+                this.record[item.id] = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
+                this.params.parentRecord.fields[item.id] = item.value;
+            }
             console.log(item,'item',this.list)
         },
-        bindDateChange(v,item){
-            console.log(v,item);
+        bindDateChange(v,item,list=[]){
             item.value = v.mp.detail.value;
-            this.record[item.id] = item.value;
-            this.params.parentRecord.fields[item.id] = item.value;
-            console.log(this.list,'=========')
+            if(list.length>0){
+
+            }else {
+                this.record[item.id] = item.value;
+                this.params.parentRecord.fields[item.id] = item.value;
+
+            }
         },
         bindMultiPickerChange(v,item){
             item.multiIndex = v.mp.detail.value;
@@ -653,13 +760,13 @@ export default {
             time = this.RemoveChinese(time);
             return time;
         },
-        RemoveChinese(strValue) {  
-            if(strValue!= null && strValue != ""){  
-                var reg = /[\u4e00-\u9fa5]/g;   
-               return strValue.replace(reg, "");   
-            }  
-            else  
-                return "";  
+        RemoveChinese(strValue) {  
+            if(strValue!= null && strValue != ""){  
+                var reg = /[\u4e00-\u9fa5]/g;  
+                return strValue.replace(reg, "");  
+            }else  {
+                return "";  
+            }
         },
         changeCheckTag(e,item){
             console.log(e,item);
@@ -990,5 +1097,11 @@ export default {
 
             }
         }
+    }
+    .saveButton{
+        background: #3399ff;
+        color: #fff;
+        width: 80%;
+        margin-top: 50rpx;
     }
 </style>

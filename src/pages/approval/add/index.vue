@@ -190,7 +190,7 @@
                                 </picker>
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='D'">
-                            <picker :disabled="item.readonly" mode="date" :value="v.value" @change="function(val){bindDateChange(val,v)}">
+                            <picker :disabled="item.readonly" mode="date" :value="v.value" @change="function(e){bindDateChange(e,v,item[item.id],idx,item)}">
                                 <van-field
                                     :value="v.value"
                                     title-width="110px"
@@ -207,7 +207,7 @@
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='U'||v.type=='O'||v.type=='Y_MD'||v.type=='Y'">
                             <!-- value:list[index][item.id][idx][i].value -->
-                            <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value" @click="!v.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
+                            <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value.Name" @click="!v.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
                         </van-cell-group>
                         <div class="row" v-if="v.type=='UC'">
                             <p class="title">
@@ -760,24 +760,26 @@ export default {
                 var parentItme = this.list[this.searchIdx];
                 var list = this.list[this.searchIdx][this.searchId][this.childForIdx];
                 console.log('list',list,'===')
-                debugger
-                if(!this.params.relatedRecords[this.childForIdx]){
-                    this.params.relatedRecords[this.childForIdx] = {
-                        id: "",
-                        apiName: parentItme.entityApiName,
-                        objTypeCode: parentItme.sObjectType,
-                        fields: {}
-                    }
-                }
+                // debugger
+                // if(!this.params.relatedRecords[this.childForIdx]){
+                //     this.params.relatedRecords[this.childForIdx] = {
+                //         id: "",
+                //         apiName: parentItme.entityApiName,
+                //         objTypeCode: parentItme.sObjectType,
+                //         fields: {}
+                //     }
+                // }
                 
                 // debugger
-                this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].value = item.Name;
-                this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].valueId = item.Id;
+                this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].value = {
+                    Id: item.ID,
+                    Name: item.Name
+                };
                 // for(let j in list){
                     // debugger
-                    this.params.relatedRecords[this.childForIdx].fields[ this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].id] = {
-                        Id: item.ID
-                    }
+                    // this.params.relatedRecords[this.childForIdx].fields[ this.list[this.searchIdx][this.searchId][this.childForIdx][this.rowI].id] = {
+                    //     Id: item.ID
+                    // }
                     // if(list[j]==list.id){
                         // this.$set(this.params.relatedRecords[this.childForIdx].fields,[list[j].id],{
                         //     Id: item.ID
@@ -802,15 +804,18 @@ export default {
             this.isShow = false;
         },
         changeSwitch(e,item){
-            console.log(e,item);
             item.value = e.mp.detail;
             this.params.parentRecord.fields[item.id] = e.mp.detail;
         },
-        bindDateChange(v,item){
-            console.log(v,item);
-            item.value = v.mp.detail.value;
-            this.record[item.id] = item.value;
-            this.params.parentRecord.fields[item.id] = item.value;
+        bindDateChange(e,item,list=[],idx='',parentItme={}){
+            console.log(e,item,list,idx,parentItme);
+            item.value = e.mp.detail.value;
+            if(list.length>0){
+
+            }else {
+                this.record[item.id] = item.value;
+                this.params.parentRecord.fields[item.id] = item.value;
+            }
         },
         // mm:ss 时间选择
         bindTimeChange(e,item){
@@ -853,13 +858,13 @@ export default {
             time = this.RemoveChinese(time);
             return time;
         },
-        RemoveChinese(strValue) {  
-            if(strValue!= null && strValue != ""){  
-                var reg = /[\u4e00-\u9fa5]/g;   
-               return strValue.replace(reg, "");   
-            }  
-            else  
-                return "";  
+        RemoveChinese(strValue) {  
+            if(strValue!= null && strValue != ""){  
+                var reg = /[\u4e00-\u9fa5]/g;  
+                return strValue.replace(reg, "");  
+            }else  {
+                return "";  
+            }
         },
         changeCheckTag(e,item,index){
             console.log(e,item);
@@ -891,6 +896,36 @@ export default {
             }
         },
         getSubmit(){
+            this.params.relatedRecords = [];
+            this.list.forEach(item=>{
+                if(item.type=='RelatedList'){
+                    item[item.id].forEach(v=>{
+                        // console.log(Object.values(v),'v')
+                        // console.log('v',v)
+                        this.params.relatedRecords.push({
+                            id: "",
+                            apiName: item.entityApiName,
+                            objTypeCode: item.sObjectType,
+                            arr: Object.values(v)
+                        });
+                    })
+                }
+            })
+            let result = [];
+            this.params.relatedRecords.forEach((self,index)=>{
+                // console.log(self)
+                result.push({id:self.id,apiName:self.apiName,objTypeCode:self.objTypeCode,fields:{}})
+                self.arr.forEach(item=>{
+                    if(item.type=='U' || item.type=='O'){
+                        result[index].fields[item.id] = {
+                            Id: item.value.Id
+                        };
+                    }else {
+                        result[index].fields[item.id] = item.value;
+                    }
+                })
+            })
+            this.params.relatedRecords = result;
             this.leaveSave();
             let isBook = false;
             let idx = this.list.length;
