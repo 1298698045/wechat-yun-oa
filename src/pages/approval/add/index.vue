@@ -180,7 +180,7 @@
                                     :value="currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index] && currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index].label"
                                     input-class="inp"
                                     custom-style="font-size:34rpx;color:#333333"
-                                    :required="v.require||false"
+                                    :required="v.required||false"
                                     disabled
                                     :label="v.label"
                                     :placeholder="v.helpText"
@@ -190,7 +190,7 @@
                                 </picker>
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='D'">
-                            <picker :disabled="item.readonly" mode="date" :value="v.value" @change="function(e){bindDateChange(e,v,item[item.id],idx,item)}">
+                            <picker :disabled="v.readonly" mode="date" :value="v.value" @change="function(e){bindDateChange(e,v,item[item.id],idx,item)}">
                                 <van-field
                                     :value="v.value"
                                     title-width="110px"
@@ -207,13 +207,13 @@
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='U'||v.type=='O'||v.type=='Y_MD'||v.type=='Y'">
                             <!-- value:list[index][item.id][idx][i].value -->
-                            <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value.Name" @click="!v.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
+                            <van-cell value-class="cellValue" :required="v.required||false" :title="v.label" is-link :value="v.value.Name" @click="!v.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
                         </van-cell-group>
                         <div class="row" v-if="v.type=='UC'">
                             <p class="title">
-                                {{item.required||item.require?'*':''}}
+                                {{v.required||v.require?'*':''}}
                                 <span>{{v.label}}</span></p>
-                            <textarea :disabled="item.readonly" v-model="v.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="v.helpText"></textarea>
+                            <textarea :disabled="v.readonly" v-model="v.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="v.helpText"></textarea>
                         </div>
                     </div>
                 </div>
@@ -902,12 +902,15 @@ export default {
                     item[item.id].forEach(v=>{
                         // console.log(Object.values(v),'v')
                         // console.log('v',v)
-                        this.params.relatedRecords.push({
-                            id: "",
-                            apiName: item.entityApiName,
-                            objTypeCode: item.sObjectType,
-                            arr: Object.values(v)
-                        });
+                        const isBook = Object.values(v).every(self=>!self.required && (self.value=='' || self.value == null));
+                        if(!isBook){
+                            this.params.relatedRecords.push({
+                                id: "",
+                                apiName: item.entityApiName,
+                                objTypeCode: item.sObjectType,
+                                arr: Object.values(v)
+                            });
+                        }
                     })
                 }
             })
@@ -926,6 +929,7 @@ export default {
                 })
             })
             this.params.relatedRecords = result;
+            // console.log(this.params,'====');
             this.leaveSave();
             let isBook = false;
             let idx = this.list.length;
@@ -935,7 +939,7 @@ export default {
                     if(index+1==idx){
                         let isBook = true;
                     }
-                    if(item.value=='' && item.readonly==false && (item.require==true||item.required==true)){
+                    if((item.value==null || item.value=='') && item.readonly==false && (item.require==true||item.required==true)){
                         wx.showToast({
                             title:`请输入${item.label}`,
                             icon:"success",
@@ -945,6 +949,23 @@ export default {
                         // throw new Error('End');
                     }
                     
+                })
+                this.list.forEach(item=>{
+                    if(item.type=='RelatedList'){
+                        item[item.id].forEach(v=>{
+                            for(let i in v){
+                                console.log(v[i],'i')
+                                if(v[i].required && v[i].value==''){
+                                    wx.showToast({
+                                        title:v[i].helpText,
+                                        icon:"success",
+                                        duration:2000
+                                    })
+                                    throw '';
+                                }
+                            }
+                        })
+                    }
                 })
                 this.agreeShow = true;
                 const data = {
@@ -974,10 +995,23 @@ export default {
             this.agreeShow = false;
         },
         bindPickerChange(e,item,list=[],idx='',parentItme={}){
-            // console.log(e,item,list,idx,parentItme);
+            console.log(e,item,list,idx,parentItme);
+            // debugger
             item.index = e.mp.detail.value;
             item.value = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
             this.$set(item,'value',this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value)
+            let mapArr = this.currenData[item.entityApiName].picklistFieldMap;
+            mapArr.forEach(self=>{
+                const controllerIndex = this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].controllerValues[item.value];
+                console.log(controllerIndex,'controllerIndex')
+                const arr = this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].values.filter(f=>{
+                    return f.validFor.includes(controllerIndex)
+                })
+                console.log(this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].values,'this.currenData[item.entityApiName].picklistFieldValues[self.DependentName]')
+                // this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].values = arr;
+                this.$set(this.currenData[item.entityApiName].picklistFieldValues[self.DependentName],'values',arr);
+                console.log(this.currenData,'currenData')
+            })
             if(list.length>0){
                 this.params.relatedRecords[idx] = {
                     id: "",

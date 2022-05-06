@@ -11,11 +11,11 @@
                     :placeholder="item.helpText"
                     input-align="right"
                     @change="function(val){changeInput(val,item)}"
-                    :disabled="disabled"
+                    :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16"
                 />
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='L'||item.type=='DT'||item.type=='LT'">
-                <picker :disabled="false" @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.entityApiName].picklistFieldValues[item.id].values">
+                <picker :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.entityApiName].picklistFieldValues[item.id].values">
                     <van-field
                         :value="currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index]&&currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].label"
                         input-class="inp"
@@ -29,7 +29,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='D'">
-                <picker :disabled="false" mode="date" :value="item.value" @change="function(val){bindDateChange(val,item)}">
+                <picker :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" mode="date" :value="item.value" @change="function(val){bindDateChange(val,item)}">
                     <van-field
                         :value="item.value"
                         title-width="110px"
@@ -44,7 +44,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='TP'">
-                <picker mode="time" :disabled="disabled" :value="time" @change="function(val){bindTimeChange(val,item)}">
+                <picker mode="time" :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" :value="time" @change="function(val){bindTimeChange(val,item)}">
                     <van-field
                         :value="item.value"
                         title-width="110px"
@@ -59,7 +59,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='F'">
-                <picker :disabled="disabled" class="picker" mode="multiSelector" :value="item.multiIndex" @change="((val)=>{bindMultiPickerChange(val,item)})"
+                <picker :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" class="picker" mode="multiSelector" :value="item.multiIndex" @change="((val)=>{bindMultiPickerChange(val,item)})"
                     :range="newMultiArrayList">
                     <van-field
                         :value="item.value"
@@ -74,7 +74,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='Year'">
-                <picker :disabled="disabled" mode="date" :value="item.value" fields="year"  @change="((e)=>{bindYear(e,item)})">
+                <picker :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" mode="date" :value="item.value" fields="year"  @change="((e)=>{bindYear(e,item)})">
                     <van-field
                         :value="item.value"
                         input-class="inp"
@@ -88,7 +88,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='Month'">
-                <picker :disabled="disabled" mode="date" :value="item.value" fields="month"  @change="((e)=>{bindYMonth(e,item)})">
+                <picker :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" mode="date" :value="item.value" fields="month"  @change="((e)=>{bindYMonth(e,item)})">
                     <van-field
                         :value="item.value"
                         input-class="inp"
@@ -104,7 +104,7 @@
             <van-cell-group custom-class="cell" v-if="item.type=='G'||item.type=='MC'">
                 <div class="checkWrap">
                     <p class="label">{{item.label}}</p>
-                    <van-checkbox-group :disabled="item.readonly" :value="item.result" @change="((e)=>{changeCheckTag(e,item,index)})">
+                    <van-checkbox-group :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" :value="item.result" @change="((e)=>{changeCheckTag(e,item,index)})">
                         <div class="checkboxGroup">
                             <van-checkbox :name="v.value" v-for="(v,i) in currenData[item.id]" :key="i" custom-class="check" label-class="labels"  shape="square">
                                 <p class="tag">{{v.label}}</p>
@@ -116,7 +116,7 @@
             <van-cell-group v-if="item.type=='RBL'" custom-class="cell">
                 <div class="radioWrap">
                     <p class="label">{{item.label}}</p>
-                    <van-radio-group :disabled="item.readonly" :value="item.value" @change="(e)=>{changeRadio(e,item,index)}">
+                    <van-radio-group :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" :value="item.value" @change="(e)=>{changeRadio(e,item,index)}">
                         <div class="radio">
                             <van-radio :name="v.value" custom-class="radio" v-for="(v,i) in currenData[item.id]" :key="i">
                                 <p class="tag">{{v.label}}</p>
@@ -125,7 +125,7 @@
                     </van-radio-group>
                 </div>
             </van-cell-group>
-            <van-cell-group custom-class="cell" v-if="item.type=='U'||item.type=='O'||item.type=='Y_MD'||item.type=='Y'">
+            <van-cell-group :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" custom-class="cell" v-if="item.type=='U'||item.type=='O'||item.type=='Y_MD'||item.type=='Y'">
                 <van-cell :required="item.required||false" value-class="cellValue" title-style="font-size:34rpx;" :title="item.label" :is-link="false" :value="item.value" @click="!disabled?getOpenModal(item,index):''" />
             </van-cell-group>
             <div class="switch" v-if="item.type=='H'||item.type=='MC'">
@@ -133,7 +133,7 @@
                     {{item.label}}
                 </p>
                 <p>
-                    <van-switch :disabled="disabled" :checked="item.value" @change="(val)=>{changeSwitch(val,item)}" size="24px" />
+                    <van-switch :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" :checked="item.value" @change="(val)=>{changeSwitch(val,item)}" size="24px" />
                 </p>
             </div>
             <div class="row" v-if="item.type=='UCS'||item.type=='X'||item.type=='J'||item.type=='UC'">
@@ -156,7 +156,7 @@
                         </p>
                     </div>
                 </div>
-                <textarea :disabled="item.readonly" :value="item.value"
+                <textarea :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" :value="item.value"
                 :auto-height="true"
                 cols="100"
                 rows="10"
@@ -170,13 +170,14 @@
                         <span>
                             {{item.label}} ({{idx+1}})
                         </span>
-                        <span class="del" @click="handleDelChild(item[item.id],self,idx,item)">
+                        <span v-if="item.privilegeDepth!=8&&item.privilegeDepth!=16" class="del" @click="handleDelChild(item[item.id],self,idx,item)">
                             删除
                         </span>
                     </div>
                     <div class="rowBox" v-for="(v,i) in self.arr" :key="i">
                         <van-cell-group v-if="v.type=='S'||v.type=='E'||v.type=='N'||v.type=='H'" custom-class="cell">
                             <van-field
+                                :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16"
                                 :value="v.value"
                                 custom-style="font-size:34rpx;color:#333333"
                                 :required="v.required||false"
@@ -187,7 +188,7 @@
                             />
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='L'||v.type=='DT'||v.type=='LT'">
-                            <picker @change="(val)=>{bindPickerChange(val,v,item[item.id])}" :value="v.index" range-key="label" :range="currenData[v.entityApiName].picklistFieldValues[v.id].values">
+                            <picker :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16" @change="(val)=>{bindPickerChange(val,v,item[item.id])}" :value="v.index" range-key="label" :range="currenData[v.entityApiName].picklistFieldValues[v.id].values">
                                 <van-field
                                     :value="currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index] && currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index].label"
                                     input-class="inp"
@@ -202,7 +203,7 @@
                                 </picker>
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='D'">
-                            <picker :disabled="item.readonly" mode="date" :value="v.value" @change="function(val){bindDateChange(val,v,item[item.id])}">
+                            <picker :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16" mode="date" :value="v.value" @change="function(val){bindDateChange(val,v,item[item.id])}">
                                 <van-field
                                     :value="v.value"
                                     title-width="110px"
@@ -217,19 +218,19 @@
                                 />
                             </picker>
                         </van-cell-group>
-                        <van-cell-group custom-class="cell" v-if="v.type=='U'||v.type=='O'||v.type=='Y_MD'||v.type=='Y'">
+                        <van-cell-group :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16" custom-class="cell" v-if="v.type=='U'||v.type=='O'||v.type=='Y_MD'||v.type=='Y'">
                             <!-- value:list[index][item.id][idx][i].value -->
-                            <van-cell value-class="cellValue" :title="v.label" is-link :value="v.value.Name" @click="!item.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
+                            <van-cell value-class="cellValue" :required="v.required||false" :title="v.label" is-link :value="v.value.Name" @click="!v.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
                         </van-cell-group>
                         <div class="row" v-if="v.type=='UC'">
                             <p class="title">
-                                {{item.required||item.require?'*':''}}
+                                {{v.required||v.require?'*':''}}
                                 <span>{{v.label}}</span></p>
-                            <textarea :disabled="item.readonly" v-model="v.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="v.helpText"></textarea>
+                            <textarea :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16" v-model="v.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="v.helpText"></textarea>
                         </div>
                     </div>
                 </div>
-                <p class="add_child" @click="handleAddChild(item)">
+                <p class="add_child" @click="handleAddChild(item)" v-if="item.privilegeDepth!=8&&item.privilegeDepth!=16">
                     <span class="icon">
                         <van-icon name="plus" />
                     </span>
@@ -385,14 +386,21 @@ export default {
             this.params.relatedRecords = [];
             this.list.forEach(item=>{
                 if(item.type=='RelatedList'){
-                    item[item.id].forEach(v=>{
-                        this.params.relatedRecords.push({
-                            id: v.entitieId || '',
-                            apiName: item.entityApiName || '',
-                            objTypeCode: item.entitieObjectTypeCode || '',
-                            arr: Object.values(v.arr) || ''
+                    if(item[item.id]){
+                        console.log(item,'item,item')
+                        item[item.id].forEach(v=>{
+                            const isBook = Object.values(v.arr).every(self=>!self.required && (self.value=='' || self.value == null));
+                            console.log(isBook,'=======')
+                            if(!isBook){
+                                this.params.relatedRecords.push({
+                                    id: v.entitieId || '',
+                                    apiName: item.entityApiName || '',
+                                    objTypeCode: item.sObjectType || '',
+                                    arr: Object.values(v.arr) || ''
+                                })
+                            }
                         })
-                    })
+                    }
                 }
             })
             let result = [];
@@ -412,6 +420,41 @@ export default {
             this.params.relatedRecords = result;
             console.log('params:',this.params)
             console.log('list',this.list)
+            let idx = this.list.length;
+            this.list.forEach((item,index)=>{
+                if(index+1==idx){
+                    let isBook = true;
+                }
+                if((item.value==null || item.value=='') && item.readonly==false && (item.require==true||item.required==true)){
+                    wx.showToast({
+                        title:`请输入${item.label}`,
+                        icon:"success",
+                        duration:2000
+                    })
+                    throw '';
+                    // throw new Error('End');
+                }
+                
+            })
+            this.list.forEach(item=>{
+                if(item.type=='RelatedList'){
+                    if(item[item.id]){
+                        item[item.id].forEach(v=>{
+                            for(let i in v.arr){
+                                console.log( v.arr[i],'i')
+                                if( v.arr[i].required &&  v.arr[i].value==''){
+                                    wx.showToast({
+                                        title: v.arr[i].helpText,
+                                        icon:"success",
+                                        duration:2000
+                                    })
+                                    throw '';
+                                }
+                            }
+                        })
+                    }
+                }
+            })
             const obj = {
                 actions:[
                     {
@@ -427,6 +470,7 @@ export default {
                 }
             }).then(res=>{
                 console.log('编辑保存',res)
+                this.getLayoutData();
             })
         },
         // 同意保存表单
@@ -533,6 +577,7 @@ export default {
                                     label: this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].label,
                                     value:this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value
                                 };
+                                item.value = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value
                             }else {
                                 item.index = '';
                             }
@@ -584,11 +629,12 @@ export default {
                                 this.$set(item[item.id][kindex],'entitieId',entitieId)
                                 this.$set(item[item.id][kindex],'entitieObjectTypeCode',this.relatedListRecords[item.entityApiName].objectTypeCode)
                                 if(k[l].type=='DT'){
-                                    // debugger
-                                   let rowIdx = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values.findIndex(a=>a.value==value.value);
-                                   let val = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values[rowIdx].value;
-                                   this.$set(k[l],'value',val)
-                                   this.$set(k[l],'index',rowIdx)
+                                    if(value.value){
+                                        let rowIdx = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values.findIndex(a=>a.value==value.value);
+                                        let val = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values[rowIdx].value;
+                                        this.$set(k[l],'value',val)
+                                        this.$set(k[l],'index',rowIdx)
+                                    }
                                 }else if(k[l].type=='U'||k[l].type=='O'){
                                     this.$set(k[l],'value',value)
                                 }else{
