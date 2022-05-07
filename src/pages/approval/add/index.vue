@@ -175,9 +175,9 @@
                             />
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='L'||v.type=='DT'||v.type=='LT'">
-                            <picker @change="(e)=>{bindPickerChange(e,v,item[item.id],idx,item)}" :value="v.index" range-key="label" :range="currenData[v.entityApiName].picklistFieldValues[v.id].values">
+                            <picker @change="(e)=>{bindPickerChange(e,v,item[item.id],idx,item)}" :value="v.index" range-key="label" :range="v.picklistFieldValues">
                                 <van-field
-                                    :value="currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index] && currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index].label"
+                                    :value="v.picklistFieldValues[v.index] && v.picklistFieldValues[v.index].label"
                                     input-class="inp"
                                     custom-style="font-size:34rpx;color:#333333"
                                     :required="v.required||false"
@@ -508,6 +508,14 @@ export default {
         //     }
         // })
     },
+    watch:{
+        // currenData: {
+        //     handler(newVal, oldVal){
+        //         console.log(newVal,oldVal);
+        //     },
+        //     deep: true
+        // }
+    },
     methods:{
         ...mapMutations(['getClear']),
         // 增加子表
@@ -517,6 +525,12 @@ export default {
                 this.$set(item,'value','')
             })
             var list = JSON.parse(JSON.stringify(item.fields))
+            for(var i=0;i<list.length;i++){
+                this.$set(list[i],'value','')
+                if(list[i].type=='DT'||list[i].type=='LT'||list[i].type=='L'){
+                    list[i].picklistFieldValues = this.currenData[list[i].entityApiName].picklistFieldValues[list[i].id].values;
+                }
+            }
             console.log('list-list',list)
             item[item.id].push({
                 ...list
@@ -647,6 +661,12 @@ export default {
                         var list = JSON.parse(JSON.stringify(item.fields))
                         for(var i=0;i<list.length;i++){
                             this.$set(list[i],'value','')
+                            if(list[i].type=='DT'||list[i].type=='LT'||list[i].type=='L'){
+                                // this.list[] 
+                                // item[item.id]
+                                list[i].picklistFieldValues = this.currenData[list[i].entityApiName].picklistFieldValues[list[i].id].values;
+                                // this.$set(this.currenData[list[i].entityApiName].picklistFieldValues[list[i].id],'list',this.currenData[list[i].entityApiName].picklistFieldValues[list[i].id].values)
+                            }
                         }
                         this.$set(item,item.id,[{...list}]);
                     }
@@ -929,7 +949,7 @@ export default {
                 })
             })
             this.params.relatedRecords = result;
-            // console.log(this.params,'====');
+            console.log(this.params,'====');
             this.leaveSave();
             let isBook = false;
             let idx = this.list.length;
@@ -1001,16 +1021,26 @@ export default {
             item.value = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
             this.$set(item,'value',this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value)
             let mapArr = this.currenData[item.entityApiName].picklistFieldMap;
+            // console.log(mapArr,'mapArr', item.id)
             mapArr.forEach(self=>{
-                const controllerIndex = this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].controllerValues[item.value];
-                console.log(controllerIndex,'controllerIndex')
-                const arr = this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].values.filter(f=>{
-                    return f.validFor.includes(controllerIndex)
-                })
-                console.log(this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].values,'this.currenData[item.entityApiName].picklistFieldValues[self.DependentName]')
-                // this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].values = arr;
-                this.$set(this.currenData[item.entityApiName].picklistFieldValues[self.DependentName],'values',arr);
-                console.log(this.currenData,'currenData')
+                // console.log(self.DependentName,'self.DependentName')
+                if(self.DependentName!=item.id){
+                    const controllerIndex = this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].controllerValues[item.value];
+                    // console.log(controllerIndex,'controllerIndex', this.currenData)
+                    if(controllerIndex!=undefined){
+                        const arr = this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].values.filter(f=>{
+                            return f.validFor.includes(controllerIndex)
+                        })
+                        // this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].values = arr;
+                        Object.values(list[idx]).find((val)=>{
+                            return val.id == self.DependentName
+                        }).picklistFieldValues = arr
+                        Object.values(list[idx]).find((val)=>{
+                            return val.id == self.DependentName
+                        }).index = '';
+                        // console.log(this.currenData,'currenData')
+                    }
+                }
             })
             if(list.length>0){
                 this.params.relatedRecords[idx] = {
@@ -1019,6 +1049,7 @@ export default {
                     objTypeCode: parentItme.sObjectType,
                     fields: {}
                 }
+                item.value = item.picklistFieldValues[item.index].value;
                 for(let j in list[idx]){
                     this.params.relatedRecords[idx].fields[list[idx][j].id] = list[idx][j].value;
                 }

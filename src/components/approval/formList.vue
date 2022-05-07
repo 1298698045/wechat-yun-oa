@@ -188,9 +188,9 @@
                             />
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='L'||v.type=='DT'||v.type=='LT'">
-                            <picker :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16" @change="(val)=>{bindPickerChange(val,v,item[item.id])}" :value="v.index" range-key="label" :range="currenData[v.entityApiName].picklistFieldValues[v.id].values">
+                            <picker :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16" @change="(val)=>{bindPickerChange(val,v,item[item.id],idx)}" :value="v.index" range-key="label" :range="v.picklistFieldValues">
                                 <van-field
-                                    :value="currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index] && currenData[v.entityApiName].picklistFieldValues[v.id].values[v.index].label"
+                                    :value="v.picklistFieldValues[v.index] && v.picklistFieldValues[v.index].label"
                                     input-class="inp"
                                     custom-style="font-size:34rpx;color:#333333"
                                     :required="v.require||false"
@@ -608,6 +608,9 @@ export default {
                         var list = JSON.parse(JSON.stringify(item.fields))
                         for(var i=0;i<list.length;i++){
                             this.$set(list[i],'value','')
+                            if(list[i].type=='DT'||list[i].type=='LT'||list[i].type=='L'){
+                                list[i].picklistFieldValues = this.currenData[list[i].entityApiName].picklistFieldValues[list[i].id].values;
+                            }
                         }
                         for(let i = 0; i < item.fields.length; i++){
                             let result = []
@@ -628,12 +631,34 @@ export default {
                                 console.log(entitieitem,'entitieitem')
                                 this.$set(item[item.id][kindex],'entitieId',entitieId)
                                 this.$set(item[item.id][kindex],'entitieObjectTypeCode',this.relatedListRecords[item.entityApiName].objectTypeCode)
-                                if(k[l].type=='DT'){
+                                if(k[l].type=='DT'||k[l].type=='LT'||k[l].type=='L'){
                                     if(value.value){
                                         let rowIdx = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values.findIndex(a=>a.value==value.value);
                                         let val = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values[rowIdx].value;
                                         this.$set(k[l],'value',val)
                                         this.$set(k[l],'index',rowIdx)
+                                        let mapArr = this.currenData[k[l].entityApiName].picklistFieldMap;
+                                        // console.log(mapArr,'maparr', kindex)
+                                        const ControllerName = mapArr[kindex].ControllerName;
+                                        // console.log('ControllerName', ControllerName, k[l].id)
+                                        // 获取到联动的父级
+                                        if(k[l].id==ControllerName){
+                                            var prevVal = k[l].value;
+                                        }
+                                        if(ControllerName!=k[l].id){
+                                            console.log('k[l].value',k[l].value, prevVal)
+                                            const controllerIndex = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].controllerValues[prevVal];
+                                            console.log(controllerIndex,'controllerIndex')
+                                            if(controllerIndex!=undefined){
+                                                const arr = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values.filter(f=>{
+                                                    return f.validFor.includes(controllerIndex)
+                                                })
+                                                this.$set(k[l],'picklistFieldValues',arr)
+                                                rowIdx = k[l].picklistFieldValues.findIndex(a=>a.value==value.value);
+                                                this.$set(k[l],'index',rowIdx)
+                                            }
+                                        }
+                                        
                                     }
                                 }else if(k[l].type=='U'||k[l].type=='O'){
                                     this.$set(k[l],'value',value)
@@ -758,10 +783,30 @@ export default {
             item.value = e.mp.detail;
             this.params.parentRecord.fields[item.id] = e.mp.detail;
         },
-        bindPickerChange(val,item,list=[]){
-            item.index = val.mp.detail.value;
+        bindPickerChange(e,item,list=[],idx){
+            item.index = e.mp.detail.value;
             item.value = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value;
             this.$set(item,'value',this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value)
+            let mapArr = this.currenData[item.entityApiName].picklistFieldMap;
+            mapArr.forEach(self=>{
+                if(self.DependentName!=item.id){
+                    const controllerIndex = this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].controllerValues[item.value];
+                    if(controllerIndex!=undefined){
+                        const arr = this.currenData[item.entityApiName].picklistFieldValues[self.DependentName].values.filter(f=>{
+                            return f.validFor.includes(controllerIndex)
+                        })
+                        Object.values(list[idx].arr).find((k)=>{
+                            return k.id == self.DependentName
+                        }).picklistFieldValues = arr
+                        Object.values(list[idx].arr).find((k)=>{
+                            return k.id == self.DependentName
+                        }).value = '';
+                        Object.values(list[idx].arr).find((k)=>{
+                            return k.id == self.DependentName
+                        }).index = '';
+                    }
+                }
+            })
             if(list.length>0){
 
             }else {
