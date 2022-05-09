@@ -259,7 +259,7 @@ const api = {
         projectAll: "project.mine.search",
         childrenTask: "BusinessListViewItems", // 子任务列表
         calendarTask: "BusinessCalendarViewPaginatedItems", // 日历列表
-        panelList: "project.task.getlist", // 面板列表
+        panelList: "BusinessBoardViewItems", // 面板列表
     }
 }
 export default api;
