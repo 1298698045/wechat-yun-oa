@@ -215,6 +215,9 @@ export default {
             }else if(id==301){
                 const url = '/pages/signIn/main';
                 wx.navigateTo({url:url});
+            }else if(id==105){
+                const url = '/pages/task/main';
+                wx.navigateTo({url:url});
             }
         },
         // 删除

@@ -7,7 +7,7 @@
                 >{{item}}</p>
             </div>
         </div>
-        <panelTask ref="panelTask" :projectId="projectId" :sessionkey="sessionkey" v-if="tabIdx==0" />
+        <panelTask ref="panelTask" :id="projectId" :sessionkey="sessionkey" v-if="tabIdx==0" />
         <fileTask  :projectId="projectId" :sessionkey="sessionkey" v-if="tabIdx==1"/>
     </div>
 </template>
@@ -33,8 +33,9 @@ export default {
         }
     },
     onLoad(options){
+        Object.assign(this.$data,this.$options.data());
         this.projectId = options.projectId;
-        // this.getQuery();
+        console.log('projectId', this.projectId)
     },
     onShow(){
         

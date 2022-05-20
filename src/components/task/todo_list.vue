@@ -37,6 +37,11 @@
             <i class="iconfont icon-fenzu"></i>
             项目：{{item.RegardingObjectId.lookupValue.displayName || ''}}
           </p>
+          <div class="project_name createBy">
+            <i class="iconfont icon-canyuren"></i>
+            报告人：
+            <span>{{item.CreatedBy.userValue.displayName || ''}}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -122,7 +127,7 @@ export default {
         if(this.tag=='eq'){
           filterQuery += 'StatusCategoryId\teq\t3'
         }else if(this.tag == 'neq'){
-          filterQuery+='StateCode\t'+this.tag+'\t'+10050
+          filterQuery+='StatusCategoryId\tneq\t3'
         }
         let data = '\r\n--XXX';
         data += '\r\nContent-Disposition: form-data; name="filterQuery"'+
@@ -351,6 +356,9 @@ export default {
               i{
                 padding-right: 15rpx;
               }
+            }
+            .project_name.createBy{
+              padding-top: 15rpx;
             }
           }
         }

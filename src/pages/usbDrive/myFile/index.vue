@@ -316,7 +316,14 @@ export default {
         this.canCreate = options.canCreate == 'false' ? false : options.canCreate == 'true' ? true : false;
         console.log('canAdmin:', this.canAdmin, typeof this.canAdmin)
         console.log('canCreate', this.canCreate, typeof this.canCreate)
-        let title = this.srchType == 'my' ? '我的文件' : this.srchType == 'share' ? '共享文件' : this.srchType == 'org' ? '单位文件' : '我的文件'
+        const type = {
+            'my':'我的文件',
+            'share': '共享文件',
+            'org': '单位文件',
+            'project': '项目文件'
+        }
+        let title = type[this.srchType]
+        // let title = this.srchType == 'my' ? '我的文件' : this.srchType == 'share' ? '共享文件' : this.srchType == 'org' ? '单位文件' : '我的文件'
         wx.setNavigationBarTitle({
             title: title
         })

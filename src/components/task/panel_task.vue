@@ -64,11 +64,12 @@ export default {
             isShow: false,
             actions: [
                 { name: '删除' }
-            ]
+            ],
+            projectId: ''
         }
     },
     props:{
-        projectId:{
+        id:{
             type: '',
             default: ''
         },
@@ -77,11 +78,18 @@ export default {
             default: ''
         }
     },
-    mounted(){
-        // this.getQuery();
+    watch:{
+        id:{
+            immediate: true,
+            handler(newVal, oldVal){
+                console.log(newVal,'newVal')
+                this.projectId = newVal;
+                this.getQuery();
+            }
+        }
     },
     onLoad(){
-        this.getQuery();
+        
     },
     methods:{
         getQuery(){

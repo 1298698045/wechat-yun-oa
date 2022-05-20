@@ -73,12 +73,7 @@
                     </div>
                 </div>
                 <div class="content">
-                    <p v-if="str=='files'">发送给联系人</p>
-                    <p v-if="str=='files'" @click="getSendEmail">发邮件</p>
-                    <p @click="getObtainLink">获取分享链接</p>
                     <p @click="getRename">重命名</p>
-                    <p @click="getMoveFile">移动到</p>
-                    <p v-if="str=='files'" @click="getCopy">复制到</p>
                     <p @click="deleteFile">删除</p>
                 </div>
             </div>
@@ -128,13 +123,18 @@
             <van-icon name="plus" size="20px" />
         </div>
         <!-- 新建文件夹弹框 -->
-        <!-- <newFolder v-if="newShow" :ParentId="ParentId" :str="str" :newSign="newSign" :fileId="fileId" :fileName="fileName" @changeShow="changeShow" /> -->
+        <newFolder v-if="newShow" :ParentId="ParentId" :str="str" :newSign="newSign" :fileId="fileId" :fileName="fileName" @changeShow="changeShow" />
     </div>
 </template>
 <script>
+import openFiles from '@/utils/openFiles';
+import newFolder from '../../components/newFolder.vue';
 export default {
   name: 'fileTask',
   props: ['sessionkey','projectId'],
+  components:{
+      newFolder
+  },
   data() {
     return {
         value:"",
@@ -172,7 +172,7 @@ export default {
             isTime:false,
             imgList:[],
             newShow:false,
-            srchType:"",
+            srchType:"project",
             // ParentId:"10010000-0000-0000-0000-000000000001",
             shareFileName:"",
             sessionkey:"",
@@ -185,9 +185,9 @@ export default {
     };
   },
   computed:{
-    ParentId(){
-        return this.projectId
-    },
+    // ParentId(){
+    //     return this.projectId
+    // },
     isModelmes(){
         return wx.getStorageSync('isModelmes');
     },
@@ -201,10 +201,29 @@ export default {
         return wx.getStorageSync('organizationName');
     }
   },
+  watch:{
+    projectId:{
+        handler(newVal, oldVal) {
+            this.ParentId = newVal;
+            this.getQuery();
+        },
+        immediate: true
+    }  
+  },
   onLoad() {
-      this.getQuery();
   },
   methods: {
+    changeSearch(e){
+        console.log(e);
+        this.search = e.mp.detail;
+        this.getQuery();
+    },
+    changeShow(isBook){
+        this.newShow = isBook;
+        this.files = [];
+        this.folders = [];
+        this.getQuery();
+    },
     getQuery() {
       this.$httpWX
         .get({
@@ -212,7 +231,6 @@ export default {
           data: {
             method: this.$api.usb.filesQuery,
             SessionKey: this.sessionkey,
-            srchType: this.srchType,
             sort: this.sort,
             Folderid: this.ParentId,
             search: this.search,
@@ -339,14 +357,11 @@ export default {
         console.log(e);
         let id = e.mp.detail.id;
         if(id==2){
-            // let url = '/pages/usbDrive/newFolder/main';
-            // wx.navigateTo({url:url});
             this.newSign = 0;
             this.fileName = '';
             this.fileId = '';
             this.newShow = true;
         }else if(id==1){
-            // this.popupModal = true;
             this.getOpenPhoto();
         }
     },
