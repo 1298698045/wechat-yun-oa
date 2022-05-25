@@ -143,7 +143,7 @@
                         <van-dropdown-item :value="value1" :options="option1" @change="(e)=>{changeDropDown(e,item)}" />
                     </van-dropdown-menu>
                 </div>
-                <div class="list_textarea">
+                <div class="list_textarea" v-if="item.item">
                     <div v-for="(v,idx) in item.item" :key="idx">
                         <!-- <p class="imgs">
                             <img :src="photoUrl+v.SignUrl" alt="">
@@ -156,7 +156,7 @@
                         </p>
                     </div>
                 </div>
-                <textarea :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" :value="item.value"
+                <textarea v-if="current=='tab2'" :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" :value="item.value"
                 :auto-height="true"
                 cols="100"
                 rows="10"
@@ -188,9 +188,9 @@
                             />
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='L'||v.type=='DT'||v.type=='LT'">
-                            <picker :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16" @change="(val)=>{bindPickerChange(val,v,item[item.id],idx)}" :value="v.index" range-key="label" :range="v.picklistFieldValues">
+                            <picker :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16" @change="(val)=>{bindPickerChange(val,v,item[item.id],idx)}" :value="v.index" range-key="label" :range="v.picklistFieldValues || []">
                                 <van-field
-                                    :value="v.picklistFieldValues[v.index] && v.picklistFieldValues[v.index].label"
+                                    :value="v.picklistFieldValues && v.picklistFieldValues[v.index] && v.picklistFieldValues[v.index].label"
                                     input-class="inp"
                                     custom-style="font-size:34rpx;color:#333333"
                                     :required="v.require||false"
@@ -238,7 +238,7 @@
                 </p>
             </div>
         </div>
-        <button class="saveButton" @click="getSubmitComplete" v-if="stateCode==0">保存</button>
+        <button class="saveButton" @click="getAgree" v-if="stateCode==0">提交</button>
         <van-popup
             :show="isShow"
             position="bottom"
@@ -310,7 +310,7 @@ export default {
             disabled:true,
             fields:{},
             option1: [
-                {text:'请选择',value:0},
+                {text:'请选择常用意见',value:0},
                 { text: '同意', value: 1 },
                 { text: '不同意', value: 2 },
                 { text: '复核完毕，请提交正式纸质版，等待签订', value: 3 },
@@ -352,6 +352,7 @@ export default {
             })
             var list = JSON.parse(JSON.stringify(item.fields))
             console.log('list-list',list)
+            debugger
             item[item.id].push({
                 arr:{...list}
             })
@@ -378,10 +379,15 @@ export default {
             let index = e.mp.detail;
             if(index!=0){
                 item.value = this.option1[index].text;
+                this.$set(item,'value', item.value)
                 this.fields[item.id] = item.value;
+                this.params.parentRecord.fields[item.id] = item.value;
             }
         },
-        // 完成
+        getAgree(){
+            this.$parent.getAgree();
+        },
+        // 完成 提交表单
         getSubmitComplete(){
             this.params.relatedRecords = [];
             this.list.forEach(item=>{
@@ -462,6 +468,7 @@ export default {
                     }
                 ]
             }
+            debugger
             this.$httpWX.post({
               url:this.$api.message.queryList+'?method='+this.$api.approval.saverecord,
                 data:{
@@ -470,7 +477,7 @@ export default {
                 }
             }).then(res=>{
                 console.log('编辑保存',res)
-                this.getLayoutData();
+                // this.getLayoutData();
             })
         },
         // 同意保存表单

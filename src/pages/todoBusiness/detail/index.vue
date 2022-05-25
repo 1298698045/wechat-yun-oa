@@ -843,9 +843,9 @@ export default {
         onCloseRefuse(){
             this.refuseShow = false;
         },
-        getAgree(){
+        async getAgree(){
             // 保存表单
-            this.$refs.refChild.getSaverecord();
+            await this.$refs.refChild.getSubmitComplete();
             // console.log(this.$refs.child.$emit);
             // this.$refs.child.$emit('childMethod','hello');
             this.agreeShow = true;

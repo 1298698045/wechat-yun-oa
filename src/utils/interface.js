@@ -159,7 +159,8 @@ const api = {
         tostarter: "process.approve.reject.tostarter", // 退回到发起人
         tostep: "process.approve.reject.toactivity", // 退回到指定节点
         create: "process.instance.create", // 创建流程实例 – 不带表单数据
-        finish: "process.approve.finish" // 流程审批 – 结束
+        finish: "process.approve.finish", // 流程审批 – 结束
+        delete: "process.instance.draftdeleteid" // 删除草稿审批单
     },
     // 投票
     vote: {

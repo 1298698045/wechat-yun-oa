@@ -23,17 +23,29 @@
                 <div class="boxWrap">
                     <p class="title">{{item.ToActivityName}}</p>
                     <p class="name">
-                        办理人
-                        <span>{{item.BusinessUnitIdName}}  {{item.CreatedByName}}</span>
+                        <span class="label">提交人：</span>
+                        <span class="val">{{item.CreatedByName || ''}}</span>
                     </p>
                     <p class="name top">
-                        处理方式
+                        <span class="label">办理人：</span>
+                        <span class="val">{{item.BusinessUnitIdName}}  {{item.CreatedByName}}</span>
+                    </p>
+                    <p class="name top">
+                        <span class="label">处理方式：</span>
                         <span>{{item.SourceType}}</span>
                     </p>
                     <p class="name top">
+                        <span class="label">耗时：</span>
+                        <span class="val">{{item.TimeCost || ''}}</span>
+                    </p>
+                    <p class="name top">
+                        <span class="label">办理时间：</span>
+                        <span class="val">{{item.ModifiedOn || ''}}</span>
+                    </p>
+                    <p class="name top">
                         <!-- 处理意见 -->
-                        留言
-                        <span>{{item.Description}}</span>
+                        <span class="label">留言：</span>
+                        <span class="val">{{item.Description}}</span>
                     </p>
                 </div>
             </div>
@@ -160,7 +172,7 @@ page{
                     span{
                         display: inline-block;
                         width: 2rpx;
-                        height: 352rpx;
+                        height: 550rpx;
                         background: #3399ff;
                     }
                 }
@@ -200,7 +212,11 @@ page{
                         padding: 19rpx 21rpx;
                         color: #666666;
                         font-size: 28rpx;
-                        span{
+                        .label{
+                            display: inline-block;
+                            width: 130rpx;
+                        }
+                        .val{
                             color: #333333;
                         }
                     }
