@@ -1,4 +1,4 @@
-// var UglifyJsPlugin = require('uglifyjs-webpack-plugin') //加入到第一行
+var UglifyJsPlugin = require('uglifyjs-webpack-plugin') //加入到第一行
 var utils = require('./utils')
 
 var webpack = require('webpack')
@@ -83,6 +83,6 @@ module.exports = merge(baseWebpackConfig, {
         //   inject: true
         // }),
         new FriendlyErrorsPlugin(),
-        // new UglifyJsPlugin({ sourceMap: true })//加入到plugins中
+        new UglifyJsPlugin({ sourceMap: true })//加入到plugins中
     ]
 })

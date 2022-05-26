@@ -214,7 +214,7 @@ page{
                         font-size: 28rpx;
                         .label{
                             display: inline-block;
-                            width: 130rpx;
+                            width: 160rpx;
                         }
                         .val{
                             color: #333333;

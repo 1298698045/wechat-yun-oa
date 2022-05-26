@@ -11,11 +11,11 @@
                     :placeholder="item.helpText"
                     input-align="right"
                     @change="function(val){changeInput(val,item)}"
-                    :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16"
+                    :disabled="item.privilegeDepth<8"
                 />
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='L'||item.type=='DT'||item.type=='LT'">
-                <picker :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.entityApiName].picklistFieldValues[item.id].values">
+                <picker :disabled="item.privilegeDepth<8" @change="(val)=>{bindPickerChange(val,item)}" :value="item.index" range-key="label" :range="currenData[item.entityApiName].picklistFieldValues[item.id].values">
                     <van-field
                         :value="currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index]&&currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].label"
                         input-class="inp"
@@ -24,12 +24,13 @@
                         :disabled="disabled"
                         :label="item.label"
                         :placeholder="item.helpText"
+                        :right-icon="item.privilegeDepth!=8&&item.privilegeDepth!=16?'':'arrow'"
                         input-align="right"
                     />
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='D'">
-                <picker :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" mode="date" :value="item.value" @change="function(val){bindDateChange(val,item)}">
+                <picker :disabled="item.privilegeDepth<8" mode="date" :value="item.value" @change="function(val){bindDateChange(val,item)}">
                     <van-field
                         :value="item.value"
                         title-width="110px"
@@ -39,12 +40,13 @@
                         :disabled="disabled"
                         :label="item.label"
                         input-align="right"
+                        :right-icon="item.privilegeDepth<8?'':'arrow'"
                         :placeholder="item.helpText"
                     />
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='TP'">
-                <picker mode="time" :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" :value="time" @change="function(val){bindTimeChange(val,item)}">
+                <picker mode="time" :disabled="item.privilegeDepth<8" :value="time" @change="function(val){bindTimeChange(val,item)}">
                     <van-field
                         :value="item.value"
                         title-width="110px"
@@ -59,7 +61,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='F'">
-                <picker :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" class="picker" mode="multiSelector" :value="item.multiIndex" @change="((val)=>{bindMultiPickerChange(val,item)})"
+                <picker :disabled="item.privilegeDepth<8" class="picker" mode="multiSelector" :value="item.multiIndex" @change="((val)=>{bindMultiPickerChange(val,item)})"
                     :range="newMultiArrayList">
                     <van-field
                         :value="item.value"
@@ -74,7 +76,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='Year'">
-                <picker :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" mode="date" :value="item.value" fields="year"  @change="((e)=>{bindYear(e,item)})">
+                <picker :disabled="item.privilegeDepth<8" mode="date" :value="item.value" fields="year"  @change="((e)=>{bindYear(e,item)})">
                     <van-field
                         :value="item.value"
                         input-class="inp"
@@ -88,7 +90,7 @@
                 </picker>
             </van-cell-group>
             <van-cell-group custom-class="cell" v-if="item.type=='Month'">
-                <picker :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" mode="date" :value="item.value" fields="month"  @change="((e)=>{bindYMonth(e,item)})">
+                <picker :disabled="item.privilegeDepth<8" mode="date" :value="item.value" fields="month"  @change="((e)=>{bindYMonth(e,item)})">
                     <van-field
                         :value="item.value"
                         input-class="inp"
@@ -104,7 +106,7 @@
             <van-cell-group custom-class="cell" v-if="item.type=='G'||item.type=='MC'">
                 <div class="checkWrap">
                     <p class="label">{{item.label}}</p>
-                    <van-checkbox-group :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" :value="item.result" @change="((e)=>{changeCheckTag(e,item,index)})">
+                    <van-checkbox-group :disabled="item.privilegeDepth<8" :value="item.result" @change="((e)=>{changeCheckTag(e,item,index)})">
                         <div class="checkboxGroup">
                             <van-checkbox :name="v.value" v-for="(v,i) in currenData[item.id]" :key="i" custom-class="check" label-class="labels"  shape="square">
                                 <p class="tag">{{v.label}}</p>
@@ -116,7 +118,7 @@
             <van-cell-group v-if="item.type=='RBL'" custom-class="cell">
                 <div class="radioWrap">
                     <p class="label">{{item.label}}</p>
-                    <van-radio-group :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" :value="item.value" @change="(e)=>{changeRadio(e,item,index)}">
+                    <van-radio-group :disabled="item.privilegeDepth<8" :value="item.value" @change="(e)=>{changeRadio(e,item,index)}">
                         <div class="radio">
                             <van-radio :name="v.value" custom-class="radio" v-for="(v,i) in currenData[item.id]" :key="i">
                                 <p class="tag">{{v.label}}</p>
@@ -125,7 +127,7 @@
                     </van-radio-group>
                 </div>
             </van-cell-group>
-            <van-cell-group :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" custom-class="cell" v-if="item.type=='U'||item.type=='O'||item.type=='Y_MD'||item.type=='Y'">
+            <van-cell-group :disabled="item.privilegeDepth<8" custom-class="cell" v-if="item.type=='U'||item.type=='O'||item.type=='Y_MD'||item.type=='Y'">
                 <van-cell :required="item.required||false" value-class="cellValue" title-style="font-size:34rpx;" :title="item.label" :is-link="false" :value="item.value" @click="!disabled?getOpenModal(item,index):''" />
             </van-cell-group>
             <div class="switch" v-if="item.type=='H'||item.type=='MC'">
@@ -133,17 +135,17 @@
                     {{item.label}}
                 </p>
                 <p>
-                    <van-switch :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" :checked="item.value" @change="(val)=>{changeSwitch(val,item)}" size="24px" />
+                    <van-switch :disabled="item.privilegeDepth<8" :checked="item.value" @change="(val)=>{changeSwitch(val,item)}" size="24px" />
                 </p>
             </div>
             <div class="row" v-if="item.type=='UCS'||item.type=='X'||item.type=='J'||item.type=='UC'">
                 <div class="title">
                     <span>{{item.label}}</span>
-                    <van-dropdown-menu z-index="9999" v-if="(item.type=='UCS'||item.type=='UC')&&!item.readonly&&current=='tab2'">
+                    <van-dropdown-menu z-index="9999" v-if="!item.readonly&&current=='tab2'&&item.privilegeDepth>=8">
                         <van-dropdown-item :value="value1" :options="option1" @change="(e)=>{changeDropDown(e,item)}" />
                     </van-dropdown-menu>
                 </div>
-                <div class="list_textarea" v-if="item.item">
+                <div class="list_textarea" v-if="item.item && item.item.length>0">
                     <div v-for="(v,idx) in item.item" :key="idx">
                         <!-- <p class="imgs">
                             <img :src="photoUrl+v.SignUrl" alt="">
@@ -156,7 +158,7 @@
                         </p>
                     </div>
                 </div>
-                <textarea v-if="current=='tab2'" :disabled="item.privilegeDepth!=8&&item.privilegeDepth!=16" :value="item.value"
+                <textarea v-if="!item.readonly&&current=='tab2'&&item.privilegeDepth>=8" :disabled="item.privilegeDepth<8" :value="item.value"
                 :auto-height="true"
                 cols="100"
                 rows="10"
@@ -170,16 +172,17 @@
                         <span>
                             {{item.label}} ({{idx+1}})
                         </span>
-                        <span v-if="item.privilegeDepth!=8&&item.privilegeDepth!=16" class="del" @click="handleDelChild(item[item.id],self,idx,item)">
+                        <span v-if="item.deleteAdmin==1" class="del" @click="handleDelChild(item[item.id],self,idx,item)">
                             删除
                         </span>
                     </div>
                     <div class="rowBox" v-for="(v,i) in self.arr" :key="i">
                         <van-cell-group v-if="v.type=='S'||v.type=='E'||v.type=='N'||v.type=='H'" custom-class="cell">
                             <van-field
-                                :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16"
+                                :disabled="v.privilegeDepth<8"
                                 :value="v.value"
                                 custom-style="font-size:34rpx;color:#333333"
+                                input-class="inp"
                                 :required="v.required||false"
                                 :label="v.label"
                                 :placeholder="v.helpText"
@@ -188,7 +191,7 @@
                             />
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='L'||v.type=='DT'||v.type=='LT'">
-                            <picker :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16" @change="(val)=>{bindPickerChange(val,v,item[item.id],idx)}" :value="v.index" range-key="label" :range="v.picklistFieldValues || []">
+                            <picker :disabled="v.privilegeDepth<8" @change="(val)=>{bindPickerChange(val,v,item[item.id],idx)}" :value="v.index" range-key="label" :range="v.picklistFieldValues || []">
                                 <van-field
                                     :value="v.picklistFieldValues && v.picklistFieldValues[v.index] && v.picklistFieldValues[v.index].label"
                                     input-class="inp"
@@ -198,12 +201,12 @@
                                     :label="v.label"
                                     :placeholder="v.helpText"
                                     input-align="right"
-                                    right-icon="arrow"
+                                    :right-icon="v.privilegeDepth<8?'':'arrow'"
                                 />
                                 </picker>
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='D'">
-                            <picker :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16" mode="date" :value="v.value" @change="function(val){bindDateChange(val,v,item[item.id])}">
+                            <picker :disabled="v.privilegeDepth<8" mode="date" :value="v.value" @change="function(val){bindDateChange(val,v,item[item.id])}">
                                 <van-field
                                     :value="v.value"
                                     title-width="110px"
@@ -213,12 +216,12 @@
                                     disabled
                                     :label="v.label"
                                     input-align="right"
-                                    right-icon="arrow"
+                                    :right-icon="v.privilegeDepth<8?'':'arrow'"
                                     :placeholder="v.helpText"
                                 />
                             </picker>
                         </van-cell-group>
-                        <van-cell-group :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16" custom-class="cell" v-if="v.type=='U'||v.type=='O'||v.type=='Y_MD'||v.type=='Y'">
+                        <van-cell-group :disabled="v.privilegeDepth<8" custom-class="cell" v-if="v.type=='U'||v.type=='O'||v.type=='Y_MD'||v.type=='Y'">
                             <!-- value:list[index][item.id][idx][i].value -->
                             <van-cell value-class="cellValue" :required="v.required||false" :title="v.label" is-link :value="v.value.Name" @click="!v.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
                         </van-cell-group>
@@ -226,11 +229,11 @@
                             <p class="title">
                                 {{v.required||v.require?'*':''}}
                                 <span>{{v.label}}</span></p>
-                            <textarea :disabled="v.privilegeDepth!=8&&v.privilegeDepth!=16" v-model="v.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="v.helpText"></textarea>
+                            <textarea :disabled="v.privilegeDepth<8" v-model="v.value" name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="v.helpText"></textarea>
                         </div>
                     </div>
                 </div>
-                <p class="add_child" @click="handleAddChild(item)" v-if="item.privilegeDepth!=8&&item.privilegeDepth!=16">
+                <p class="add_child" v-if="item.addAdmin==1" @click="handleAddChild(item)">
                     <span class="icon">
                         <van-icon name="plus" />
                     </span>
@@ -267,7 +270,7 @@ import {newMultiArray} from '@/utils/multiArray';
 import { mockData,dataList,serachList,testList } from '@/utils/mock';
 export default {
     name:"FormList",
-    props:['ProcessId','ProcessInstanceId','RuleLogId','current','stateCode'],
+    props:['ProcessId','ProcessInstanceId','RuleLogId','current','stateCode','jurisdiction'],
     data(){
         return {
             title:"通用请示报告",
@@ -345,6 +348,23 @@ export default {
         })
     },
     methods:{
+        filterEntityApiName(item){
+            let TableRights = this.jurisdiction.TableRights;
+            for(let key in TableRights){
+                if(key.indexOf(item.entityApiName)!=-1&&key.indexOf('delete')!=-1){
+                    var deleteAdmin = TableRights[key];
+                    var del = {
+                        deleteAdmin:deleteAdmin
+                    }
+                }else if(key.indexOf(item.entityApiName)!=-1&&key.indexOf('add')!=-1){
+                    var addAdmin = TableRights[key];
+                    var add = {
+                        addAdmin:addAdmin
+                    }
+                }
+            }
+            return {...del,...add}
+        },
         handleAddChild(item){
             console.log(item,'item')
             item.fields.forEach(item=>{
@@ -534,7 +554,7 @@ export default {
                     SessionKey:this.sessionkey,
                     processId:this.ProcessId,
                     ProcessInstanceId:this.ProcessInstanceId,
-                    RuleLogId:"8dcf59cd-45a3-4fab-9742-a3627850b5fa"
+                    RuleLogId: this.RuleLogId
                 }
             }).then(res=>{
                 console.log(res);
@@ -579,12 +599,14 @@ export default {
                                 console.log(item,'123123213')
                                 item.index = this.currenData[item.entityApiName].picklistFieldValues[item.id].values.findIndex(v=>v.value==this.record[item.name].value);
                                 console.log(this.fields,'fields')
-                                console.log('this.currenData[item.entityApiName].picklistFieldValues[item.id][item.index].label',this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].label)
-                                this.fields[item.id] = {
-                                    label: this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].label,
-                                    value:this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value
-                                };
-                                item.value = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value
+                                // console.log('this.currenData[item.entityApiName].picklistFieldValues[item.id][item.index].label',this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].label)
+                                if(item.index>-1){
+                                    this.fields[item.id] = {
+                                        label: this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].label,
+                                        value:this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value
+                                    };
+                                    item.value = this.currenData[item.entityApiName].picklistFieldValues[item.id].values[item.index].value
+                                }
                             }else {
                                 item.index = '';
                             }
@@ -601,6 +623,14 @@ export default {
                     }
                     // 包含子表的
                     if(item.type=='RelatedList'){
+                        var jurisdiction = this.filterEntityApiName(item)
+                        if(Object.keys(jurisdiction).length>0){
+                            for(let key in jurisdiction){
+                                this.$set(item,key,jurisdiction[key])
+                            }
+                        }
+
+                        // this.$set(item,s.filed,s[s.filed])
                         // var list = JSON.parse(JSON.stringify(item.fields))
                         // for(var i=0;i<list.length;i++){
                         //     this.$set(list[i],'value','')
@@ -890,6 +920,11 @@ export default {
             background: #fff;
             margin: 30rpx 0;
             // padding: 30rpx 0;
+            .rowBox{
+                .inp{
+                    color: #333333 !important;
+                }
+            }
             h3{
                 font-weight: bold;
                 text-align: center;
@@ -1025,7 +1060,7 @@ export default {
                 }
             }
             .list_textarea{
-                height: 100rpx;
+                min-height: 100rpx;
                 padding-bottom: 20rpx;
             }
         }

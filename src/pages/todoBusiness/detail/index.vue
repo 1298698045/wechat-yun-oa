@@ -13,7 +13,9 @@
             <p>查看TA的历史记录</p>
             <p><i-icon type="enter" size="20" color="#cccccc" /></p>
         </div> -->
-        <FormList ref="refChild" v-if="current=='tab1'" :current="statusCurrent" :ProcessId="processId" :ProcessInstanceId="processInstanceId" :RuleLogId="RuleLogId" :stateCode="stateCode" />
+        <!-- jurisdiction 权限 -->
+        <FormList ref="refChild" v-if="current=='tab1'" :current="statusCurrent" :ProcessId="processId" :ProcessInstanceId="processInstanceId"
+         :RuleLogId="RuleLogId" :stateCode="stateCode" :jurisdiction="jurisdiction" />
         <!-- 表单 -->
         <!-- <div class="center margin padding"  v-if="current=='tab1'">
            <div class="steps">
@@ -431,6 +433,7 @@ export default {
                 }
             }).then(res=>{
                 this.jurisdiction = res.Right;
+                // this.jurisdiction.TableRights.RL__FN_OutBuissnessBaoxiao_detail1_add = 2;
             })
         },
         getForward(){
