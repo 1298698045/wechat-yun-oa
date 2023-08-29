@@ -96,6 +96,7 @@ export default {
                 this.index += 3;
             }
             this.times = this.getLastThreeDays(this.index);
+            console.log(this.current,'current');
             this.getQuery();
         },
         handleDetail(item){

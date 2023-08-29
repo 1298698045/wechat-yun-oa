@@ -190,9 +190,10 @@ export default {
             }
             let scrollTop = e.mp.detail.scrollTop + 20;
             for (let i = 0; i < list.length; i++) {
+                console.log(scrollTop,list[i].top,list[i].bottom)
                 if (scrollTop > list[i].top && scrollTop < list[i].bottom) {
                     let idx = list.findIndex(item=>this.list[i].Id==item.Id)
-                    this.VerticalNavTop =  (idx - 1) * 42;
+                    this.VerticalNavTop =  (idx - 2) * 42;
                     this.num = idx;
                     return false;
                 }

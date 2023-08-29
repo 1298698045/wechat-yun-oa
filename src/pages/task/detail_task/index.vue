@@ -410,13 +410,15 @@ export default {
             return  wx.getStorageSync('isModelmes');
         },
         imgUrl(){
-            return "https://wx.phxinfo.com.cn/static/img";
+            // return "https://wx.phxinfo.com.cn/static/img";
+            return "";
         },
         newMultiArrayList(){
             return newMultiArray();
         },
         pathUrl(){
-            return "https://wx.phxinfo.com.cn";
+            // return "https://wx.phxinfo.com.cn";
+            return "";
         }
     },
     onLoad(options){
