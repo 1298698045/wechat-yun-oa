@@ -386,6 +386,7 @@ export default {
         this.id = options.id;
         this.processId = options.processId;
         this.sign = options.sign;
+        console.log(options.RuleLogId,'RuleLogId')
         this.RuleLogId = options.RuleLogId;
         this.createdByName = options.createdByName;
         this.processIdName = options.processIdName;

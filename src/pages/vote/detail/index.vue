@@ -196,7 +196,7 @@ export default {
             }
         },
         getInvitees(){
-            const url = '/paegs/vote/joinDetail/main';
+            const url = '/pages/vote/joinDetail/main';
             wx.navigateTo({url:url})
         },
         getSubmit(){

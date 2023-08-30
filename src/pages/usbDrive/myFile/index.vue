@@ -45,7 +45,7 @@
                             <p class="text">{{!item.isToday?item.createdOn:'今日'}}</p>
                         </div>
                         <p class="icon">
-                            <i class="iconfont icon-gengduo" @click="item.Privilege.canAdmin?getEditFile(item,'folders'):toastNull()"></i>
+                            <i class="iconfont icon-gengduo" @click="item.privilege.canAdmin?getEditFile(item,'folders'):toastNull()"></i>
                         </p>
                     </div>
                 </div>
@@ -71,7 +71,7 @@
                             <p class="text">{{!item.isToday?item.createdOn:'今日'}}&nbsp;&nbsp;{{item.conver}}</p>
                         </div>
                         <p class="icon">
-                            <i class="iconfont icon-gengduo" @click.stop="item.Privilege.canAdmin?getEditFile(item,'files'):toastNull()"></i>
+                            <i class="iconfont icon-gengduo" @click.stop="item.privilege.canAdmin?getEditFile(item,'files'):toastNull()"></i>
                         </p>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                                 <p>{{item.name}}</p>
                                 <p>{{item.createdOn}}</p>
                             </div>
-                            <p class="icon" @click.stop="item.Privilege.canAdmin?getEditFile(item,'folders'):toastNull()">
+                            <p class="icon" @click.stop="item.privilege.canAdmin?getEditFile(item,'folders'):toastNull()">
                                 <i class="iconfont icon-gengduo"></i>
                             </p>
                         </div>
@@ -123,7 +123,7 @@
                                 <p>{{v.name}}</p>
                                 <p>{{v.createdOn}}</p>
                             </div>
-                            <p class="icon" @click.stop="v.Privilege.canAdmin?getEditFile(v,'files'):toastNull()">
+                            <p class="icon" @click.stop="v.privilege.canAdmin?getEditFile(v,'files'):toastNull()">
                                 <i class="iconfont icon-gengduo"></i>
                             </p>
                         </div>
@@ -740,7 +740,7 @@ export default {
             })
         },
         getOpenFolder(item){
-            const url = '/pages/usbDrive/myFile/main?id='+item.id+'&name='+item.name+'&srchType='+this.srchType+'&canAdmin='+item.Privilege.canAdmin+'&canCreate='+item.Privilege.canCreate;
+            const url = '/pages/usbDrive/myFile/main?id='+item.id+'&name='+item.name+'&srchType='+this.srchType+'&canAdmin='+item.privilege.canAdmin+'&canCreate='+item.privilege.canCreate;
             wx.navigateTo({
                 url:url
             })

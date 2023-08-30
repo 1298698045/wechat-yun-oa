@@ -114,7 +114,7 @@
                                 <p class="name">{{item.name}}</p>
                             </div>
                             <div class="text">
-                                <p>{{item.fullname}}</p>
+                                <p>{{item.fullname || item.FullName}}</p>
                                 <p class="dept">{{item.businessunitidname}}</p>
                             </div>
                         </div>
@@ -180,12 +180,12 @@ export default {
             }).then(res=>{
                 this.list = res;
                 this.list.map(item=>{
-                    if(item.fullname.length>2){
+                    if(item.FullName.length>2){
 
-                        const name = item.fullname.substr(1);
+                        const name = item.FullName.substr(1);
                         item.name = name;
                     }else {
-                        item.name = item.fullname;
+                        item.name = item.FullName;
                     }
                     return item;
                 })
@@ -209,7 +209,7 @@ export default {
             wx.navigateTo({url:url});
         },
         getContacts(item){
-            const url = '/pages/mailList/cardInfo/main?id='+item.userid+'&hiddenphone='+item.hiddenphone;
+            const url = '/pages/mailList/cardInfo/main?id='+item.UserId+'&hiddenphone='+item.HiddenPhone;
             wx.navigateTo({
                 url:url
             })

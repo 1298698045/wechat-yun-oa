@@ -97,7 +97,9 @@ export default {
         this.sessionkey = sessionkey;
         this.name = options.name;
         this.Meetingid = options.Meetingid;
-        this.id = options.itemId;
+        if(options.itemId){
+            this.id = options.itemId;
+        }
         if(options.ActivityId){
             this.id = options.ActivityId;
         }

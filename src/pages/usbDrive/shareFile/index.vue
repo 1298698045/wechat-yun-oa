@@ -45,7 +45,7 @@
                             <p class="text">{{item.createdByName==item.modifiedByName?item.createdByName+' 创建':item.modifiedByName+' 更新'}}</p>
                         </div>
                         <p class="icon">
-                            <i class="iconfont icon-gengduo" @click="item.Privilege.canAdmin==true?getEditFile(item):toastNull()"></i>
+                            <i class="iconfont icon-gengduo" @click="item.privilege.canAdmin==true?getEditFile(item):toastNull()"></i>
                         </p>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
                             <!-- <p class="text">暂无文件  卫辉  归属  绍兴第二医院</p> -->
                         </div>
                         <p class="icon">
-                            <i class="iconfont icon-gengduo" @click="item.Privilege.canAdmin?getEditFile(item):toastNull()"></i>
+                            <i class="iconfont icon-gengduo" @click="item.privilege.canAdmin?getEditFile(item):toastNull()"></i>
                         </p>
                     </div>
                 </div>
@@ -96,7 +96,7 @@
                                 <p>{{item.name}}</p>
                                 <p>{{item.createdOn}}</p>
                             </div>
-                            <p class="icon" @click="item.Privilege.canAdmin?getEditFile(item,'folders'):toastNull()">
+                            <p class="icon" @click="item.privilege.canAdmin?getEditFile(item,'folders'):toastNull()">
                                 <i class="iconfont icon-gengduo"></i>
                             </p>
                         </div>
@@ -487,7 +487,7 @@ export default {
         },
         getFlodersDetail(item){
             // const url = '/pages/usbDrive/shareFile/detail/main?Folderid='+item.id;
-            const url = '/pages/usbDrive/myFile/main?id='+item.id+'&srchType='+this.srchType+'&shareFileName='+item.name+'&canAdmin='+item.Privilege.canAdmin+'&canCreate='+item.Privilege.canCreate;
+            const url = '/pages/usbDrive/myFile/main?id='+item.id+'&srchType='+this.srchType+'&shareFileName='+item.name+'&canAdmin='+item.privilege.canAdmin+'&canCreate='+item.privilege.canCreate;
             wx.navigateTo({url:url});
         },
         getPreviewImage(item){
