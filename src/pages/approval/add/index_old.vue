@@ -151,7 +151,6 @@
                  @input="function(val){changeText(val,item,index)}"
                   name="" id="" cols="30" rows="10" placeholder-class="placeholder" :placeholder="!item.readonly?item.helpText:''"></textarea>
             </div>
-                  <!-- 
             <div class="parentWrap" v-if="item.type=='RelatedList'">
                 <h3>{{item.label}}</h3>
                 <div class="box" v-for="(self,idx) in item[item.id]" :key="idx">
@@ -207,6 +206,7 @@
                             </picker>
                         </van-cell-group>
                         <van-cell-group custom-class="cell" v-if="v.type=='U'||v.type=='O'||v.type=='Y_MD'||v.type=='Y'">
+                            <!-- value:list[index][item.id][idx][i].value -->
                             <van-cell value-class="cellValue" :required="v.required||false" :title="v.label" is-link :value="v.value.Name" @click="!v.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
                         </van-cell-group>
                         <div class="row" v-if="v.type=='UC'">
@@ -223,32 +223,6 @@
                     </span>
                     增加{{item.label}}
                 </p>
-            </div> -->
-            <div class="relatedWrap" v-if="item.type=='RelatedList'">
-                <div class="related_label">{{item.label}}</div>
-                <div class="table">
-                    <div class="tr tr_head">
-                        <div class="th">序号</div>
-                        <div class="th" v-for="(thItem,thIdx) in item.fields" :key="thIdx">{{thItem.label}}</div>
-                    </div>
-                    <div class="tbody">
-                        <div class="tr tr_cont" v-for="(self,idx) in item[item.id]" :key="idx">
-                            <div class="td">{{idx+1}}</div>
-                            <div class="td" v-for="(v,i) in self" :key="i">{{v.value}}</div>
-                        </div>
-                    </div>
-                </div>
-                <p class="add_child" @click="handleOpenChild(item)">
-                    <span class="icon">
-                        <van-icon name="plus" />
-                    </span>
-                    增加{{item.label}}
-                </p>
-                <van-popup :show="item['is'+item.entityApiName]"
-                @close="closeChild(item)"
-                position="bottom"
-                custom-style="width:100%;height: 80vh;"
-                z-index="99999">内容</van-popup>
             </div>
         </div>
         <!-- <div class="row">
@@ -543,12 +517,6 @@ export default {
         // }
     },
     methods:{
-        handleOpenChild(item){
-            item['is'+item.entityApiName] = true;
-        },
-        closeChild(item){
-            item['is'+item.entityApiName] = false;
-        },
         ...mapMutations(['getClear']),
         // 增加子表
         handleAddChild(item){
@@ -690,7 +658,6 @@ export default {
                         }
                     }
                     if(item.type=='RelatedList'){
-                        this.$set(item,['is'+item.entityApiName], false);
                         var list = JSON.parse(JSON.stringify(item.fields))
                         for(var i=0;i<list.length;i++){
                             this.$set(list[i],'value','')
@@ -1300,54 +1267,6 @@ export default {
 }
 </script>
 <style lang="scss">
-.table{
-    width: 100%;
-    margin: 20rpx 0;
-    overflow-x: auto;
-    /*display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;*/
-    .tr{
-        display: flex;
-        height: 80rpx;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        .th{
-            /*width: 200rpx;*/
-            flex: 1;
-            min-width: 200rpx;
-            font-size: 24rpx;
-            border-right: 1px solid #dadada;
-            text-align: center;
-            line-height: 80rpx;
-            background: #e2e3e5;
-            border-bottom: 1px solid #dadada;
-        }
-        .td{
-            /*width: 200rpx;*/
-            flex: 1;
-            min-width: 200rpx;
-            font-size: 24rpx;
-            border-right: 1px solid #dadada;
-            text-align: center;
-            line-height: 80rpx;
-            background: #e2e3e5;
-            border-bottom: 1px solid #dadada;
-        }
-    }
-}
-.add_child{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #3399ff;
-    line-height: 80rpx;
-    .icon{
-        padding-right: 20rpx;
-    }
-}
     .wrap{
         width: 100%;
         height: 100%;
@@ -1390,19 +1309,6 @@ export default {
             .cell{
                 margin-top: 0;
             }
-        }
-        .relatedWrap{
-            width: 100%;
-            height: auto;
-            background: #fff;
-            margin: 30rpx 0;
-            padding: 20rpx;
-            box-sizing: border-box;
-            .related_label{
-
-            }
-            
-            
         }
         .value-class {
             flex: none !important;
