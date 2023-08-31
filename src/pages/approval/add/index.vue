@@ -228,13 +228,18 @@
                 <div class="related_label">{{item.label}}</div>
                 <div class="table">
                     <div class="tr tr_head">
-                        <div class="th">序号</div>
+                        <div class="th minWidth100">序号</div>
                         <div class="th" v-for="(thItem,thIdx) in item.fields" :key="thIdx">{{thItem.label}}</div>
                     </div>
                     <div class="tbody">
-                        <div class="tr tr_cont" v-for="(self,idx) in item[item.id]" :key="idx">
-                            <div class="td">{{idx+1}}</div>
-                            <div class="td" v-for="(v,i) in self" :key="i">{{v.value}}</div>
+                        <div class="tr tr_cont" v-for="(self,idx) in item.formChildList" :key="idx" @click="handleOpenEditChild(item,self)">
+                            <div class="td minWidth100">{{idx+1}}</div>
+                            <div class="th" v-for="(thItem,thIdx) in item.fields" :key="thIdx">
+                                <span v-if="thItem.type=='L'||thItem.type=='DT'||thItem.type=='LT'">{{self[thItem.id].label}}</span>
+                                <span v-else-if="thItem.type=='U'||thItem.type=='O'||thItem.type=='Y_MD'||thItem.type=='Y'">{{self[thItem.id].Name}}</span>
+                                <span v-else>{{self[thItem.id]}}</span>
+                            </div>
+                            <!-- <div class="td" v-for="(v,key,i) in self" :key="i">{{self[key]}}</div> -->
                         </div>
                     </div>
                 </div>
@@ -244,11 +249,64 @@
                     </span>
                     增加{{item.label}}
                 </p>
-                <van-popup :show="item['is'+item.entityApiName]"
-                @close="closeChild(item)"
-                position="bottom"
-                custom-style="width:100%;height: 80vh;"
-                z-index="99999">内容</van-popup>
+                <van-popup :show="item['is'+item.entityApiName]" @close="closeChild(item)" 
+                    position="bottom" custom-style="width:100%;height: 80vh;background:#f1f1f1;"
+                    z-index="99999">
+                    <div class="formWrap">
+                        <div class="rowItem" v-for="(row,rowIdx) in item.fields" :key="rowIdx">
+                            <van-cell-group custom-class="cell" v-if="row.type=='S'||row.type=='E'||row.type=='N'||row.type=='H'">
+                                <van-field
+                                    :value="row.value"
+                                    custom-style="font-size:34rpx;color:#333333"
+                                    :required="row.required||false"
+                                    :label="row.label"
+                                    :placeholder="row.helpText"
+                                    input-align="right"
+                                    @change="function(e){changeChildInput(e,row)}"
+                                />
+                            </van-cell-group>
+                            <van-cell-group custom-class="cell" v-if="row.type=='L'||row.type=='DT'||row.type=='LT'">
+                                <picker @change="(e)=>{changeChildPicker(e,row,item)}" :value="row.index" range-key="label" :range="row.picklistFieldValues">
+                                    <van-field
+                                        :value="row.picklistFieldValues[row.index] && row.picklistFieldValues[row.index].label"
+                                        input-class="inp"
+                                        custom-style="font-size:34rpx;color:#333333"
+                                        :required="row.required||false"
+                                        disabled
+                                        :label="row.label"
+                                        :placeholder="row.helpText"
+                                        input-align="right"
+                                        right-icon="arrow"
+                                    />
+                                    </picker>
+                            </van-cell-group>
+                            <van-cell-group custom-class="cell" v-if="row.type=='D'">
+                                <picker :disabled="row.readonly" mode="date" :value="row.value" @change="(e)=>{changeChildDate(e,row,item)}">
+                                    <van-field
+                                        :value="row.value"
+                                        title-width="110px"
+                                        input-class="inp"
+                                        custom-style="font-size:34rpx;color:#333333"
+                                        :required="row.required||false"
+                                        disabled
+                                        :label="row.label"
+                                        input-align="right"
+                                        right-icon="arrow"
+                                        :placeholder="row.helpText"
+                                    />
+                                </picker>
+                            </van-cell-group>
+                            <van-cell-group custom-class="cell" v-if="row.type=='U'||row.type=='O'||row.type=='Y_MD'||row.type=='Y'">
+                                <van-cell value-class="cellValue" :required="row.required||false" :title="row.label" is-link :value="row.value && row.value.Name"
+                                @click="!row.readonly?handleOpenChildOpen(item,row,index,rowIdx):''"/>
+                            </van-cell-group>
+                        </div>
+                    </div>
+                    <div class="footChild">
+                        <van-button type="default" custom-class="btn" @click="closeChild(item)">取消</van-button>
+                        <van-button type="info" custom-class="btn primary" @click="handleSaveChild(item)">保存</van-button>
+                    </div>
+                </van-popup>
             </div>
         </div>
         <!-- <div class="row">
@@ -294,6 +352,25 @@
                 <van-search :value="lksrch" placeholder="请输入搜索关键词" @change="handleChange" />
                 <ul class="uls">
                     <li @click="getPopupSel(item,index)" v-for="(item,index) in departList" :key="index">
+                        <p>{{item.Name}}</p>
+                        <p v-if="popupIdx==index">
+                            <i-icon type="right" />
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </van-popup>
+        <van-popup
+            :show="isShow2"
+            position="bottom"
+            custom-style="width:100%;height: 80vh;"
+            z-index="99999"
+            @close="onClosePopup"
+        >
+            <div class="popupWrap">
+                <van-search :value="lksrch" placeholder="请输入搜索关键词" @change="handleChange" />
+                <ul class="uls">
+                    <li @click="getPopupSel2(item,index)" v-for="(item,index) in departList" :key="index">
                         <p>{{item.Name}}</p>
                         <p v-if="popupIdx==index">
                             <i-icon type="right" />
@@ -433,7 +510,14 @@ export default {
             departList: [],
             childIdx: '',
             childForIdx: '',
-            rowI: ''
+            rowI: '',
+            isShow2: false,
+            childModalRecord:{
+                index:"",
+                idx:"",
+                key:""
+            },
+            relatedListRecords:[]
         }
     },
     computed:{
@@ -543,11 +627,83 @@ export default {
         // }
     },
     methods:{
+        // 保存子表数据
+        handleSaveChild(item){
+            console.log('item',item);
+            var row = {};
+            var fields = JSON.parse(JSON.stringify(item.fields));
+            fields.forEach(v=>{
+                row[v.id] = v.value
+            })
+            console.log(row);
+            if(item.isEdit){
+                console.log("editId",item.editId)
+                console.log("formChildList",item.formChildList)
+                var index = item.formChildList.findIndex(v=>v.ValueId==item.editId);
+                var rowData = item.formChildList.find(v=>v.ValueId==item.editId);
+                for(var key in rowData){
+                    if(key in row){
+                        rowData[key] = row[key];
+                    }
+                }
+                item.formChildList[index] = rowData;
+            }else {
+                item.formChildList.push(row);
+            }
+            // 清空保存之后弹窗的数据
+            item.fields.forEach(v=>{
+                v.value = "";
+                v.index = "";
+            })
+            // console.log(item);
+            item['is'+item.entityApiName] = false;
+            item.isEdit = false;
+            item.editId = "";
+        },
+        handleOpenEditChild(item,row){
+            console.log("row",row);
+            item.fields.forEach(v=>{
+                if(v.type=='L'||v.type=='DT'||v.type=='LT'){
+                    console.log('v',v,item,row[v.id]);
+                    v.value = row[v.id];
+                    var index = v.picklistFieldValues.findIndex(n=>n.value == row[v.id].value);
+                    v.index = index;
+                }else {
+                    v.value = row[v.id];
+                }
+            })
+
+            item['is'+item.entityApiName] = true;
+            item.isEdit = true;
+            item.editId = row.ValueId;
+            this.$forceUpdate();
+        },
         handleOpenChild(item){
             item['is'+item.entityApiName] = true;
+            this.$forceUpdate();
         },
         closeChild(item){
             item['is'+item.entityApiName] = false;
+            this.$forceUpdate();
+        },
+        // 子表弹窗-input
+        changeChildInput(e,row){
+            row.value = e.mp.detail;
+        },
+        changeChildPicker(e,row,item){
+            console.log('e',e,row,item);
+            row.index = e.mp.detail.value;
+            var obj = row.picklistFieldValues[row.index];
+            row.value = {
+                value: obj.value,
+                label: obj.label
+            }
+            this.$forceUpdate();
+        },
+        changeChildDate(e,row,item){
+            console.log(e,row,item);
+            row.value = e.mp.detail.value;
+            this.$forceUpdate();
         },
         ...mapMutations(['getClear']),
         // 增加子表
@@ -652,6 +808,8 @@ export default {
                 this.list = res.actions[0].returnValue.layoutItems;
                 // this.currenData = res.actions[0].returnValue.masterRecord.picklistValuesMap;
                 this.currenData = res.actions[0].returnValue.layoutPicklists;
+                // 子表返回的数据
+                this.relatedListRecords = res.actions[0].returnValue.relatedListRecords;
                 this.record = res.actions[0].returnValue.masterRecord.record;
                 this.params.parentRecord.apiName = res.actions[0].returnValue.masterRecord.entityApiName;
                 this.params.parentRecord.objTypeCode =  res.actions[0].returnValue.masterRecord.objectTypeCode;
@@ -690,7 +848,23 @@ export default {
                         }
                     }
                     if(item.type=='RelatedList'){
+                        console.log(item.type,item.fields)
                         this.$set(item,['is'+item.entityApiName], false);
+                        var formChildList = [];
+                        this.relatedListRecords[item.entityApiName].entities.forEach(l=>{
+                            formChildList.push(l.fields)
+                        });
+                        this.$set(item,'formChildList',formChildList)
+                        item.fields.forEach(v=>{
+                            this.$set(v,'value','');
+                            this.$set(v,'index','');
+                            if(v.type=='L'||v.type=='DT'||v.type=='LT'){
+                                var picklistFieldValues = [];
+                                picklistFieldValues = this.currenData[item.entityApiName].picklistFieldValues[v.id].values;
+                                // console.log("picklistFieldValues",picklistFieldValues)
+                                this.$set(v,'picklistFieldValues',picklistFieldValues);
+                            }
+                        })
                         var list = JSON.parse(JSON.stringify(item.fields))
                         for(var i=0;i<list.length;i++){
                             this.$set(list[i],'value','')
@@ -759,6 +933,21 @@ export default {
             let { index } = e.mp.currentTarget.dataset;
         },
         noop() {},
+        // 子表弹窗-U类型modal
+        handleOpenChildOpen(item,row,index,rowIdx){
+            console.log(item,row);
+            this.childModalRecord = {
+                index:index,
+                idx: rowIdx,
+                key: row.id
+            }
+            this.sObjectType = row.sObjectType;
+            this.getLookup().then(res=>{
+                this.departList = res.listData;
+                this.isShow2 = true;
+            })
+        },
+
         // 主子表情况下 item/index: 父级 childItem/i：当前
 
         getOpenModal(item,index,idx,childItem,i,list=[]){
@@ -805,6 +994,17 @@ export default {
         },
         onClosePopup(){
             this.isShow = false;
+        },
+        getPopupSel2(item,index){
+            console.log(item,index);
+            var value = {
+                Id: item.ID,
+                Name: item.Name
+            }
+            console.log(this.list[this.childModalRecord.index])
+            console.log(this.list[this.childModalRecord.index].fields[this.childModalRecord.idx])
+            this.list[this.childModalRecord.index].fields[this.childModalRecord.idx].value = value;
+            this.isShow2 = false;
         },
         getPopupSel(item,index){
             // console.log(item,this.searchId,this.childForIdx);
@@ -950,39 +1150,62 @@ export default {
         },
         getSubmit(){
             this.params.relatedRecords = [];
-            this.list.forEach(item=>{
+            // this.list.forEach(item=>{
+            //     if(item.type=='RelatedList'){
+            //         item[item.id].forEach(v=>{
+            //             // console.log(Object.values(v),'v')
+            //             // console.log('v',v)
+            //             const isBook = Object.values(v).every(self=>!self.required && (self.value=='' || self.value == null));
+            //             if(!isBook){
+            //                 this.params.relatedRecords.push({
+            //                     id: "",
+            //                     apiName: item.entityApiName,
+            //                     objTypeCode: item.sObjectType,
+            //                     arr: Object.values(v)
+            //                 });
+            //             }
+            //         })
+            //     }
+            // })
+            // let result = [];
+            // this.params.relatedRecords.forEach((self,index)=>{
+            //     // console.log(self)
+            //     result.push({id:self.id,apiName:self.apiName,objTypeCode:self.objTypeCode,fields:{}})
+            //     self.arr.forEach(item=>{
+            //         if(item.type=='U' || item.type=='O'){
+            //             result[index].fields[item.id] = {
+            //                 Id: item.value.Id
+            //             };
+            //         }else {
+            //             result[index].fields[item.id] = item.value;
+            //         }
+            //     })
+            // })
+            // this.params.relatedRecords = result;
+            console.log("list",this.list)
+            console.log(this.params,'====');
+            var result = [];
+            var list = JSON.parse(JSON.stringify(this.list));
+            list.forEach(item=>{
                 if(item.type=='RelatedList'){
-                    item[item.id].forEach(v=>{
-                        // console.log(Object.values(v),'v')
-                        // console.log('v',v)
-                        const isBook = Object.values(v).every(self=>!self.required && (self.value=='' || self.value == null));
-                        if(!isBook){
-                            this.params.relatedRecords.push({
-                                id: "",
-                                apiName: item.entityApiName,
-                                objTypeCode: item.sObjectType,
-                                arr: Object.values(v)
-                            });
-                        }
+                    item.formChildList.forEach(row=>{
+                        item.fields.forEach(v=>{
+                            if(v.type=='L'||v.type=='DT'||v.type=='LT'){
+                                row[v.id] = row[v.id].value
+                            }
+                        })
+                        result.push({
+                            id: row.ValueId || '',
+                            apiName: item.entityApiName,
+                            objTypeCode: item.sObjectType,
+                            fields: row
+                        })
                     })
                 }
             })
-            let result = [];
-            this.params.relatedRecords.forEach((self,index)=>{
-                // console.log(self)
-                result.push({id:self.id,apiName:self.apiName,objTypeCode:self.objTypeCode,fields:{}})
-                self.arr.forEach(item=>{
-                    if(item.type=='U' || item.type=='O'){
-                        result[index].fields[item.id] = {
-                            Id: item.value.Id
-                        };
-                    }else {
-                        result[index].fields[item.id] = item.value;
-                    }
-                })
-            })
+            console.log("result",result)
             this.params.relatedRecords = result;
-            console.log(this.params,'====');
+            // return false;
             this.leaveSave();
             let isBook = false;
             let idx = this.list.length;
@@ -1300,6 +1523,10 @@ export default {
 }
 </script>
 <style lang="scss">
+.minWidth100{
+    min-width: 100rpx !important;
+    max-width: 100rpx !important;
+}
 .table{
     width: 100%;
     margin: 20rpx 0;
@@ -1346,6 +1573,14 @@ export default {
     line-height: 80rpx;
     .icon{
         padding-right: 20rpx;
+    }
+}
+.footChild{
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    .btn{
+        flex: 1;
     }
 }
     .wrap{
