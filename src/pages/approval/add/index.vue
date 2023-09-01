@@ -234,7 +234,7 @@
                     <div class="tbody">
                         <div class="tr tr_cont" v-for="(self,idx) in item.formChildList" :key="idx" @click="handleOpenEditChild(item,self)">
                             <div class="td minWidth100">{{idx+1}}</div>
-                            <div class="th" v-for="(thItem,thIdx) in item.fields" :key="thIdx">
+                            <div class="td white" v-for="(thItem,thIdx) in item.fields" :key="thIdx">
                                 <span v-if="thItem.type=='L'||thItem.type=='DT'||thItem.type=='LT'">{{self[thItem.id].label}}</span>
                                 <span v-else-if="thItem.type=='U'||thItem.type=='O'||thItem.type=='Y_MD'||thItem.type=='Y'">{{self[thItem.id].Name}}</span>
                                 <span v-else>{{self[thItem.id]}}</span>
@@ -1560,8 +1560,11 @@ export default {
             border-right: 1px solid #dadada;
             text-align: center;
             line-height: 80rpx;
-            background: #e2e3e5;
+            background: #f4f4f4;
             border-bottom: 1px solid #dadada;
+        }
+        .td.white{
+            background: #fff;
         }
     }
 }
