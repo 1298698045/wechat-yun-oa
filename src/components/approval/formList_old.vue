@@ -165,7 +165,7 @@
                 maxlength="100000"
                  @input="(e)=>{changeTextArea(e,item)}" placeholder-class="placeholder" :placeholder="!item.readonly?'请输入':''"></textarea>
             </div>
-            <!-- <div class="parentWrap" v-if="item.type=='RelatedList'">
+            <div class="parentWrap" v-if="item.type=='RelatedList'">
                 <h3>{{item.label}}</h3>
                 <div class="box" v-for="(self,idx) in item[item.id]" :key="idx">
                     <div class="title">
@@ -222,6 +222,7 @@
                             </picker>
                         </van-cell-group>
                         <van-cell-group :disabled="v.privilegeDepth<8" custom-class="cell" v-if="v.type=='U'||v.type=='O'||v.type=='Y_MD'||v.type=='Y'">
+                            <!-- value:list[index][item.id][idx][i].value -->
                             <van-cell value-class="cellValue" :required="v.required||false" :title="v.label" is-link :value="v.value.Name" @click="!v.readonly?getOpenModal(item,index,idx,v,i,item[item.id]):''" />
                         </van-cell-group>
                         <div class="row" v-if="v.type=='UC'">
@@ -238,90 +239,6 @@
                     </span>
                     增加{{item.label}}
                 </p>
-            </div> -->
-            <div class="relatedWrap" v-if="item.type=='RelatedList'">
-                <div class="related_label">{{item.label}}</div>
-                <div class="table">
-                    <div class="tr tr_head">
-                        <div class="th minWidth100">序号</div>
-                        <div class="th" v-for="(thItem,thIdx) in item.fields" :key="thIdx">{{thItem.label}}</div>
-                    </div>
-                    <div class="tbody">
-                        <div class="tr tr_cont" v-for="(self,idx) in item.formChildList" :key="idx" @click="handleOpenEditChild(item,self)">
-                            <div class="td minWidth100">{{idx+1}}</div>
-                            <div class="td white" v-for="(thItem,thIdx) in item.fields" :key="thIdx">
-                                <span v-if="thItem.type=='L'||thItem.type=='DT'||thItem.type=='LT'">{{self[thItem.id].label}}</span>
-                                <span v-else-if="thItem.type=='U'||thItem.type=='O'||thItem.type=='Y_MD'||thItem.type=='Y'">{{self[thItem.id].Name}}</span>
-                                <span v-else>{{self[thItem.id]}}</span>
-                            </div>
-                            <!-- <div class="td" v-for="(v,key,i) in self" :key="i">{{self[key]}}</div> -->
-                        </div>
-                    </div>
-                </div>
-                <p class="add_child" @click="handleOpenChild(item)">
-                    <span class="icon">
-                        <van-icon name="plus" />
-                    </span>
-                    增加{{item.label}}
-                </p>
-                <van-popup :show="item['is'+item.entityApiName]" @close="closeChild(item)" 
-                    position="bottom" custom-style="width:100%;height: 80vh;background:#f1f1f1;"
-                    z-index="99999">
-                    <div class="formWrap">
-                        <div class="rowItem" v-for="(row,rowIdx) in item.fields" :key="rowIdx">
-                            <van-cell-group custom-class="cell" v-if="row.type=='S'||row.type=='E'||row.type=='N'||row.type=='H'">
-                                <van-field
-                                    :value="row.value"
-                                    custom-style="font-size:34rpx;color:#333333"
-                                    :required="row.required||false"
-                                    :label="row.label"
-                                    :placeholder="row.helpText"
-                                    input-align="right"
-                                    @change="function(e){changeChildInput(e,row)}"
-                                />
-                            </van-cell-group>
-                            <van-cell-group custom-class="cell" v-if="row.type=='L'||row.type=='DT'||row.type=='LT'">
-                                <picker @change="(e)=>{changeChildPicker(e,row,item)}" :value="row.index" range-key="label" :range="row.picklistFieldValues">
-                                    <van-field
-                                        :value="row.picklistFieldValues[row.index] && row.picklistFieldValues[row.index].label"
-                                        input-class="inp"
-                                        custom-style="font-size:34rpx;color:#333333"
-                                        :required="row.required||false"
-                                        disabled
-                                        :label="row.label"
-                                        :placeholder="row.helpText"
-                                        input-align="right"
-                                        right-icon="arrow"
-                                    />
-                                    </picker>
-                            </van-cell-group>
-                            <van-cell-group custom-class="cell" v-if="row.type=='D'">
-                                <picker :disabled="row.readonly" mode="date" :value="row.value" @change="(e)=>{changeChildDate(e,row,item)}">
-                                    <van-field
-                                        :value="row.value"
-                                        title-width="110px"
-                                        input-class="inp"
-                                        custom-style="font-size:34rpx;color:#333333"
-                                        :required="row.required||false"
-                                        disabled
-                                        :label="row.label"
-                                        input-align="right"
-                                        right-icon="arrow"
-                                        :placeholder="row.helpText"
-                                    />
-                                </picker>
-                            </van-cell-group>
-                            <van-cell-group custom-class="cell" v-if="row.type=='U'||row.type=='O'||row.type=='Y_MD'||row.type=='Y'">
-                                <van-cell value-class="cellValue" :required="row.required||false" :title="row.label" is-link :value="row.value && row.value.Name"
-                                @click="!row.readonly?handleOpenChildOpen(item,row,index,rowIdx):''"/>
-                            </van-cell-group>
-                        </div>
-                    </div>
-                    <div class="footChild">
-                        <van-button type="default" custom-class="btn" @click="closeChild(item)">取消</van-button>
-                        <van-button type="info" custom-class="btn primary" @click="handleSaveChild(item)">保存</van-button>
-                    </div>
-                </van-popup>
             </div>
         </div>
         <button class="saveButton" @click="getAgree" v-if="stateCode==0">提交</button>
@@ -431,84 +348,6 @@ export default {
         })
     },
     methods:{
-        // 保存子表数据
-        handleSaveChild(item){
-            console.log('item',item);
-            var row = {};
-            var fields = JSON.parse(JSON.stringify(item.fields));
-            fields.forEach(v=>{
-                row[v.id] = v.value
-            })
-            console.log(row);
-            if(item.isEdit){
-                console.log("editId",item.editId)
-                console.log("formChildList",item.formChildList)
-                var index = item.formChildList.findIndex(v=>v.ValueId==item.editId);
-                var rowData = item.formChildList.find(v=>v.ValueId==item.editId);
-                for(var key in rowData){
-                    if(key in row){
-                        rowData[key] = row[key];
-                    }
-                }
-                item.formChildList[index] = rowData;
-            }else {
-                item.formChildList.push(row);
-            }
-            // 清空保存之后弹窗的数据
-            item.fields.forEach(v=>{
-                v.value = "";
-                v.index = "";
-            })
-            // console.log(item);
-            item['is'+item.entityApiName] = false;
-            item.isEdit = false;
-            item.editId = "";
-        },
-        handleOpenEditChild(item,row){
-            console.log("row",row);
-            item.fields.forEach(v=>{
-                if(v.type=='L'||v.type=='DT'||v.type=='LT'){
-                    console.log('v',v,item,row[v.id]);
-                    v.value = row[v.id];
-                    var index = v.picklistFieldValues.findIndex(n=>n.value == row[v.id].value);
-                    v.index = index;
-                }else {
-                    v.value = row[v.id];
-                }
-            })
-
-            item['is'+item.entityApiName] = true;
-            item.isEdit = true;
-            item.editId = row.ValueId;
-            this.$forceUpdate();
-        },
-        handleOpenChild(item){
-            item['is'+item.entityApiName] = true;
-            this.$forceUpdate();
-        },
-        closeChild(item){
-            item['is'+item.entityApiName] = false;
-            this.$forceUpdate();
-        },
-        // 子表弹窗-input
-        changeChildInput(e,row){
-            row.value = e.mp.detail;
-        },
-        changeChildPicker(e,row,item){
-            console.log('e',e,row,item);
-            row.index = e.mp.detail.value;
-            var obj = row.picklistFieldValues[row.index];
-            row.value = {
-                value: obj.value,
-                label: obj.label
-            }
-            this.$forceUpdate();
-        },
-        changeChildDate(e,row,item){
-            console.log(e,row,item);
-            row.value = e.mp.detail.value;
-            this.$forceUpdate();
-        },
         filterEntityApiName(item){
             let TableRights = this.jurisdiction.TableRights;
             for(let key in TableRights){
@@ -571,65 +410,42 @@ export default {
         // 完成 提交表单
         getSubmitComplete(){
             this.params.relatedRecords = [];
-            // ###修改前
-            // this.list.forEach(item=>{
-            //     if(item.type=='RelatedList'){
-            //         if(item[item.id]){
-            //             console.log(item,'item,item')
-            //             item[item.id].forEach(v=>{
-            //                 const isBook = Object.values(v.arr).every(self=>!self.required && (self.value=='' || self.value == null));
-            //                 console.log(isBook,'=======')
-            //                 if(!isBook){
-            //                     this.params.relatedRecords.push({
-            //                         id: v.entitieId || '',
-            //                         apiName: item.entityApiName || '',
-            //                         objTypeCode: item.sObjectType || '',
-            //                         arr: Object.values(v.arr) || ''
-            //                     })
-            //                 }
-            //             })
-            //         }
-            //     }
-            // })
-            // let result = [];
-            // this.params.relatedRecords.forEach((self,index)=>{
-            //     console.log('self', self)
-            //     result.push({id:self.id,apiName:self.apiName,objTypeCode:self.objTypeCode,fields:{}})
-            //     self.arr.forEach(item=>{
-            //         if(item.type=='U' || item.type=='O'){
-            //             result[index].fields[item.id] = {
-            //                 Id: item.value.Id
-            //             };
-            //         }else {
-            //             result[index].fields[item.id] = item.value;
-            //         }
-            //     })
-            // })
-            // this.params.relatedRecords = result;
-            // ###
-            console.log('params:',this.params)
-            console.log('list',this.list)
-            var result = [];
-            var list = JSON.parse(JSON.stringify(this.list));
-            list.forEach(item=>{
+            this.list.forEach(item=>{
                 if(item.type=='RelatedList'){
-                    item.formChildList.forEach(row=>{
-                        item.fields.forEach(v=>{
-                            if(v.type=='L'||v.type=='DT'||v.type=='LT'){
-                                row[v.id] = row[v.id].value
+                    if(item[item.id]){
+                        console.log(item,'item,item')
+                        item[item.id].forEach(v=>{
+                            const isBook = Object.values(v.arr).every(self=>!self.required && (self.value=='' || self.value == null));
+                            console.log(isBook,'=======')
+                            if(!isBook){
+                                this.params.relatedRecords.push({
+                                    id: v.entitieId || '',
+                                    apiName: item.entityApiName || '',
+                                    objTypeCode: item.sObjectType || '',
+                                    arr: Object.values(v.arr) || ''
+                                })
                             }
                         })
-                        result.push({
-                            id: row.ValueId || '',
-                            apiName: item.entityApiName,
-                            objTypeCode: item.sObjectType,
-                            fields: row
-                        })
-                    })
+                    }
                 }
             })
-            console.log("result",result)
+            let result = [];
+            this.params.relatedRecords.forEach((self,index)=>{
+                console.log('self', self)
+                result.push({id:self.id,apiName:self.apiName,objTypeCode:self.objTypeCode,fields:{}})
+                self.arr.forEach(item=>{
+                    if(item.type=='U' || item.type=='O'){
+                        result[index].fields[item.id] = {
+                            Id: item.value.Id
+                        };
+                    }else {
+                        result[index].fields[item.id] = item.value;
+                    }
+                })
+            })
             this.params.relatedRecords = result;
+            console.log('params:',this.params)
+            console.log('list',this.list)
             let idx = this.list.length;
             this.list.forEach((item,index)=>{
                 if(index+1==idx){
@@ -805,136 +621,106 @@ export default {
                             this.params.parentRecord.fields[item.id] = this.record[item.name]
                         }
                     }
-                    // // 包含子表的
-                    // if(item.type=='RelatedList'){
-                    //     var jurisdiction = this.filterEntityApiName(item)
-                    //     if(Object.keys(jurisdiction).length>0){
-                    //         for(let key in jurisdiction){
-                    //             this.$set(item,key,jurisdiction[key])
-                    //         }
-                    //     }
-
-                    //     // this.$set(item,s.filed,s[s.filed])
-                    //     // var list = JSON.parse(JSON.stringify(item.fields))
-                    //     // for(var i=0;i<list.length;i++){
-                    //     //     this.$set(list[i],'value','')
-                    //     // }
-                    //     // this.$set(item,item.id,[{...list}]);
-                    //     // item.fields.forEach(v=>{
-                    //     //     this.$set(v,'value','')
-                    //     //     if(v.type=='L'||v.type=='DT'||v.type=='LT'){
-
-                    //     //     }
-                    //     // })
-                    //     var list = JSON.parse(JSON.stringify(item.fields))
-                    //     for(var i=0;i<list.length;i++){
-                    //         this.$set(list[i],'value','')
-                    //         if(list[i].type=='DT'||list[i].type=='LT'||list[i].type=='L'){
-                    //             list[i].picklistFieldValues = this.currenData[list[i].entityApiName].picklistFieldValues[list[i].id].values;
-                    //         }
-                    //     }
-                    //     for(let i = 0; i < item.fields.length; i++){
-                    //         let result = []
-                    //         var childLength = this.relatedListRecords[item.entityApiName].entities.length;
-                    //         for(let j = 0; j < childLength; j++){
-                    //             var list = JSON.parse(JSON.stringify(list))
-                    //             result.push({arr:{...list}})
-                    //         }
-                    //         this.$set(item,item.id,result);
-                    //     }
-                    //     item[item.id].forEach((p,kindex)=>{
-                    //         let k = p.arr;
-                    //         for(let l in k) {
-                    //             console.log(k[l],'===')
-                    //             const entitieitem = this.relatedListRecords[item.entityApiName].entities[kindex]
-                    //             const value = entitieitem.fields[k[l].id]
-                    //             const entitieId = entitieitem.id;
-                    //             console.log(entitieitem,'entitieitem')
-                    //             this.$set(item[item.id][kindex],'entitieId',entitieId)
-                    //             this.$set(item[item.id][kindex],'entitieObjectTypeCode',this.relatedListRecords[item.entityApiName].objectTypeCode)
-                    //             if(k[l].type=='DT'||k[l].type=='LT'||k[l].type=='L'){
-                    //                 if(value.value){
-                    //                     let rowIdx = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values.findIndex(a=>a.value==value.value);
-                    //                     let val = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values[rowIdx].value;
-                    //                     this.$set(k[l],'value',val)
-                    //                     this.$set(k[l],'index',rowIdx)
-                    //                     let mapArr = this.currenData[k[l].entityApiName].picklistFieldMap;
-                    //                     // console.log(mapArr,'maparr', kindex)
-                    //                     const ControllerName = mapArr[kindex].ControllerName;
-                    //                     // console.log('ControllerName', ControllerName, k[l].id)
-                    //                     // 获取到联动的父级
-                    //                     if(k[l].id==ControllerName){
-                    //                         var prevVal = k[l].value;
-                    //                     }
-                    //                     if(ControllerName!=k[l].id){
-                    //                         console.log('k[l].value',k[l].value, prevVal)
-                    //                         const controllerIndex = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].controllerValues[prevVal];
-                    //                         console.log(controllerIndex,'controllerIndex')
-                    //                         if(controllerIndex!=undefined){
-                    //                             const arr = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values.filter(f=>{
-                    //                                 return f.validFor.includes(controllerIndex)
-                    //                             })
-                    //                             this.$set(k[l],'picklistFieldValues',arr)
-                    //                             rowIdx = k[l].picklistFieldValues.findIndex(a=>a.value==value.value);
-                    //                             this.$set(k[l],'index',rowIdx)
-                    //                         }
-                    //                     }
-                                        
-                    //                 }
-                    //             }else if(k[l].type=='U'||k[l].type=='O'){
-                    //                 this.$set(k[l],'value',value)
-                    //             }else{
-                    //               this.$set(k[l],'value',value)
-                    //             }
-                    //             // this.relatedListRecords[item.entityApiName].entities.forEach(z=>{
-                    //             //     console.log('k[l].id',k[l].id)
-                    //             //     if(k[l].id in z.fields){
-                    //             //         console.log('99999999999999',z.fields[k[l].id])
-                    //             //         this.$set(k[l],'value',z.fields[k[l].id])
-                    //             //         l.value = z.fields[k[l].id];
-                    //             //         if(k[l].type=='DT'){
-                    //             //             // debugger
-                    //             //             console.log('this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values',this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values)
-                    //             //            let rowIdx = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values.findIndex(a=>a.value==z.fields[k[l].id].value);
-                    //             //            let val = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values[rowIdx].value;
-                    //             //            k[l].value = val;
-                    //             //            this.$set(k[l],'value',val)
-                    //             //            this.$set(k[l],'index',rowIdx)
-                    //             //         }
-                    //             //     }
-                    //             // })
-                    //         }
-                    //     })
-                    // }
+                    // 包含子表的
                     if(item.type=='RelatedList'){
-                        console.log(item.type,item.fields)
-                        this.$set(item,['is'+item.entityApiName], false);
-                        var formChildList = [];
-                        this.relatedListRecords[item.entityApiName].entities.forEach(l=>{
-                            formChildList.push(l.fields)
-                        });
-                        this.$set(item,'formChildList',formChildList)
-                        item.fields.forEach(v=>{
-                            this.$set(v,'value','');
-                            this.$set(v,'index','');
-                            if(v.type=='L'||v.type=='DT'||v.type=='LT'){
-                                var picklistFieldValues = [];
-                                picklistFieldValues = this.currenData[item.entityApiName].picklistFieldValues[v.id].values;
-                                // console.log("picklistFieldValues",picklistFieldValues)
-                                this.$set(v,'picklistFieldValues',picklistFieldValues);
+                        var jurisdiction = this.filterEntityApiName(item)
+                        if(Object.keys(jurisdiction).length>0){
+                            for(let key in jurisdiction){
+                                this.$set(item,key,jurisdiction[key])
                             }
-                        })
+                        }
+
+                        // this.$set(item,s.filed,s[s.filed])
+                        // var list = JSON.parse(JSON.stringify(item.fields))
+                        // for(var i=0;i<list.length;i++){
+                        //     this.$set(list[i],'value','')
+                        // }
+                        // this.$set(item,item.id,[{...list}]);
+                        // item.fields.forEach(v=>{
+                        //     this.$set(v,'value','')
+                        //     if(v.type=='L'||v.type=='DT'||v.type=='LT'){
+
+                        //     }
+                        // })
                         var list = JSON.parse(JSON.stringify(item.fields))
                         for(var i=0;i<list.length;i++){
                             this.$set(list[i],'value','')
                             if(list[i].type=='DT'||list[i].type=='LT'||list[i].type=='L'){
-                                // this.list[] 
-                                // item[item.id]
                                 list[i].picklistFieldValues = this.currenData[list[i].entityApiName].picklistFieldValues[list[i].id].values;
-                                // this.$set(this.currenData[list[i].entityApiName].picklistFieldValues[list[i].id],'list',this.currenData[list[i].entityApiName].picklistFieldValues[list[i].id].values)
                             }
                         }
-                        this.$set(item,item.id,[{...list}]);
+                        for(let i = 0; i < item.fields.length; i++){
+                            let result = []
+                            var childLength = this.relatedListRecords[item.entityApiName].entities.length;
+                            for(let j = 0; j < childLength; j++){
+                                var list = JSON.parse(JSON.stringify(list))
+                                result.push({arr:{...list}})
+                            }
+                            this.$set(item,item.id,result);
+                        }
+                        item[item.id].forEach((p,kindex)=>{
+                            let k = p.arr;
+                            for(let l in k) {
+                                console.log(k[l],'===')
+                                const entitieitem = this.relatedListRecords[item.entityApiName].entities[kindex]
+                                const value = entitieitem.fields[k[l].id]
+                                const entitieId = entitieitem.id;
+                                console.log(entitieitem,'entitieitem')
+                                this.$set(item[item.id][kindex],'entitieId',entitieId)
+                                this.$set(item[item.id][kindex],'entitieObjectTypeCode',this.relatedListRecords[item.entityApiName].objectTypeCode)
+                                if(k[l].type=='DT'||k[l].type=='LT'||k[l].type=='L'){
+                                    if(value.value){
+                                        let rowIdx = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values.findIndex(a=>a.value==value.value);
+                                        let val = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values[rowIdx].value;
+                                        this.$set(k[l],'value',val)
+                                        this.$set(k[l],'index',rowIdx)
+                                        let mapArr = this.currenData[k[l].entityApiName].picklistFieldMap;
+                                        // console.log(mapArr,'maparr', kindex)
+                                        const ControllerName = mapArr[kindex].ControllerName;
+                                        // console.log('ControllerName', ControllerName, k[l].id)
+                                        // 获取到联动的父级
+                                        if(k[l].id==ControllerName){
+                                            var prevVal = k[l].value;
+                                        }
+                                        if(ControllerName!=k[l].id){
+                                            console.log('k[l].value',k[l].value, prevVal)
+                                            const controllerIndex = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].controllerValues[prevVal];
+                                            console.log(controllerIndex,'controllerIndex')
+                                            if(controllerIndex!=undefined){
+                                                const arr = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values.filter(f=>{
+                                                    return f.validFor.includes(controllerIndex)
+                                                })
+                                                this.$set(k[l],'picklistFieldValues',arr)
+                                                rowIdx = k[l].picklistFieldValues.findIndex(a=>a.value==value.value);
+                                                this.$set(k[l],'index',rowIdx)
+                                            }
+                                        }
+                                        
+                                    }
+                                }else if(k[l].type=='U'||k[l].type=='O'){
+                                    this.$set(k[l],'value',value)
+                                }else{
+                                  this.$set(k[l],'value',value)
+                                }
+                                // this.relatedListRecords[item.entityApiName].entities.forEach(z=>{
+                                //     console.log('k[l].id',k[l].id)
+                                //     if(k[l].id in z.fields){
+                                //         console.log('99999999999999',z.fields[k[l].id])
+                                //         this.$set(k[l],'value',z.fields[k[l].id])
+                                //         l.value = z.fields[k[l].id];
+                                //         if(k[l].type=='DT'){
+                                //             // debugger
+                                //             console.log('this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values',this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values)
+                                //            let rowIdx = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values.findIndex(a=>a.value==z.fields[k[l].id].value);
+                                //            let val = this.currenData[k[l].entityApiName].picklistFieldValues[k[l].id].values[rowIdx].value;
+                                //            k[l].value = val;
+                                //            this.$set(k[l],'value',val)
+                                //            this.$set(k[l],'index',rowIdx)
+                                //         }
+                                //     }
+                                // })
+                            }
+                        })
                     }
                 })
                 console.log('this.list:', this.list)
@@ -1118,69 +904,6 @@ export default {
 }
 </script>
 <style lang="scss">
-.minWidth100{
-    min-width: 100rpx !important;
-    max-width: 100rpx !important;
-}
-.table{
-    width: 100%;
-    margin: 20rpx 0;
-    overflow-x: auto;
-    /*display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;*/
-    .tr{
-        display: flex;
-        height: 80rpx;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        .th{
-            /*width: 200rpx;*/
-            flex: 1;
-            min-width: 200rpx;
-            font-size: 24rpx;
-            border-right: 1px solid #dadada;
-            text-align: center;
-            line-height: 80rpx;
-            background: #e2e3e5;
-            border-bottom: 1px solid #dadada;
-        }
-        .td{
-            /*width: 200rpx;*/
-            flex: 1;
-            min-width: 200rpx;
-            font-size: 24rpx;
-            border-right: 1px solid #dadada;
-            text-align: center;
-            line-height: 80rpx;
-            background: #f4f4f4;
-            border-bottom: 1px solid #dadada;
-        }
-        .td.white{
-            background: #fff;
-        }
-    }
-}
-.add_child{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #3399ff;
-    line-height: 80rpx;
-    .icon{
-        padding-right: 20rpx;
-    }
-}
-.footChild{
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    .btn{
-        flex: 1;
-    }
-}
 .van-cell__title{
     font-size: 34rpx!important;
 }
@@ -1233,19 +956,6 @@ export default {
             .cell{
                 margin-top: 0;
             }
-        }
-        .relatedWrap{
-            width: 100%;
-            height: auto;
-            background: #fff;
-            margin: 30rpx 0;
-            padding: 20rpx;
-            box-sizing: border-box;
-            .related_label{
-
-            }
-            
-            
         }
         .value-class {
             flex: none !important;
