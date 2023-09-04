@@ -327,7 +327,9 @@ export default {
                 draft = true;
             }
             this.updateInstanceId(item.instanceId);
-            const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&draft='+draft;
+            const url = '/pages/todoBusiness/detail/main?id='+item.id+'&name='+item.name+'&processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&RuleLogId='+item.id
+            +'&toActivityId='+item.toActivityId+'&fromActivityId='+item.fromActivityId+'&current=tab1'+'&stateCode='+item.stateCode+'&instanceId='+item.instanceId+'&createdByName='+item.createdByName+'&processIdName='+item.processIdName+'&draft='+false;
+            // const url = '/pages/todoBusiness/detail/main?processInstanceId='+item.processInstanceId+'&processId='+item.processId+'&draft='+draft;
             wx.navigateTo({
                 url:url
             })

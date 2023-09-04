@@ -232,7 +232,7 @@
                         <div class="th" v-for="(thItem,thIdx) in item.fields" :key="thIdx">{{thItem.label}}</div>
                     </div>
                     <div class="tbody">
-                        <div class="tr tr_cont" v-for="(self,idx) in item.formChildList" :key="idx" @click="handleOpenEditChild(item,self)">
+                        <div class="tr tr_cont" v-for="(self,idx) in item.formChildList" :key="idx" @click="handleOpenEditChild(item,self,idx)">
                             <div class="td minWidth100">{{idx+1}}</div>
                             <div class="td white" v-for="(thItem,thIdx) in item.fields" :key="thIdx">
                                 <span v-if="thItem.type=='L'||thItem.type=='DT'||thItem.type=='LT'">{{self[thItem.id].label}}</span>
@@ -304,6 +304,7 @@
                     </div>
                     <div class="footChild">
                         <van-button type="default" custom-class="btn" @click="closeChild(item)">取消</van-button>
+                        <van-button type="default" color="red" custom-class="btn" v-if="item.isEdit" @click="handleDeleteChild(item)">删除</van-button>
                         <van-button type="info" custom-class="btn primary" @click="handleSaveChild(item)">保存</van-button>
                     </div>
                 </van-popup>
@@ -627,40 +628,80 @@ export default {
         // }
     },
     methods:{
+        // 删除子表
+        handleDeleteChild(item){
+            console.log(item)
+            if(item.isEdit){
+                if(item.editId){
+                    this.$httpWX.post({
+                        url: this.$api.message.queryList,
+                        data:{
+                            method: this.$api.task.delete,
+                            SessionKey: this.sessionkey,
+                            objTypeCode: item.sObjectType,
+                            id: item.editId
+                        }
+                    }).then(res=>{
+                        console.log(res);
+                        item.formChildList.splice(item.editIndex,1);
+                    })
+                }else {
+                    item.formChildList.splice(item.editIndex,1);
+                }
+                item['is'+item.entityApiName] = false;
+            }
+            this.$forceUpdate();
+        },
         // 保存子表数据
         handleSaveChild(item){
             console.log('item',item);
-            var row = {};
-            var fields = JSON.parse(JSON.stringify(item.fields));
-            fields.forEach(v=>{
-                row[v.id] = v.value
-            })
-            console.log(row);
-            if(item.isEdit){
-                console.log("editId",item.editId)
-                console.log("formChildList",item.formChildList)
-                var index = item.formChildList.findIndex(v=>v.ValueId==item.editId);
-                var rowData = item.formChildList.find(v=>v.ValueId==item.editId);
-                for(var key in rowData){
-                    if(key in row){
-                        rowData[key] = row[key];
-                    }
+            var isBook = false;
+            for(let i = 0; i < item.fields.length; i++){
+                var row = item.fields[i];
+                isBook = true;
+                if(row.required && (row.value==''||!row.value)){
+                    isBook = false;
+                    wx.showToast({
+                        title:"请填写必填项！",
+                        icon:"none",
+                        duration: 3000
+                    })
+                    return false;
                 }
-                item.formChildList[index] = rowData;
-            }else {
-                item.formChildList.push(row);
             }
-            // 清空保存之后弹窗的数据
-            item.fields.forEach(v=>{
-                v.value = "";
-                v.index = "";
-            })
-            // console.log(item);
-            item['is'+item.entityApiName] = false;
-            item.isEdit = false;
-            item.editId = "";
+            if(isBook==true){
+                var row = {};
+                var fields = JSON.parse(JSON.stringify(item.fields));
+                fields.forEach(v=>{
+                    row[v.id] = v.value
+                })
+                console.log(row);
+                if(item.isEdit){
+                    console.log("editId",item.editId)
+                    console.log("formChildList",item.formChildList)
+                    var index = item.formChildList.findIndex(v=>v.ValueId==item.editId);
+                    var rowData = item.formChildList.find(v=>v.ValueId==item.editId);
+                    for(var key in rowData){
+                        if(key in row){
+                            rowData[key] = row[key];
+                        }
+                    }
+                    item.formChildList[index] = rowData;
+                }else {
+                    item.formChildList.push(row);
+                }
+                // 清空保存之后弹窗的数据
+                item.fields.forEach(v=>{
+                    v.value = "";
+                    v.index = "";
+                })
+                // console.log(item);
+                item['is'+item.entityApiName] = false;
+                item.isEdit = false;
+                item.editId = "";
+            }
         },
-        handleOpenEditChild(item,row){
+        handleOpenEditChild(item,row,idx){
             console.log("row",row);
             item.fields.forEach(v=>{
                 if(v.type=='L'||v.type=='DT'||v.type=='LT'){
@@ -676,9 +717,15 @@ export default {
             item['is'+item.entityApiName] = true;
             item.isEdit = true;
             item.editId = row.ValueId;
+            item.editIndex = idx;
             this.$forceUpdate();
         },
         handleOpenChild(item){
+            item.isEdit = false;
+            item.fields.forEach(item=>{
+                item.value = "";
+                item.index = "";
+            })
             item['is'+item.entityApiName] = true;
             this.$forceUpdate();
         },
@@ -1226,23 +1273,24 @@ export default {
                     }
                     
                 })
-                this.list.forEach(item=>{
-                    if(item.type=='RelatedList'){
-                        item[item.id].forEach(v=>{
-                            for(let i in v){
-                                console.log(v[i],'i')
-                                if(v[i].required && v[i].value==''){
-                                    wx.showToast({
-                                        title:v[i].helpText,
-                                        icon:"success",
-                                        duration:2000
-                                    })
-                                    throw '';
-                                }
-                            }
-                        })
-                    }
-                })
+                // ### 注释-子表单之前的必填校验
+                // this.list.forEach(item=>{
+                //     if(item.type=='RelatedList'){
+                //         item[item.id].forEach(v=>{
+                //             for(let i in v){
+                //                 console.log(v[i],'i')
+                //                 if(v[i].required && v[i].value==''){
+                //                     wx.showToast({
+                //                         title:v[i].helpText,
+                //                         icon:"success",
+                //                         duration:2000
+                //                     })
+                //                     throw '';
+                //                 }
+                //             }
+                //         })
+                //     }
+                // })
                 this.agreeShow = true;
                 const data = {
                     actions:[]

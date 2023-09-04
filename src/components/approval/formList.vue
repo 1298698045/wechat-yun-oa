@@ -258,7 +258,7 @@
                         </div>
                     </div>
                 </div>
-                <p class="add_child" @click="handleOpenChild(item)">
+                <p class="add_child" v-if="!item.readonly" @click="!item.readonly && handleOpenChild(item)">
                     <span class="icon">
                         <van-icon name="plus" />
                     </span>
@@ -319,7 +319,8 @@
                     </div>
                     <div class="footChild">
                         <van-button type="default" custom-class="btn" @click="closeChild(item)">取消</van-button>
-                        <van-button type="info" custom-class="btn primary" @click="handleSaveChild(item)">保存</van-button>
+                        <van-button type="default" color="red" custom-class="btn" v-if="item.isEdit&&!item.readonly" @click="handleDeleteChild(item)">删除</van-button>
+                        <van-button type="info" v-if="!item.readonly" custom-class="btn primary" @click="handleSaveChild(item)">保存</van-button>
                     </div>
                 </van-popup>
             </div>
@@ -431,6 +432,30 @@ export default {
         })
     },
     methods:{
+        // 删除子表
+        handleDeleteChild(item){
+            console.log(item)
+            if(item.isEdit){
+                if(item.editId){
+                    this.$httpWX.post({
+                        url: this.$api.message.queryList,
+                        data:{
+                            method: this.$api.task.delete,
+                            SessionKey: this.sessionkey,
+                            objTypeCode: item.sObjectType,
+                            id: item.editId
+                        }
+                    }).then(res=>{
+                        console.log(res);
+                        item.formChildList.splice(item.editIndex,1);
+                    })
+                }else {
+                    item.formChildList.splice(item.editIndex,1);
+                }
+                item['is'+item.entityApiName] = false;
+            }
+            this.$forceUpdate();
+        },
         // 保存子表数据
         handleSaveChild(item){
             console.log('item',item);

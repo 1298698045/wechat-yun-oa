@@ -164,7 +164,7 @@ export default {
         ]
       }
       this.$httpWX.post({
-        url:this.$api.message.queryList+'&method='+this.$api.instance.addparticipator,
+        url:this.$api.message.queryList+'?method='+this.$api.instance.addparticipator,
         data:{
           SessionKey:this.sessionkey,
           message:JSON.stringify(obj)

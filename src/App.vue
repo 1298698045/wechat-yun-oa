@@ -44,8 +44,8 @@ console.log(options.scene)
     }
     let openid = wx.getStorageSync('openid');
     if(openid!=''){
-      const url = '/pages/work/main';
-      wx.switchTab({url:url});
+      // const url = '/pages/work/main';
+      // wx.switchTab({url:url});
     }
   },
   created () {
