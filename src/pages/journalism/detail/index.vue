@@ -637,7 +637,8 @@ export default {
             wx.pageScrollTo({
                 scrollTop: 1000,
                 duration: 300
-            })
+            });
+            getFocus();
         },
         closeMoveShow(){
             this.moveShow = false;
@@ -777,7 +778,7 @@ export default {
             .parse{
                 // padding: 0 30rpx;
                 padding: 0 30rpx 50rpx 30rpx;
-                overflow: hidden;
+                overflow: auto;
             }
             .border{
                 display: flex;

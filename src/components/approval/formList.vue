@@ -138,7 +138,20 @@
                     <van-switch :disabled="item.privilegeDepth<8" :checked="item.value" @change="(val)=>{changeSwitch(val,item)}" size="24px" />
                 </p>
             </div>
-            <div class="row" v-if="item.type=='UCS'||item.type=='X'||item.type=='J'||item.type=='UC'">
+            <!-- J -->
+            <div class="row" v-if="item.type=='J'">
+                <div class="title">
+                    <span>{{item.label}}</span>
+                </div>
+                <textarea :disabled="item.privilegeDepth<8" :value="item.value"
+                :auto-height="true"
+                cols="100"
+                rows="10"
+                maxlength="100000"
+                 @input="(e)=>{changeTextArea(e,item)}" placeholder-class="placeholder" :placeholder="!item.readonly?'请输入':''"></textarea>
+            </div>
+            <!-- 意见 -->
+            <div class="row" v-if="item.type=='UCS'||item.type=='X'||item.type=='UC'">
                 <div class="title">
                     <span>{{item.label}}</span>
                     <van-dropdown-menu z-index="9999" v-if="!item.readonly&&current=='tab2'&&item.privilegeDepth>=8">

@@ -63,7 +63,7 @@
         <div class="content_wrap">
             <div class="content" v-for="(item,index) in list" :key="index">
                 <h3 class="padding" @click="item.items.length>4?getOpen(index):''">
-                    <p>{{item.name}}</p>
+                    <p>{{item.label}}</p>
                     <p v-if="item.items.length>4">{{item.showContent?'收起':'展开'}}</p>
                 </h3>
                 <div class="row">
