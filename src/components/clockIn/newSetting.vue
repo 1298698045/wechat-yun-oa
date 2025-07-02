@@ -357,6 +357,8 @@ export default {
         // 添加办公地点
         getAddWorkLocation(){
             let that = this;
+            that.editShow = true;
+
             wx.chooseLocation({
                 success:res=>{
                     console.log(res);

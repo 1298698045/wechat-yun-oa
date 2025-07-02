@@ -47,7 +47,7 @@
         <div class="header_radio" v-if="current=='tab4'&&!isBatch">
             <div class="row">
                 <p>
-                    <van-checkbox :value="checked" @change="changeRadio">仅查看未读传阅 <span v-if="checked">{{ list.length }}</van-checkbox>
+                    <van-checkbox :value="checked" @change="changeRadio">仅查看未读传阅 <span v-if="checked">{{ list.length }}</span></van-checkbox>
                 </p>
                 <p @click="getSign">全部标为已读</p>
                 <!-- <p @click="getBatchOperation">批量操作</p> -->

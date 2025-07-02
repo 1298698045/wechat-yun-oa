@@ -268,7 +268,7 @@ export default {
         commentLocation:"",
         commentRemark:"",
         comentShow:"",
-        attendAdmin:'',
+        attendAdmin: true,
         isGroup:false,
         building:"",
         timeNull:null,
@@ -344,7 +344,7 @@ export default {
             }
         }).then(res=>{
             console.log(res);
-            this.attendAdmin = res.data.attendAdmin;
+            // this.attendAdmin = res.data.attendAdmin;
         })
     },
     getIsShow(val){
@@ -430,7 +430,7 @@ export default {
               // console.log('indexindex',index);
               this.building = this.list.locations[index].Name;
               throw new Error ('EndIterative');
-            }else {1
+            }else {
               this.Distance = item;
               this.rangeStatus = false;
             }
